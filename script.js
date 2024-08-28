@@ -231,6 +231,6 @@ logoutBtn.addEventListener('click', () => {
     // مسح البيانات المخزنة (مثل اسم المستخدم)
     localStorage.removeItem('username');
     // إعادة التوجيه إلى صفحة التسجيل
-    window.location.href = '';
+    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
 });
     displayPosts();
