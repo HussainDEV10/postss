@@ -24,6 +24,18 @@
 }
 
 
+.username-display {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #000;
+    color: black;
+    padding: 10px 20px;
+    border-radius: 4px;
+    z-index: 10;
+}
+
+
         .container {
             position: relative;
             width: 100%;
