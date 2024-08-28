@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نشر منشور</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <ul class="post-list" id="postList"></ul>
+        <div class="add-post-btn" id="addPostBtn">+</div>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="settings-btn" id="settingsBtn" style="position: static; margin-right: auto;">⚙️</div>
+        <div class="color-options" id="colorOptions">
+            <div class="color-option" data-color="#ff0000" style="background-color: #ff0000;"></div>
+            <div class="color-option" data-color="#ffff00" style="background-color: #ffff00;"></div>
+            <div class="color-option" data-color="#00ff00" style="background-color: #00ff00;"></div>
+            <div class="color-option" data-color="#0000ff" style="background-color: #0000ff;"></div>
+            <div class="color-option" data-color="#ffffff" style="background-color: #ffffff;"></div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="post-form">
+            <button class="close-btn" id="closeBtn">&times;</button>
+            <h2>أضف منشور</h2>
+            <input type="text" id="postTitle" placeholder="العنوان">
+            <textarea id="postDescription" placeholder="الوصف"></textarea>
+            <input type="text" id="postAuthor" placeholder="من قِبل">
+            <button class="publish-btn" id="publishBtn">نشر<span>+</span></button>
+        </div>
+    </div>
+
+    <div id="notificationContainer"></div>
+    <script src="script.js" type="module"></script>
+</body>
+</html>
