@@ -224,4 +224,13 @@ const displayPosts = async () => {
         }
     });
 
+
+const logoutBtn = document.getElementById('logoutBtn');
+
+logoutBtn.addEventListener('click', () => {
+    // مسح البيانات المخزنة (مثل اسم المستخدم)
+    localStorage.removeItem('username');
+    // إعادة التوجيه إلى صفحة التسجيل
+    window.location.href = '';
+});
     displayPosts();
