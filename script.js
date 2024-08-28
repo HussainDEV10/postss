@@ -14,6 +14,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/fireba
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    const usernameDisplay = document.getElementById('usernameDisplay');
     const postList = document.getElementById('postList');
     const overlay = document.getElementById('overlay');
     const addPostBtn = document.getElementById('addPostBtn');
@@ -233,4 +234,14 @@ logoutBtn.addEventListener('click', () => {
     // إعادة التوجيه إلى صفحة التسجيل
     window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
 });
+
+
+// عرض اسم المستخدم المخزن في LocalStorage
+const username = localStorage.getItem('username');
+if (username) {
+    usernameDisplay.textContent = `مرحبًا، ${username}`;
+} else {
+    usernameDisplay.textContent = 'مرحبًا!';
+            }
+
     displayPosts();
