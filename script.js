@@ -22,7 +22,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/fireba
     const publishBtn = document.getElementById('publishBtn');
     const postTitleInput = document.getElementById('postTitle');
     const postDescriptionInput = document.getElementById('postDescription');
-    const postAuthorInput = document.getElementById('postAuthor');
     const notificationContainer = document.getElementById('notificationContainer');
 
     let lastDeletedPost = null;
