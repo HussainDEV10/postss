@@ -193,36 +193,47 @@ const displayPosts = async () => {
         overlay.classList.remove('show');
     });
 
-    publishBtn.addEventListener('click', async () => {
-        const title = postTitleInput.value.trim();
-        const description = postDescriptionInput.value.trim();
-        const author = postAuthorInput.value.trim();
-        if (title && description && author) {
-            await addDoc(collection(db, "posts"), {
-                title,
-                description,
-                author,
-                timestamp: serverTimestamp()
-            });
-            postTitleInput.value = '';
-            postDescriptionInput.value = '';
-            postAuthorInput.value = '';
-            overlay.classList.remove('show');
-            showNotification('تم نشر المنشور بنجاح!', 'publish');
-            displayPosts();
-        }
-    });
 
-    postList.addEventListener('click', async (event) => {
-        if (event.target.classList.contains('delete-btn')) {
-            const postId = event.target.dataset.id;
-            const postDoc = await getDoc(doc(db, "posts", postId));
-            lastDeletedPost = { id: postId, data: postDoc.data() };
-            await deleteDoc(doc(db, "posts", postId));
-            showNotification('تم حذف المنشور', 'delete');
-            displayPosts();
-        }
+// تأكد من وجود متغير username يحتوي على اسم المستخدم الحالي
+const username = "اسم المستخدم الخاص بي"; // هنا يمكنك ضبط اسم المستخدم
+
+publishBtn.addEventListener('click', async () => {
+    const title = postTitleInput.value.trim();
+    const description = postDescriptionInput.value.trim();
+
+    if (title && description) {
+        await addDoc(collection(db, "posts"), {
+            title,
+            description,
+            author: username,  // استخدام اسم المستخدم هنا
+            timestamp: serverTimestamp()
+        });
+        postTitleInput.value = '';
+        postDescriptionInput.value = '';
+        overlay.classList.remove('show');
+        showNotification('تم نشر المنشور بنجاح!', 'publish');
+        displayPosts();
+    }
+});
+
+const displayPosts = async () => {
+    const querySnapshot = await getDocs(collection(db, "posts"));
+    postList.innerHTML = '';
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+
+        const postItem = document.createElement('li');
+        postItem.classList.add('post-item');
+        postItem.innerHTML = `
+            <button class="delete-btn" data-id="${doc.id}">🗑️</button>
+            <h3 class="post-title">${data.title}</h3>
+            <p class="post-description">${data.description}</p>
+            <p class="post-author">من قِبل: ${data.author}</p>
+            <p class="post-time">${formattedDateTime}</p>
+        `;
+        postList.appendChild(postItem);
     });
+};
 
 
 const logoutBtn = document.getElementById('logoutBtn');
