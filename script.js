@@ -239,7 +239,7 @@ logoutBtn.addEventListener('click', () => {
 // عرض اسم المستخدم المخزن في LocalStorage
 const username = localStorage.getItem('username');
 if (username) {
-    usernameDisplay.textContent = `مرحبًا، ${username}`;
+    usernameDisplay.textContent = `${username}`;
 } else {
     usernameDisplay.textContent = 'مرحبًا!';
             }
