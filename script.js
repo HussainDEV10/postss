@@ -216,35 +216,6 @@ publishBtn.addEventListener('click', async () => {
     }
 });
 
-const displayPosts = async () => {
-    const querySnapshot = await getDocs(collection(db, "posts"));
-    postList.innerHTML = '';
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
-
-        const postItem = document.createElement('li');
-        postItem.classList.add('post-item');
-        postItem.innerHTML = `
-            <button class="delete-btn" data-id="${doc.id}">🗑️</button>
-            <h3 class="post-title">${data.title}</h3>
-            <p class="post-description">${data.description}</p>
-            <p class="post-author">من قِبل: ${data.author}</p>
-            <p class="post-time">${formattedDateTime}</p>
-        `;
-        postList.appendChild(postItem);
-    });
-};
-
-
-const logoutBtn = document.getElementById('logoutBtn');
-
-logoutBtn.addEventListener('click', () => {
-    // مسح البيانات المخزنة (مثل اسم المستخدم)
-    localStorage.removeItem('username');
-    // إعادة التوجيه إلى صفحة التسجيل
-    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
-});
-
 
 // عرض اسم المستخدم المخزن في LocalStorage
 const username = localStorage.getItem('username');
