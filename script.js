@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBwIhzy0_RBqhMBlvJxbs5_760jP-Yv2fw",
@@ -26,14 +26,24 @@ const postDescriptionInput = document.getElementById('postDescription');
 const notificationContainer = document.getElementById('notificationContainer');
 
 let lastDeletedPost = null;
-let username = localStorage.getItem('username'); // جلب اسم المستخدم من localStorage
+let username = null;
 
 // التحقق من حالة تسجيل الدخول
 onAuthStateChanged(auth, user => {
     if (!user) {
-        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+        window.location.href = "login.html";
     } else {
+        // التحقق من وجود اسم المستخدم
         username = user.displayName || 'Anonymous';
+
+        // إذا كان اسم المستخدم فارغًا، نقوم بتحديثه من localStorage
+        if (!user.displayName) {
+            const storedUsername = localStorage.getItem('username');
+            if (storedUsername) {
+                username = storedUsername;
+                updateProfile(user, { displayName: storedUsername });
+            }
+        }
     }
 });
 
@@ -130,7 +140,7 @@ publishBtn.addEventListener('click', async () => {
         await addDoc(collection(db, "posts"), {
             title,
             description,
-            author: username, // استخدام اسم المستخدم من localStorage أو من Firebase Auth
+            author: username, // استخدام اسم المستخدم المحدد
             timestamp: serverTimestamp()
         });
         postTitleInput.value = '';
