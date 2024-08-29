@@ -33,16 +33,12 @@ onAuthStateChanged(auth, user => {
     if (!user) {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } else {
-        // التحقق من وجود اسم المستخدم
-        username = user.displayName || 'Anonymous';
+        // إذا كان اسم المستخدم موجودًا في displayName، استخدمه، وإلا استخدم الاسم من localStorage
+        username = user.displayName || localStorage.getItem('username') || 'Anonymous';
 
-        // إذا كان اسم المستخدم فارغًا، نقوم بتحديثه من localStorage
-        if (!user.displayName) {
-            const storedUsername = localStorage.getItem('username');
-            if (storedUsername) {
-                username = storedUsername;
-                updateProfile(user, { displayName: storedUsername });
-            }
+        // إذا لم يكن displayName مضبوطًا في Firebase، اضبطه الآن
+        if (!user.displayName && username !== 'Anonymous') {
+            updateProfile(user, { displayName: username });
         }
     }
 });
