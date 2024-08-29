@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBwIhzy0_RBqhMBlvJxbs5_760jP-Yv2fw",
@@ -13,6 +14,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 const postList = document.getElementById('postList');
 const overlay = document.getElementById('overlay');
@@ -24,9 +26,16 @@ const postDescriptionInput = document.getElementById('postDescription');
 const notificationContainer = document.getElementById('notificationContainer');
 
 let lastDeletedPost = null;
+let username = localStorage.getItem('username'); // جلب اسم المستخدم من localStorage
 
-// جلب اسم المستخدم المسجل الدخول
-const username = localStorage.getItem('username');
+// التحقق من حالة تسجيل الدخول
+onAuthStateChanged(auth, user => {
+    if (!user) {
+        window.location.href = "login.html";
+    } else {
+        username = user.displayName || 'Anonymous';
+    }
+});
 
 const showNotification = (message, type) => {
     const notification = document.createElement('div');
@@ -54,11 +63,10 @@ const showNotification = (message, type) => {
     notification.addEventListener('touchend', () => {
         const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
 
-        // إذا كانت المسافة المقطوعة أكثر من 50 بيكسل في أي اتجاه، اختفي الإشعار بسرعة
         if (Math.abs(finalPosition) > 10) {
             notification.classList.add('hide');
             notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
-            setTimeout(() => notification.remove(), 300); // إزالة الإشعار بعد 300 مللي ثانية
+            setTimeout(() => notification.remove(), 300);
         } else {
             notification.style.transform = `translateX(0)`;
         }
@@ -89,13 +97,12 @@ const displayPosts = async () => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
 
-        // تنسيق الوقت والتاريخ
         const formattedTime = `${timestamp.getHours().toString().padStart(2, '0')}:${timestamp.getMinutes().toString().padStart(2, '0')}:${timestamp.getSeconds().toString().padStart(2, '0')}`;
         const formattedDate = `${timestamp.getFullYear()}/${(timestamp.getMonth() + 1).toString().padStart(2, '0')}/${timestamp.getDate().toString().padStart(2, '0')}`;
 
         const postItem = document.createElement('li');
         postItem.classList.add('post-item');
-        postItem.style.fontFamily = 'Rubik, sans-serif'; // تطبيق خط Rubik
+        postItem.style.fontFamily = 'Rubik, sans-serif';
         postItem.innerHTML = `
             <button class="delete-btn" data-id="${doc.id}">🗑️</button>
             <h3 class="post-title">${data.title}</h3>
@@ -123,7 +130,7 @@ publishBtn.addEventListener('click', async () => {
         await addDoc(collection(db, "posts"), {
             title,
             description,
-            author: username, // استخدام اسم المستخدم المخزن
+            author: username, // استخدام اسم المستخدم من localStorage أو من Firebase Auth
             timestamp: serverTimestamp()
         });
         postTitleInput.value = '';
