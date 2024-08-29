@@ -31,7 +31,7 @@ let username = null;
 // التحقق من حالة تسجيل الدخول
 onAuthStateChanged(auth, user => {
     if (!user) {
-        window.location.href = '';
+        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } else {
         username = user.displayName || localStorage.getItem('username') || 'Anonymous';
         if (!user.displayName && username !== 'Anonymous') {
