@@ -31,7 +31,7 @@ let username = null;
 // التحقق من حالة تسجيل الدخول
 onAuthStateChanged(auth, user => {
     if (!user) {
-        window.location.href = "login.html";
+        window.location.href = "https://hussaindev10.github.io/Dhdhririeri/";
     } else {
         // التحقق من وجود اسم المستخدم
         username = user.displayName || 'Anonymous';
