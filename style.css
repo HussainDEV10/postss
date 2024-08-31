@@ -15,6 +15,7 @@
     position: fixed;
     top: 20px;
     left: 0px;
+    background-color: #ff0000;
     color: red;
     padding: 10px 20px;
     border-radius: 4px;
@@ -27,6 +28,7 @@
     position: fixed;
     top: 20px;
     right: 20px;
+    background-color: #000;
     color: black;
     padding: 10px 20px;
     border-radius: 4px;
@@ -334,4 +336,5 @@
     align-items: center;
     padding: 0 20px;
     z-index: 9;
-        }
+    }
+            
