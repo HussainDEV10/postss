@@ -52,7 +52,7 @@ const showNotification = (message, type) => {
     notification.addEventListener('touchend', () => {
         const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
 
-        // إذا كانت المسافة المقطوعة أكثر من 50 بيكسل في أي اتجاه، اختفي الإشعار بسرعة
+        // إذا كانت المسافة المقطوعة أكثر من 10 بيكسل في أي اتجاه، اختفي الإشعار بسرعة
         if (Math.abs(finalPosition) > 10) {
             notification.classList.add('hide');
             notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
