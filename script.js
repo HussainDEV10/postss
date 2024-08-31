@@ -241,7 +241,7 @@ const username = localStorage.getItem('username');
 if (username) {
     usernameDisplay.textContent = `${username}`;
 } else {
-    usernameDisplay.textContent = 'none';
+    usernameDisplay.textContent = '${username}';
             }
 
     displayPosts();
