@@ -1,31 +1,30 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyBwIhzy0_RBqhMBlvJxbs5_760jP-Yv2fw",
-        authDomain: "facebookweb-2030.firebaseapp.com",
-        projectId: "facebookweb-2030",
-        storageBucket: "facebookweb-2030.appspot.com",
-        messagingSenderId: "912333220741",
-        appId: "1:912333220741:web:1c7425f4248b7465b45c67",
-        measurementId: "G-ZJ6M2D8T3M"
-    };
+const firebaseConfig = {
+    apiKey: "AIzaSyBwIhzy0_RBqhMBlvJxbs5_760jP-Yv2fw",
+    authDomain: "facebookweb-2030.firebaseapp.com",
+    projectId: "facebookweb-2030",
+    storageBucket: "facebookweb-2030.appspot.com",
+    messagingSenderId: "912333220741",
+    appId: "1:912333220741:web:1c7425f4248b7465b45c67",
+    measurementId: "G-ZJ6M2D8T3M"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    const usernameDisplay = document.getElementById('usernameDisplay');
-    const postList = document.getElementById('postList');
-    const overlay = document.getElementById('overlay');
-    const addPostBtn = document.getElementById('addPostBtn');
-    const closeBtn = document.getElementById('closeBtn');
-    const publishBtn = document.getElementById('publishBtn');
-    const postTitleInput = document.getElementById('postTitle');
-    const postDescriptionInput = document.getElementById('postDescription');
-    const postAuthorInput = document.getElementById('postAuthor');
-    const notificationContainer = document.getElementById('notificationContainer');
+const usernameDisplay = document.getElementById('usernameDisplay');
+const postList = document.getElementById('postList');
+const overlay = document.getElementById('overlay');
+const addPostBtn = document.getElementById('addPostBtn');
+const closeBtn = document.getElementById('closeBtn');
+const publishBtn = document.getElementById('publishBtn');
+const postTitleInput = document.getElementById('postTitle');
+const postDescriptionInput = document.getElementById('postDescription');
+const notificationContainer = document.getElementById('notificationContainer');
 
-    let lastDeletedPost = null;
+let lastDeletedPost = null;
 
 const showNotification = (message, type) => {
     const notification = document.createElement('div');
@@ -71,15 +70,16 @@ const showNotification = (message, type) => {
         document.getElementById('undoBtn').addEventListener('click', undoDelete);
     }
 };
-    const undoDelete = async () => {
-        if (lastDeletedPost) {
-            await setDoc(doc(db, "posts", lastDeletedPost.id), lastDeletedPost.data);
-            showNotification('تم إسترجاع المنشور', 'restore');
-            displayPosts();
-            lastDeletedPost = null;
-        }
-    };
-    
+
+const undoDelete = async () => {
+    if (lastDeletedPost) {
+        await setDoc(doc(db, "posts", lastDeletedPost.id), lastDeletedPost.data);
+        showNotification('تم إسترجاع المنشور', 'restore');
+        displayPosts();
+        lastDeletedPost = null;
+    }
+};
+
 const settingsBtn = document.getElementById('settingsBtn');
 const colorOptions = document.getElementById('colorOptions');
 const colorOptionElems = document.querySelectorAll('.color-option');
@@ -129,8 +129,7 @@ colorOptionElems.forEach(option => {
         // إخفاء قائمة الألوان بعد اختيار اللون
         colorOptions.style.display = 'none';
     });
-});    
-    
+});
 
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
@@ -186,45 +185,43 @@ const displayPosts = async () => {
     });
 };
 
-    addPostBtn.addEventListener('click', () => {
-        overlay.classList.add('show');
-    });
+addPostBtn.addEventListener('click', () => {
+    overlay.classList.add('show');
+});
 
-    closeBtn.addEventListener('click', () => {
+closeBtn.addEventListener('click', () => {
+    overlay.classList.remove('show');
+});
+
+publishBtn.addEventListener('click', async () => {
+    const title = postTitleInput.value.trim();
+    const description = postDescriptionInput.value.trim();
+    const author = localStorage.getItem('username'); // استرجاع اسم المستخدم من LocalStorage
+    if (title && description && author) {
+        await addDoc(collection(db, "posts"), {
+            title,
+            description,
+            author,
+            timestamp: serverTimestamp()
+        });
+        postTitleInput.value = '';
+        postDescriptionInput.value = '';
         overlay.classList.remove('show');
-    });
+        showNotification('تم نشر المنشور بنجاح!', 'publish');
+        displayPosts();
+    }
+});
 
-    publishBtn.addEventListener('click', async () => {
-        const title = postTitleInput.value.trim();
-        const description = postDescriptionInput.value.trim();
-        const author = postAuthorInput.value.trim();
-        if (title && description && author) {
-            await addDoc(collection(db, "posts"), {
-                title,
-                description,
-                author,
-                timestamp: serverTimestamp()
-            });
-            postTitleInput.value = '';
-            postDescriptionInput.value = '';
-            postAuthorInput.value = '';
-            overlay.classList.remove('show');
-            showNotification('تم نشر المنشور بنجاح!', 'publish');
-            displayPosts();
-        }
-    });
-
-    postList.addEventListener('click', async (event) => {
-        if (event.target.classList.contains('delete-btn')) {
-            const postId = event.target.dataset.id;
-            const postDoc = await getDoc(doc(db, "posts", postId));
-            lastDeletedPost = { id: postId, data: postDoc.data() };
-            await deleteDoc(doc(db, "posts", postId));
-            showNotification('تم حذف المنشور', 'delete');
-            displayPosts();
-        }
-    });
-
+postList.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('delete-btn')) {
+        const postId = event.target.dataset.id;
+        const postDoc = await getDoc(doc(db, "posts", postId));
+        lastDeletedPost = { id: postId, data: postDoc.data() };
+        await deleteDoc(doc(db, "posts", postId));
+        showNotification('تم حذف المنشور', 'delete');
+        displayPosts();
+    }
+});
 
 const logoutBtn = document.getElementById('logoutBtn');
 
@@ -235,14 +232,12 @@ logoutBtn.addEventListener('click', () => {
     window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
 });
 
-
 // عرض اسم المستخدم المخزن في LocalStorage
 const username = localStorage.getItem('username');
 if (username) {
     usernameDisplay.textContent = `${username}`;
 } else {
-    usernameDisplay.textContent = '${username}';
-            }
+    usernameDisplay.textContent = 'اسم المستخدم غير مسجل';
+}
 
-    displayPosts();
-                          
+displayPosts();
