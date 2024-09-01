@@ -12,6 +12,7 @@
         }
 
 .logout-btn {
+    font-size: 7px;
     position: fixed;
     top: 0px;
     left: 5px;
@@ -24,6 +25,7 @@
 
 
 .username-display {
+    font-size: 7px;
     position: fixed;
     top: 0px;
     right: 40px;
