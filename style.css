@@ -5,16 +5,13 @@ body {
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-    overflow: auto;
-}
-
-.header-space {
-    height: 100px; /* زيادة الارتفاع لتوفير مساحة لزر تسجيل الخروج واسم المستخدم */
+    overflow: hidden; /* إخفاء أي تحرك للصفحة */
+    position: relative;
 }
 
 .logout-btn {
     position: fixed;
-    top: 20px;
+    top: 50px; /* تحريك الزر للأسفل بمقدار 50px */
     left: 10px;
     color: red;
     padding: 10px 20px;
@@ -25,7 +22,7 @@ body {
 
 .username-display {
     position: fixed;
-    top: 20px;
+    top: 50px; /* تحريك النص للأسفل بمقدار 50px */
     right: 20px;
     color: black;
     padding: 10px 20px;
@@ -37,10 +34,11 @@ body {
     position: relative;
     width: 100%;
     max-width: 500px;
-    margin-top: 120px; /* لضمان أن المنشورات تبدأ بعد المساحة العلوية */
+    margin-top: 120px; /* لضمان أن المنشورات تبدأ بعد مساحة الأزرار */
     padding: 0 20px;
 }
 
+/* باقي الكود يبقى كما هو... */
 .add-post-btn {
     position: fixed;
     bottom: 25px;
