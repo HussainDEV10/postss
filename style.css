@@ -13,8 +13,8 @@
 
 .logout-btn {
     position: fixed;
-    top: 20px;
-    left: 0px;
+    top: 30px;
+    left: 5px;
     color: red;
     padding: 10px 20px;
     border-radius: 4px;
@@ -26,7 +26,7 @@
 .username-display {
     position: fixed;
     top: 20px;
-    right: 20px;
+    right: 30px;
     color: black;
     padding: 10px 20px;
     border-radius: 4px;
