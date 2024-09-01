@@ -174,7 +174,7 @@ logoutBtn.addEventListener('click', async () => {
 document.addEventListener('DOMContentLoaded', () => {
     const username = localStorage.getItem('username');
     if (username) {
-        usernameDisplay.textContent = `مرحباً، ${username}`;
+        usernameDisplay.textContent = `${username}`;
     } else {
         usernameDisplay.textContent = 'مرحباً، مستخدم';
     }
