@@ -233,11 +233,19 @@ logoutBtn.addEventListener('click', () => {
 });
 
 // عرض اسم المستخدم المخزن في LocalStorage
-const username = localStorage.getItem('usernameInput');
-if (username) {
-    usernameDisplay.textContent = `${username}`;
-} else {
-    usernameDisplay.textContent = 'اسم المستخدم غير مسجل';
-}
+المنشور عيع
+
+document.addEventListener('DOMContentLoaded', () => {
+    const usernameDisplay = document.getElementById('usernameDisplay');
+    const username = localStorage.getItem('username');
+
+    if (username) {
+        usernameDisplay.textContent = `مرحباً، ${username}`;
+    } else {
+        usernameDisplay.textContent = 'مرحباً، مستخدم';
+    }
+
+    // بقية الكود الخاص بالصفحة هنا...
+});
 
 displayPosts();
