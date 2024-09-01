@@ -13,26 +13,26 @@
 
 .logout-btn {
     position: fixed;
-    top: -15px;
+    top: -5px;
     left: 5px;
-    color: green;
+    color: red;
     padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
     z-index: 10;
-    font-size: 7px;
+    font-size: 30px;
 }
 
 
 .username-display {
     position: fixed;
-    top: -15px;
+    top: -5px;
     right: 40px;
     color: black;
     padding: 10px 20px;
     border-radius: 4px;
     z-index: 10;
-    font-size: 7px;
+    font-size: 30px;
 }
 
 
