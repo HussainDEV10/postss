@@ -236,7 +236,7 @@ logoutBtn.addEventListener('click', () => {
 });
 
 // عرض اسم المستخدم المخزن في LocalStorage
-المنشور عيع
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const usernameDisplay = document.getElementById('usernameDisplay');
