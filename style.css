@@ -12,27 +12,27 @@
         }
 
 .logout-btn {
-    font-size: 7px;
     position: fixed;
-    top: -10px;
+    top: -15px;
     left: 5px;
     color: red;
     padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
     z-index: 10;
+    font-size: 7px;
 }
 
 
 .username-display {
-    font-size: 7px;
     position: fixed;
-    top: -10px;
+    top: -15px;
     right: 40px;
     color: black;
     padding: 10px 20px;
     border-radius: 4px;
     z-index: 10;
+    font-size: 7px;
 }
 
 
