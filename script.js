@@ -1,8 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-
-const auth = getAuth(); // إنشاء كائن المصادقة
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBwIhzy0_RBqhMBlvJxbs5_760jP-Yv2fw",
@@ -16,6 +14,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 const usernameDisplay = document.getElementById('usernameDisplay');
 const postList = document.getElementById('postList');
@@ -26,7 +25,7 @@ const publishBtn = document.getElementById('publishBtn');
 const postTitleInput = document.getElementById('postTitle');
 const postDescriptionInput = document.getElementById('postDescription');
 const notificationContainer = document.getElementById('notificationContainer');
-
+const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
 
 const showNotification = (message, type) => {
@@ -55,7 +54,6 @@ const showNotification = (message, type) => {
     notification.addEventListener('touchend', () => {
         const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
 
-        // إذا كانت المسافة المقطوعة أكثر من 10 بيكسل في أي اتجاه، اختفي الإشعار بسرعة
         if (Math.abs(finalPosition) > 10) {
             notification.classList.add('hide');
             notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
@@ -83,57 +81,6 @@ const undoDelete = async () => {
     }
 };
 
-const settingsBtn = document.getElementById('settingsBtn');
-const colorOptions = document.getElementById('colorOptions');
-const colorOptionElems = document.querySelectorAll('.color-option');
-
-settingsBtn.addEventListener('click', () => {
-    colorOptions.style.display = colorOptions.style.display === 'none' ? 'flex' : 'none';
-});
-
-colorOptionElems.forEach(option => {
-    option.addEventListener('click', (event) => {
-        const selectedColor = event.target.dataset.color;
-
-        let backgroundColor;
-        let postColor;
-
-        switch (selectedColor) {
-            case '#0000ff': // اللون الأزرق
-                backgroundColor = '#0000E6';
-                postColor = '#0000ff';
-                break;
-            case '#ff0000': // اللون الأحمر
-                backgroundColor = '#E60000';
-                postColor = '#ff0000';
-                break;
-            case '#00ff00': // اللون الأخضر
-                backgroundColor = '#00E600';
-                postColor = '#00ff00';
-                break;
-            case '#ffff00': // اللون الأصفر
-                backgroundColor = '#E6E600';
-                postColor = '#ffff00';
-                break;
-            case '#ffffff': // اللون الأبيض
-                backgroundColor = ''; // تعيين اللون الافتراضي لخلفية الموقع
-                postColor = '#ffffff'; // تعيين اللون الأبيض للمنشورات
-                break;
-            default:
-                backgroundColor = '#f4f4f4'; // اللون الافتراضي للخلفية
-                postColor = '#e0e0e0'; // اللون الافتراضي للمنشورات
-        }
-
-        document.body.style.backgroundColor = backgroundColor;
-        document.querySelectorAll('.post-item').forEach(post => {
-            post.style.backgroundColor = postColor;
-        });
-
-        // إخفاء قائمة الألوان بعد اختيار اللون
-        colorOptions.style.display = 'none';
-    });
-});
-
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = '';
@@ -141,42 +88,30 @@ const displayPosts = async () => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
 
-        // الحصول على الساعة والدقائق والثواني
         let hours = timestamp.getHours();
         const minutes = timestamp.getMinutes().toString().padStart(2, '0');
         const seconds = timestamp.getSeconds().toString().padStart(2, '0');
-
-        // تحديد الصباح أو المساء
         const period = hours >= 12 ? 'م' : 'ص';
-
-        // تحويل الساعة لنظام 12 ساعة
         hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
         const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
-
-        // تنسيق التاريخ
         const day = timestamp.getDate().toString().padStart(2, '0');
         const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
         const year = timestamp.getFullYear();
         const formattedDate = `${year}/${month}/${day}`;
-
-        // تحويل الوقت والتاريخ إلى نصوص باللغة العربية مع الفواصل
         const arabicNumbers = (number) => {
             const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
             return number.split('').map(digit => arabicDigits[digit] || digit).join('');
         };
 
-        // تنسيق الوقت والتاريخ مع الفواصل
         const arabicFormattedTime = arabicNumbers(formattedTime);
         const arabicFormattedDate = arabicNumbers(formattedDate);
-
-        // دمج الوقت مع التاريخ باستخدام العلامة '|'
         const formattedDateTime = `
             <span dir="rtl">${arabicFormattedDate}</span> | ${arabicFormattedTime}
         `;
 
         const postItem = document.createElement('li');
         postItem.classList.add('post-item');
-        postItem.style.fontFamily = 'Rubik, sans-serif'; // تطبيق خط Rubik
+        postItem.style.fontFamily = 'Rubik, sans-serif';
         postItem.innerHTML = `
             <button class="delete-btn" data-id="${doc.id}">🗑️</button>
             <h3 class="post-title">${data.title}</h3>
@@ -199,7 +134,7 @@ closeBtn.addEventListener('click', () => {
 publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
-    const author = localStorage.getItem('username'); // استرجاع اسم المستخدم من LocalStorage
+    const author = localStorage.getItem('username');
     if (title && description && author) {
         await addDoc(collection(db, "posts"), {
             title,
@@ -226,29 +161,28 @@ postList.addEventListener('click', async (event) => {
     }
 });
 
-const logoutBtn = document.getElementById('logoutBtn');
-
-logoutBtn.addEventListener('click', () => {
-    // مسح البيانات المخزنة (مثل اسم المستخدم)
-    localStorage.removeItem('username');
-    // إعادة التوجيه إلى صفحة التسجيل
-    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+logoutBtn.addEventListener('click', async () => {
+    try {
+        await signOut(auth);
+        localStorage.removeItem('username');
+        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+    } catch (error) {
+        console.error('خطأ في تسجيل الخروج:', error);
+    }
 });
 
-// عرض اسم المستخدم المخزن في LocalStorage
-
-
 document.addEventListener('DOMContentLoaded', () => {
-    const usernameDisplay = document.getElementById('usernameDisplay');
     const username = localStorage.getItem('username');
-
     if (username) {
         usernameDisplay.textContent = `مرحباً، ${username}`;
     } else {
         usernameDisplay.textContent = 'مرحباً، مستخدم';
     }
-
-    // بقية الكود الخاص بالصفحة هنا...
+    displayPosts();
 });
 
-displayPosts();
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+    }
+});
