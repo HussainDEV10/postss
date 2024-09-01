@@ -227,13 +227,13 @@ const logoutBtn = document.getElementById('logoutBtn');
 
 logoutBtn.addEventListener('click', () => {
     // مسح البيانات المخزنة (مثل اسم المستخدم)
-    localStorage.removeItem('username');
+    localStorage.removeItem('usernameInput');
     // إعادة التوجيه إلى صفحة التسجيل
     window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
 });
 
 // عرض اسم المستخدم المخزن في LocalStorage
-const username = localStorage.getItem('username');
+const username = localStorage.getItem('usernameInput');
 if (username) {
     usernameDisplay.textContent = `${username}`;
 } else {
