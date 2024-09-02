@@ -171,6 +171,19 @@ logoutBtn.addEventListener('click', async () => {
     }
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    const postDescriptions = document.querySelectorAll('.post-description');
+    
+    postDescriptions.forEach(description => {
+        let text = description.innerHTML;
+        
+        // استخدام تعبير عادي لاكتشاف الروابط وتحويلها إلى روابط قابلة للنقر
+        let linkifiedText = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+        
+        description.innerHTML = linkifiedText;
+    });
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     const username = localStorage.getItem('username');
     if (username) {
