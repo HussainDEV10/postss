@@ -11,7 +11,6 @@ body {
     height: 100vh; /* ضبط ارتفاع الصفحة بشكل كامل */
 }
 
-header {
 /* الشريط العلوي */
 header {
     position: fixed;
