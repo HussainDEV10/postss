@@ -154,7 +154,7 @@ header {
 }
 
 .post-description a:visited {
-    color: darkblue; /* لون الرابط بعد زيارته */
+    color: #0d10a3; /* لون الرابط بعد زيارته */
 }
 
 .post-description a:hover {
