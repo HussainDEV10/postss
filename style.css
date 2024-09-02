@@ -6,7 +6,6 @@ body {
     margin: 0;
     padding: 0;
     overflow: auto; /* إخفاء أي تحرك للصفحة */
-    position: relative;
 }
 
 .logout-btn {
