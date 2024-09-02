@@ -145,6 +145,21 @@ header {
     color: #888; /* لون النص داخل الـplaceholder */
 }
 
+.post-description a {
+    color: blue; /* تحديد لون الرابط */
+    text-decoration: underline; /* إضافة خط تحت الرابط */
+    cursor: pointer; /* تغيير المؤشر عند التمرير فوق الرابط */
+}
+
+.post-description a:visited {
+    color: darkblue; /* لون الرابط بعد زيارته */
+}
+
+.post-description a:hover {
+    color: dodgerblue; /* لون الرابط عند التمرير فوقه */
+    text-decoration: underline;
+}
+
         .publish-btn {
             display: flex;
             align-items: center;
