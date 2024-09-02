@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function () {
     postDescriptions.forEach(description => {
         let text = description.innerHTML;
         
-        // استخدام تعبير عادي لاكتشاف الروابط وتحويلها إلى روابط قابلة للنقر
+        // استخدام تعبير عادي لاكتشاف الروابط التي تبدأ بـ https:// أو http:// وتحويلها إلى روابط قابلة للنقر
         let linkifiedText = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
         
         description.innerHTML = linkifiedText;
