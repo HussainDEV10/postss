@@ -5,13 +5,17 @@ body {
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-    overflow: auto; /* إخفاء أي تحرك للصفحة */
+    overflow-x: hidden; /* تعطيل التمرير الأفقي */
+    overflow-y: auto; /* السماح بالتمرير العمودي */
+    width: 100%; /* ضمان عرض الجسم هو 100% */
+    height: 100vh; /* ضبط ارتفاع الصفحة بشكل كامل */
+    position: relative; /* التأكد من ثبات الجسم */
 }
 
 .logout-btn {
     position: fixed;
-    top: 50px; /* تحريك الزر للأسفل بمقدار 50px */
-    left: 10px;
+    top: 50px; /* ضبط المسافة من الأعلى */
+    left: 10px; /* ضبط المسافة من اليسار */
     color: red;
     padding: 10px 20px;
     border-radius: 4px;
@@ -21,8 +25,8 @@ body {
 
 .username-display {
     position: fixed;
-    top: 50px; /* تحريك النص للأسفل بمقدار 50px */
-    right: 20px;
+    top: 50px; /* ضبط المسافة من الأعلى */
+    right: 20px; /* ضبط المسافة من اليمين */
     color: black;
     padding: 10px 20px;
     border-radius: 4px;
@@ -33,9 +37,12 @@ body {
     position: relative;
     width: 100%;
     max-width: 500px;
-    margin-top: 120px; /* لضمان أن المنشورات تبدأ بعد مساحة الأزرار */
+    margin-top: 120px; /* ضمان أن المنشورات تبدأ بعد مساحة الأزرار */
     padding: 0 20px;
+    box-sizing: border-box; /* ضمان أن padding محسوب في العرض الكلي */
 }
+
+/* باقي الكود يبقى كما هو... */
 
 /* باقي الكود يبقى كما هو... */
 .add-post-btn {
