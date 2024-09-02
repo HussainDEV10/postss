@@ -33,6 +33,7 @@ header {
     padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
+    bottom: 20px;
 }
 
 /* عرض اسم المستخدم */
@@ -45,6 +46,7 @@ header {
     text-overflow: ellipsis; /* إظهار علامات الحذف */
     white-space: nowrap; /* منع انكسار النص */
     padding: 10px 20px; /* حواف متساوية على جميع الجهات */
+    bottom: 20px;
     }
     
 .container {
