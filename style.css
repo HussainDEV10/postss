@@ -39,7 +39,7 @@ header {
     border-radius: 4px;
     font-weight: 500;
     text-align: right; /* التأكد من أن النص يتجه لليمين */
-    max-width: 50%; /* تحديد الحد الأقصى لعرض اسم المستخدم ليبقى داخل الشاشة */
+    max-width: 40%; /* تحديد الحد الأقصى لعرض اسم المستخدم ليبقى داخل الشاشة */
     overflow: hidden; /* إخفاء أي نص زائد */
     text-overflow: ellipsis; /* استخدام علامات الحذف إذا تجاوز النص العرض */
     white-space: nowrap; /* منع انكسار النص */
