@@ -12,39 +12,42 @@ body {
 }
 
 header {
+/* الشريط العلوي */
+header {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    background-color: #f4f4f4; /* لون الخلفية للشريط */
+    background-color: #f4f4f4; /* لون الخلفية */
     z-index: 100;
-    padding: 15px; /* جعل الحواف متساوية من جميع الجهات */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* إضافة ظل للشريط */
+    padding: 15px 20px; /* حواف متساوية على جميع الجهات */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* ظل الشريط */
     display: flex;
     justify-content: space-between; /* توزيع العناصر على الأطراف */
     align-items: center;
-    box-sizing: border-box; /* التأكد من أن الحواف مشمولة ضمن عرض الشريط */
+    box-sizing: border-box; /* حساب الحواف ضمن العرض */
 }
 
+/* زر تسجيل الخروج */
 .logout-btn {
     color: red;
-    padding: 10px;
+    padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
 }
 
+/* عرض اسم المستخدم */
 .username-display {
     color: black;
-    padding: 10px;
-    border-radius: 4px;
     font-weight: 500;
-    text-align: right; /* التأكد من أن النص يتجه لليمين */
-    max-width: 40%; /* تحديد الحد الأقصى لعرض اسم المستخدم ليبقى داخل الشاشة */
-    overflow: hidden; /* إخفاء أي نص زائد */
-    text-overflow: ellipsis; /* استخدام علامات الحذف إذا تجاوز النص العرض */
+    text-align: right; /* النص يتجه لليمين */
+    max-width: 50%; /* الحد الأقصى لعرض اسم المستخدم */
+    overflow: hidden; /* إخفاء الزائد من النص */
+    text-overflow: ellipsis; /* إظهار علامات الحذف */
     white-space: nowrap; /* منع انكسار النص */
-}
-
+    padding: 10px 20px; /* حواف متساوية على جميع الجهات */
+    }
+    
 .container {
     position: relative;
     width: 100%;
