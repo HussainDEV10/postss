@@ -148,7 +148,7 @@ header {
 }
 
 .post-description a {
-    color: blue; /* تحديد لون الرابط */
+    color: #0307fc; /* تحديد لون الرابط */
     text-decoration: underline; /* إضافة خط تحت الرابط */
     cursor: pointer; /* تغيير المؤشر عند التمرير فوق الرابط */
 }
