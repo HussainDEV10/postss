@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
@@ -19,12 +19,26 @@ const auth = getAuth(app);
 const usernameDisplay = document.getElementById('usernameDisplay');
 const postList = document.getElementById('postList');
 const overlay = document.getElementById('overlay');
+const addPostBtn = document.getElementById('addPostBtn');
+const closeBtn = document.getElementById('closeBtn');
 const publishBtn = document.getElementById('publishBtn');
 const postTitleInput = document.getElementById('postTitle');
 const postDescriptionInput = document.getElementById('postDescription');
+const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
 
+// فتح النموذج عند الضغط على زر "إضافة منشور"
+addPostBtn.addEventListener('click', () => {
+    overlay.classList.add('show');
+});
+
+// إغلاق النموذج عند الضغط على زر "إغلاق"
+closeBtn.addEventListener('click', () => {
+    overlay.classList.remove('show');
+});
+
+// تحويل النص إلى روابط قابلة للنقر
 function convertToLinks(text) {
     const urlPattern = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
@@ -33,7 +47,7 @@ function convertToLinks(text) {
 // وظيفة لعرض المنشورات
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
-    postList.innerHTML = '';
+    postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
@@ -42,7 +56,7 @@ const displayPosts = async () => {
         const minutes = timestamp.getMinutes().toString().padStart(2, '0');
         const seconds = timestamp.getSeconds().toString().padStart(2, '0');
         const period = hours >= 12 ? 'م' : 'ص';
-        hours = hours % 12 || 12;
+        hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
         const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
         const day = timestamp.getDate().toString().padStart(2, '0');
         const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
@@ -81,7 +95,7 @@ publishBtn.addEventListener('click', async () => {
     if (title && description && author) {
         await addDoc(collection(db, "posts"), {
             title,
-            description,
+            description, // سيتم تحويل النص إلى رابط في وقت العرض
             author,
             timestamp: serverTimestamp()
         });
