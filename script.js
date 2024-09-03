@@ -28,6 +28,10 @@ const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
 
+const linkifyText = (text) => {
+    return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="linkified">$1</a>');
+};
+
 const showNotification = (message, type) => {
     const notification = document.createElement('div');
     notification.classList.add('notification');
@@ -115,7 +119,7 @@ const displayPosts = async () => {
         postItem.innerHTML = `
             <button class="delete-btn" data-id="${doc.id}">🗑️</button>
             <h3 class="post-title">${data.title}</h3>
-            <p class="post-description">${data.description}</p>
+            <p class="post-description">${linkifyText(data.description)}</p>
             <p class="post-author">من قِبل: ${data.author}</p>
             <p class="post-time">${formattedDateTime}</p>
         `;
@@ -138,7 +142,7 @@ publishBtn.addEventListener('click', async () => {
     if (title && description && author) {
         await addDoc(collection(db, "posts"), {
             title,
-            description,
+            description: linkifyText(description), // حفظ النص المحول كروابط مضغوطة
             author,
             timestamp: serverTimestamp()
         });
@@ -170,20 +174,6 @@ logoutBtn.addEventListener('click', async () => {
         console.error('خطأ في تسجيل الخروج:', error);
     }
 });
-
-document.addEventListener('DOMContentLoaded', function () {
-    const postDescriptions = document.querySelectorAll('.post-description');
-    
-    postDescriptions.forEach(description => {
-        let text = description.innerHTML;
-        
-        // استخدم تعبيرًا منتظمًا لاكتشاف الروابط وتحويلها إلى روابط قابلة للنقر
-        let linkifiedText = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-        
-        description.innerHTML = linkifiedText;
-    });
-});
-
 
 document.addEventListener('DOMContentLoaded', () => {
     const username = localStorage.getItem('username');
