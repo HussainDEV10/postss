@@ -28,63 +28,12 @@ const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
 
+// وظيفة لتحويل النصوص التي تحتوي على روابط إلى روابط مضغوطة
 const linkifyText = (text) => {
     return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="linkified">$1</a>');
 };
 
-const showNotification = (message, type) => {
-    const notification = document.createElement('div');
-    notification.classList.add('notification');
-    notification.innerHTML = `
-        <span>${message}</span>
-        ${type === 'delete' ? '<button class="undo-btn" id="undoBtn">إسترجاع</button>' : ''}
-        <div class="underline"></div>
-    `;
-    notificationContainer.innerHTML = ''; // Clear existing notifications
-    notificationContainer.appendChild(notification);
-
-    let startX = 0;
-
-    notification.addEventListener('touchstart', (event) => {
-        startX = event.touches[0].clientX;
-    });
-
-    notification.addEventListener('touchmove', (event) => {
-        const touch = event.touches[0];
-        const diffX = touch.clientX - startX;
-        notification.style.transform = `translate(${diffX}px, 0)`;
-    });
-
-    notification.addEventListener('touchend', () => {
-        const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
-
-        if (Math.abs(finalPosition) > 10) {
-            notification.classList.add('hide');
-            notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
-            setTimeout(() => notification.remove(), 300); // إزالة الإشعار بعد 300 مللي ثانية
-        } else {
-            notification.style.transform = `translateX(0)`;
-        }
-    });
-
-    setTimeout(() => notification.classList.add('show'), 10);
-    setTimeout(() => notification.classList.add('hide'), 5000);
-    setTimeout(() => notification.remove(), 5500);
-
-    if (type === 'delete') {
-        document.getElementById('undoBtn').addEventListener('click', undoDelete);
-    }
-};
-
-const undoDelete = async () => {
-    if (lastDeletedPost) {
-        await setDoc(doc(db, "posts", lastDeletedPost.id), lastDeletedPost.data);
-        showNotification('تم إسترجاع المنشور', 'restore');
-        displayPosts();
-        lastDeletedPost = null;
-    }
-};
-
+// وظيفة لعرض المنشورات
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = '';
@@ -127,14 +76,7 @@ const displayPosts = async () => {
     });
 };
 
-addPostBtn.addEventListener('click', () => {
-    overlay.classList.add('show');
-});
-
-closeBtn.addEventListener('click', () => {
-    overlay.classList.remove('show');
-});
-
+// حدث عند نشر منشور جديد
 publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
@@ -142,7 +84,7 @@ publishBtn.addEventListener('click', async () => {
     if (title && description && author) {
         await addDoc(collection(db, "posts"), {
             title,
-            description: linkifyText(description), // حفظ النص المحول كروابط مضغوطة
+            description, // سيتم تحويل النص إلى رابط في وقت العرض
             author,
             timestamp: serverTimestamp()
         });
@@ -154,6 +96,7 @@ publishBtn.addEventListener('click', async () => {
     }
 });
 
+// إزالة المنشور عند الضغط على زر الحذف
 postList.addEventListener('click', async (event) => {
     if (event.target.classList.contains('delete-btn')) {
         const postId = event.target.dataset.id;
@@ -165,6 +108,7 @@ postList.addEventListener('click', async (event) => {
     }
 });
 
+// تسجيل الخروج
 logoutBtn.addEventListener('click', async () => {
     try {
         await signOut(auth);
@@ -175,6 +119,7 @@ logoutBtn.addEventListener('click', async () => {
     }
 });
 
+// عرض اسم المستخدم عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', () => {
     const username = localStorage.getItem('username');
     if (username) {
@@ -185,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     displayPosts();
 });
 
+// تحقق من حالة المستخدم
 onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
