@@ -27,13 +27,8 @@ header {
     box-sizing: border-box; /* حساب الحواف ضمن العرض */
 }
 
-.linkified {
-    color: #0e12ed;
-    text-decoration: underline;
-}
-
-.linkified:hover {
-    color: #0d10a3;
+a {
+    color: blue;
     text-decoration: underline;
 }
 
