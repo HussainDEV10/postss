@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
@@ -103,7 +103,6 @@ publishBtn.addEventListener('click', async () => {
         postDescriptionInput.value = '';
         overlay.classList.remove('show');
         showNotification('تم نشر المنشور بنجاح!', 'publish');
-        displayPosts();
     }
 });
 
@@ -115,9 +114,11 @@ postList.addEventListener('click', async (event) => {
         lastDeletedPost = { id: postId, data: postDoc.data() };
         await deleteDoc(doc(db, "posts", postId));
         showNotification('تم حذف المنشور', 'delete');
-        displayPosts();
     }
 });
+
+// عرض المنشورات وتحديثها في الوقت الفعلي
+onSnapshot(collection(db, "posts"), displayPosts);
 
 // تسجيل الخروج
 logoutBtn.addEventListener('click', async () => {
@@ -147,3 +148,18 @@ onAuthStateChanged(auth, (user) => {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     }
 });
+
+// عرض إشعار
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerText = message;
+    notificationContainer.appendChild(notification);
+
+    setTimeout(() => {
+        notification.classList.add('hide');
+        setTimeout(() => {
+            notification.remove();
+        }, 500); // الوقت اللازم لإزالة العنصر من DOM بعد انتهاء الرسوم المتحركة
+    }, 5000); // مدة عرض الإشعار قبل الاختفاء
+}
