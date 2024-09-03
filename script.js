@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
@@ -19,12 +19,9 @@ const auth = getAuth(app);
 const usernameDisplay = document.getElementById('usernameDisplay');
 const postList = document.getElementById('postList');
 const overlay = document.getElementById('overlay');
-const addPostBtn = document.getElementById('addPostBtn');
-const closeBtn = document.getElementById('closeBtn');
 const publishBtn = document.getElementById('publishBtn');
 const postTitleInput = document.getElementById('postTitle');
 const postDescriptionInput = document.getElementById('postDescription');
-const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
 
@@ -33,13 +30,9 @@ function convertToLinks(text) {
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
-
 // وظيفة لعرض المنشورات
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
-    document.querySelectorAll('.post-description').forEach(post => {
-    post.innerHTML = convertToLinks(post.innerHTML);
-});
     postList.innerHTML = '';
     querySnapshot.forEach((doc) => {
         const data = doc.data();
@@ -49,7 +42,7 @@ const displayPosts = async () => {
         const minutes = timestamp.getMinutes().toString().padStart(2, '0');
         const seconds = timestamp.getSeconds().toString().padStart(2, '0');
         const period = hours >= 12 ? 'م' : 'ص';
-        hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
+        hours = hours % 12 || 12;
         const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
         const day = timestamp.getDate().toString().padStart(2, '0');
         const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
@@ -72,7 +65,7 @@ const displayPosts = async () => {
         postItem.innerHTML = `
             <button class="delete-btn" data-id="${doc.id}">🗑️</button>
             <h3 class="post-title">${data.title}</h3>
-            <p class="post-description">${linkifyText(data.description)}</p>
+            <p class="post-description">${convertToLinks(data.description)}</p>
             <p class="post-author">من قِبل: ${data.author}</p>
             <p class="post-time">${formattedDateTime}</p>
         `;
@@ -88,7 +81,7 @@ publishBtn.addEventListener('click', async () => {
     if (title && description && author) {
         await addDoc(collection(db, "posts"), {
             title,
-            description, // سيتم تحويل النص إلى رابط في وقت العرض
+            description,
             author,
             timestamp: serverTimestamp()
         });
