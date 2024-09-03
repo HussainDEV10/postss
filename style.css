@@ -27,14 +27,13 @@ header {
     box-sizing: border-box; /* حساب الحواف ضمن العرض */
 }
 
-.post-description a {
-    color: #0e12ed; /* تحديد لون الرابط */
-    text-decoration: underline; /* إضافة خط تحت الرابط */
-    cursor: pointer; /* تغيير المؤشر عند التمرير فوق الرابط */
+.linkified {
+    color: #0e12ed;
+    text-decoration: underline;
 }
 
-.post-description a:hover {
-    color: #0d10a3; /* لون الرابط عند التمرير فوقه */
+.linkified:hover {
+    color: #0d10a3;
     text-decoration: underline;
 }
 
