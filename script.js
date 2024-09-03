@@ -28,14 +28,18 @@ const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
 
-// وظيفة لتحويل النصوص التي تحتوي على روابط إلى روابط مضغوطة
-const linkifyText = (text) => {
-    return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="linkified">$1</a>');
-};
+function convertToLinks(text) {
+    const urlPattern = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
+}
+
 
 // وظيفة لعرض المنشورات
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
+    document.querySelectorAll('.post-description').forEach(post => {
+    post.innerHTML = convertToLinks(post.innerHTML);
+});
     postList.innerHTML = '';
     querySnapshot.forEach((doc) => {
         const data = doc.data();
