@@ -33,12 +33,8 @@ header {
     cursor: pointer; /* تغيير المؤشر عند التمرير فوق الرابط */
 }
 
-.post-description a:visited {
-    color: #0d10a3; /* لون الرابط بعد زيارته */
-}
-
 .post-description a:hover {
-    color: dodgerblue; /* لون الرابط عند التمرير فوقه */
+    color: #0d10a3; /* لون الرابط عند التمرير فوقه */
     text-decoration: underline;
 }
 
