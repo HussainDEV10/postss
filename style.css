@@ -294,17 +294,17 @@ a:hover {
     display: flex;
     justify-content: center;
     flex-direction: column;
-    z-index: 200;
+    z-index: 20;
     width: auto;
     max-width: 500px;
     text-align: center;
-    opacity: 0;
+    opacity: 300;
     transition: transform 0.5s ease-out, opacity 0.5s ease-out;
     touch-action: none; /* لتعطيل الإعداد الافتراضي لسحب العناصر */
 }
 
 .notification.show {
-    opacity: 1;
+    opacity: 300;
     transform: translateX(-50%) translateY(0);
 }
 
