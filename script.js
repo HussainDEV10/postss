@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (user) {
         usernameDisplay.textContent = `${username}`;
     } else {
-        usernameDisplay.textContent = 'مستخدم';
+        usernameDisplay.textContent = `${username}`;
     }
     displayPosts();
 });
@@ -205,6 +205,6 @@ onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } else {
-        localStorage.setItem('username', `${username} || user.email);
+        localStorage.setItem('username', `${username}` || user.email);
     }
 });
