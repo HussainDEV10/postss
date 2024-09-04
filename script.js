@@ -89,7 +89,7 @@ function convertToLinks(text) {
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
-    const currentUser = localStorage.getItem('username'); // الحصول على اسم المستخدم الحالي
+    const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
@@ -119,7 +119,7 @@ const displayPosts = async () => {
         postItem.classList.add('post-item');
         postItem.style.fontFamily = 'Rubik, sans-serif';
         postItem.innerHTML = `
-            ${currentUser === data.author ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+            ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
             <p class="post-author">من قِبل: ${data.author}</p>
@@ -141,11 +141,13 @@ publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
     const author = localStorage.getItem('username');
-    if (title && description && author) {
+    const authorEmail = localStorage.getItem('email');
+    if (title && description && author && authorEmail) {
         await addDoc(collection(db, "posts"), {
             title,
             description,
             author,
+            authorEmail,
             timestamp: serverTimestamp()
         });
         postTitleInput.value = '';
@@ -162,7 +164,7 @@ postList.addEventListener('click', async (event) => {
         const postDoc = await getDoc(doc(db, "posts", postId));
         const postData = postDoc.data();
         // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
-        if (postData.author === localStorage.getItem('username')) {
+        if (postData.authorEmail === localStorage.getItem('email')) {
             lastDeletedPost = { id: postId, data: postData };
             await deleteDoc(doc(db, "posts", postId));
             showNotification('تم حذف المنشور', 'delete');
@@ -177,6 +179,7 @@ logoutBtn.addEventListener('click', async () => {
     try {
         await signOut(auth);
         localStorage.removeItem('username');
+        localStorage.removeItem('email');
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } catch (error) {
         console.error('خطأ في تسجيل الخروج:', error);
@@ -197,6 +200,7 @@ onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } else {
-        localStorage.setItem('username', user.displayName || `${username}`);
+        localStorage.setItem('username', user.displayName || 'مستخدم');
+        localStorage.setItem('email', user.email);
     }
 });
