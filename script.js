@@ -26,29 +26,64 @@ const postTitleInput = document.getElementById('postTitle');
 const postDescriptionInput = document.getElementById('postDescription');
 const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
-const undoBtn = document.createElement('button'); // زر الاسترجاع
 let lastDeletedPost = null;
 
-// فتح النموذج عند الضغط على زر "إضافة منشور"
-addPostBtn.addEventListener('click', () => {
-    overlay.classList.add('show');
-});
+const showNotification = (message, type) => {
+    const notification = document.createElement('div');
+    notification.classList.add('notification');
+    notification.innerHTML = `
+        <span>${message}</span>
+        ${type === 'delete' ? '<button class="undo-btn" id="undoBtn">إسترجاع</button>' : ''}
+        <div class="underline"></div>
+    `;
+    notificationContainer.innerHTML = ''; // Clear existing notifications
+    notificationContainer.appendChild(notification);
 
-// إغلاق النموذج عند الضغط على زر "إغلاق"
-closeBtn.addEventListener('click', () => {
-    overlay.classList.remove('show');
-});
+    let startX = 0;
 
-// تحويل النص إلى روابط قابلة للنقر
-function convertToLinks(text) {
-    const urlPattern = /(https?:\/\/[^\s]+)/g;
-    return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
-}
+    notification.addEventListener('touchstart', (event) => {
+        startX = event.touches[0].clientX;
+    });
 
-// وظيفة لعرض المنشورات
+    notification.addEventListener('touchmove', (event) => {
+        const touch = event.touches[0];
+        const diffX = touch.clientX - startX;
+        notification.style.transform = `translate(${diffX}px, 0)`;
+    });
+
+    notification.addEventListener('touchend', () => {
+        const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
+
+        if (Math.abs(finalPosition) > 10) {
+            notification.classList.add('hide');
+            notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
+            setTimeout(() => notification.remove(), 300); // إزالة الإشعار بعد 300 مللي ثانية
+        } else {
+            notification.style.transform = `translateX(0)`;
+        }
+    });
+
+    setTimeout(() => notification.classList.add('show'), 10);
+    setTimeout(() => notification.classList.add('hide'), 5000);
+    setTimeout(() => notification.remove(), 5500);
+
+    if (type === 'delete') {
+        document.getElementById('undoBtn').addEventListener('click', undoDelete);
+    }
+};
+
+const undoDelete = async () => {
+    if (lastDeletedPost) {
+        await setDoc(doc(db, "posts", lastDeletedPost.id), lastDeletedPost.data);
+        showNotification('تم إسترجاع المنشور', 'restore');
+        displayPosts();
+        lastDeletedPost = null;
+    }
+};
+
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
-    postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+    postList.innerHTML = '';
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
@@ -80,7 +115,7 @@ const displayPosts = async () => {
         postItem.innerHTML = `
             <button class="delete-btn" data-id="${doc.id}">🗑️</button>
             <h3 class="post-title">${data.title}</h3>
-            <p class="post-description">${convertToLinks(data.description)}</p>
+            <p class="post-description">${data.description}</p>
             <p class="post-author">من قِبل: ${data.author}</p>
             <p class="post-time">${formattedDateTime}</p>
         `;
@@ -88,7 +123,14 @@ const displayPosts = async () => {
     });
 };
 
-// حدث عند نشر منشور جديد
+addPostBtn.addEventListener('click', () => {
+    overlay.classList.add('show');
+});
+
+closeBtn.addEventListener('click', () => {
+    overlay.classList.remove('show');
+});
+
 publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
@@ -96,7 +138,7 @@ publishBtn.addEventListener('click', async () => {
     if (title && description && author) {
         await addDoc(collection(db, "posts"), {
             title,
-            description, // سيتم تحويل النص إلى رابط في وقت العرض
+            description,
             author,
             timestamp: serverTimestamp()
         });
@@ -108,7 +150,6 @@ publishBtn.addEventListener('click', async () => {
     }
 });
 
-// إزالة المنشور عند الضغط على زر الحذف
 postList.addEventListener('click', async (event) => {
     if (event.target.classList.contains('delete-btn')) {
         const postId = event.target.dataset.id;
@@ -117,36 +158,9 @@ postList.addEventListener('click', async (event) => {
         await deleteDoc(doc(db, "posts", postId));
         showNotification('تم حذف المنشور', 'delete');
         displayPosts();
-        showUndoOption(); // عرض زر الاسترجاع
     }
 });
 
-// وظيفة لإظهار زر الاسترجاع مع إشعار
-function showUndoOption() {
-    undoBtn.textContent = 'تراجع عن الحذف';
-    undoBtn.style.display = 'block';
-    undoBtn.style.marginTop = '10px';
-    undoBtn.style.backgroundColor = '#f44336';
-    undoBtn.style.color = 'white';
-    undoBtn.style.border = 'none';
-    undoBtn.style.padding = '10px';
-    undoBtn.style.cursor = 'pointer';
-    undoBtn.addEventListener('click', undoDelete);
-    notificationContainer.appendChild(undoBtn);
-}
-
-// وظيفة للتراجع عن حذف المنشور
-async function undoDelete() {
-    if (lastDeletedPost) {
-        await setDoc(doc(db, "posts", lastDeletedPost.id), lastDeletedPost.data);
-        showNotification('تم استرجاع المنشور', 'undo');
-        displayPosts();
-        undoBtn.style.display = 'none'; // إخفاء زر الاسترجاع بعد الاسترجاع
-        lastDeletedPost = null;
-    }
-}
-
-// تسجيل الخروج
 logoutBtn.addEventListener('click', async () => {
     try {
         await signOut(auth);
@@ -157,20 +171,19 @@ logoutBtn.addEventListener('click', async () => {
     }
 });
 
-// عرض اسم المستخدم عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', () => {
     const username = localStorage.getItem('username');
     if (username) {
-        usernameDisplay.textContent = `${username}`;
+        usernameDisplay.textContent = `مرحباً، ${username}`;
     } else {
         usernameDisplay.textContent = 'مرحباً، مستخدم';
     }
     displayPosts();
 });
 
-// تحقق من حالة المستخدم
 onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     }
 });
+    
