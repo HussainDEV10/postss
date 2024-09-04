@@ -90,6 +90,7 @@ function convertToLinks(text) {
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+    const currentUser = localStorage.getItem('username'); // الحصول على اسم المستخدم الحالي
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
@@ -119,7 +120,7 @@ const displayPosts = async () => {
         postItem.classList.add('post-item');
         postItem.style.fontFamily = 'Rubik, sans-serif';
         postItem.innerHTML = `
-            <button class="delete-btn" data-id="${doc.id}">🗑️</button>
+            ${currentUser === data.author ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
             <p class="post-author">من قِبل: ${data.author}</p>
@@ -188,8 +189,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 onAuthStateChanged(auth, (user) => {
-    if (!user) {
+    if (user) {
+        localStorage.setItem('username', user.displayName || 'مستخدم');
+    } else {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     }
 });
-    
