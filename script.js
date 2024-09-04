@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
@@ -26,6 +26,7 @@ const postTitleInput = document.getElementById('postTitle');
 const postDescriptionInput = document.getElementById('postDescription');
 const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
+const undoBtn = document.createElement('button'); // زر الاسترجاع
 let lastDeletedPost = null;
 
 // فتح النموذج عند الضغط على زر "إضافة منشور"
@@ -103,6 +104,7 @@ publishBtn.addEventListener('click', async () => {
         postDescriptionInput.value = '';
         overlay.classList.remove('show');
         showNotification('تم نشر المنشور بنجاح!', 'publish');
+        displayPosts();
     }
 });
 
@@ -114,11 +116,35 @@ postList.addEventListener('click', async (event) => {
         lastDeletedPost = { id: postId, data: postDoc.data() };
         await deleteDoc(doc(db, "posts", postId));
         showNotification('تم حذف المنشور', 'delete');
+        displayPosts();
+        showUndoOption(); // عرض زر الاسترجاع
     }
 });
 
-// عرض المنشورات وتحديثها في الوقت الفعلي
-onSnapshot(collection(db, "posts"), displayPosts);
+// وظيفة لإظهار زر الاسترجاع مع إشعار
+function showUndoOption() {
+    undoBtn.textContent = 'تراجع عن الحذف';
+    undoBtn.style.display = 'block';
+    undoBtn.style.marginTop = '10px';
+    undoBtn.style.backgroundColor = '#f44336';
+    undoBtn.style.color = 'white';
+    undoBtn.style.border = 'none';
+    undoBtn.style.padding = '10px';
+    undoBtn.style.cursor = 'pointer';
+    undoBtn.addEventListener('click', undoDelete);
+    notificationContainer.appendChild(undoBtn);
+}
+
+// وظيفة للتراجع عن حذف المنشور
+async function undoDelete() {
+    if (lastDeletedPost) {
+        await setDoc(doc(db, "posts", lastDeletedPost.id), lastDeletedPost.data);
+        showNotification('تم استرجاع المنشور', 'undo');
+        displayPosts();
+        undoBtn.style.display = 'none'; // إخفاء زر الاسترجاع بعد الاسترجاع
+        lastDeletedPost = null;
+    }
+}
 
 // تسجيل الخروج
 logoutBtn.addEventListener('click', async () => {
@@ -149,17 +175,78 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// عرض إشعار
+// وظيفة لإظهار الإشعارات مع شريط متحرك
 function showNotification(message, type) {
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
-    notification.innerText = message;
+    notification.innerHTML = `
+        <span>${message}</span>
+        <div class="progress-bar"></div>
+    `;
+
     notificationContainer.appendChild(notification);
 
+    let isDragging = false;
+    let startPosX = 0;
+
+    // دوال التعامل مع السحب بالفأرة
+    const onMouseDown = (e) => {
+        isDragging = true;
+        startPosX = e.clientX;
+    };
+
+    const onMouseMove = (e) => {
+        if (isDragging) {
+            const dx = e.clientX - startPosX;
+            notification.style.transform = `translateX(${dx}px)`;
+        }
+    };
+
+    const onMouseUp = () => {
+        isDragging = false;
+        if (parseInt(notification.style.transform.replace('translateX(', '').replace('px)', '')) > 100) {
+            notificationContainer.removeChild(notification); // إزالة الإشعار عند سحبه كفاية
+        } else {
+            notification.style.transform = ''; // إرجاع الإشعار إلى مكانه إذا لم يتم سحبه كفاية
+        }
+    };
+
+    // دوال التعامل مع السحب باللمس
+    const onTouchStart = (e) => {
+        isDragging = true;
+        startPosX = e.touches[0].clientX;
+    };
+
+    const onTouchMove = (e) => {
+        if (isDragging) {
+            const dx = e.touches[0].clientX - startPosX;
+            notification.style.transform = `translateX(${dx}px)`;
+        }
+    };
+
+    const onTouchEnd = () => {
+        isDragging = false;
+        if (parseInt(notification.style.transform.replace('translateX(', '').replace('px)', '')) > 100) {
+            notificationContainer.removeChild(notification); // إزالة الإشعار عند سحبه كفاية
+        } else {
+            notification.style.transform = ''; // إرجاع الإشعار إلى مكانه إذا لم يتم سحبه كفاية
+        }
+    };
+
+    // إضافة الأحداث للفأرة
+    notification.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+
+    // إضافة الأحداث لللمس
+    notification.addEventListener('touchstart', onTouchStart);
+    document.addEventListener('touchmove', onTouchMove);
+    document.addEventListener('touchend', onTouchEnd);
+
+    // إزالة الإشعار بعد 5 ثوانٍ إذا لم يتم سحبه
     setTimeout(() => {
-        notification.classList.add('hide');
-        setTimeout(() => {
-            notification.remove();
-        }, 500); // الوقت اللازم لإزالة العنصر من DOM بعد انتهاء الرسوم المتحركة
-    }, 5000); // مدة عرض الإشعار قبل الاختفاء
-}
+        if (notificationContainer.contains(notification)) {
+            notificationContainer.removeChild(notification);
+        }
+    }, 5000);
+    }
