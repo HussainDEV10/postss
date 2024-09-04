@@ -201,5 +201,6 @@ onAuthStateChanged(auth, (user) => {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } else {
         localStorage.setItem('email', user.email);
+        localStorage.setItem('username', user.displayName || `{$username}`);
     }
 });
