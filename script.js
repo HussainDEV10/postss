@@ -90,7 +90,7 @@ const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
     const user = auth.currentUser;
-    const currentUserEmail = user ? user.email : ''; // الحصول على البريد الإلكتروني للمستخدم الحالي
+    const currentUsername = user ? user.displayName || user.email : ''; // الحصول على اسم المستخدم الحالي
 
     querySnapshot.forEach((doc) => {
         const data = doc.data();
@@ -121,7 +121,7 @@ const displayPosts = async () => {
         postItem.classList.add('post-item');
         postItem.style.fontFamily = 'Rubik, sans-serif';
         postItem.innerHTML = `
-            ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+            ${currentUsername === data.author ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
             <p class="post-author">من قِبل: ${data.author}</p>
@@ -143,14 +143,13 @@ publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
     const user = auth.currentUser;
-    const email = user ? user.email : ''; // الحصول على البريد الإلكتروني للمستخدم
+    const username = user ? user.displayName || user.email : ''; // الحصول على اسم المستخدم
 
-    if (title && description && email) {
+    if (title && description && username) {
         await addDoc(collection(db, "posts"), {
             title,
             description,
-            author: email,
-            authorEmail: email, // حفظ البريد الإلكتروني كـ authorEmail
+            author: username, // حفظ اسم المستخدم كـ author
             timestamp: serverTimestamp()
         });
         postTitleInput.value = '';
@@ -167,10 +166,10 @@ postList.addEventListener('click', async (event) => {
         const postDoc = await getDoc(doc(db, "posts", postId));
         const postData = postDoc.data();
         const user = auth.currentUser;
-        const currentUserEmail = user ? user.email : ''; // الحصول على البريد الإلكتروني للمستخدم الحالي
+        const currentUsername = user ? user.displayName || user.email : ''; // الحصول على اسم المستخدم الحالي
 
         // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
-        if (postData.authorEmail === currentUserEmail) {
+        if (postData.author === currentUsername) {
             lastDeletedPost = { id: postId, data: postData };
             await deleteDoc(doc(db, "posts", postId));
             showNotification('تم حذف المنشور', 'delete');
@@ -194,9 +193,9 @@ logoutBtn.addEventListener('click', async () => {
 document.addEventListener('DOMContentLoaded', () => {
     const user = auth.currentUser;
     if (user) {
-        usernameDisplay.textContent = `${username}`;
+        usernameDisplay.textContent = `${user.displayName || user.email}`; // عرض اسم المستخدم
     } else {
-        usernameDisplay.textContent = `${username}`;
+        usernameDisplay.textContent = 'مستخدم';
     }
     displayPosts();
 });
@@ -205,6 +204,4 @@ onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } else {
-        localStorage.setItem('username', `${username}` || user.email);
-    }
-});
+        localStorage.setItem('username',
