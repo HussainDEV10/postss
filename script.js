@@ -86,7 +86,6 @@ function convertToLinks(text) {
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
-// وظيفة لعرض المنشورات
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
@@ -189,9 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        localStorage.setItem('username', user.displayName || 'مستخدم');
-    } else {
+    if (!user) {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+    } else {
+        localStorage.setItem('username', user.displayName || 'مستخدم');
     }
 });
