@@ -160,10 +160,16 @@ postList.addEventListener('click', async (event) => {
     if (event.target.classList.contains('delete-btn')) {
         const postId = event.target.dataset.id;
         const postDoc = await getDoc(doc(db, "posts", postId));
-        lastDeletedPost = { id: postId, data: postDoc.data() };
-        await deleteDoc(doc(db, "posts", postId));
-        showNotification('تم حذف المنشور', 'delete');
-        displayPosts();
+        const postData = postDoc.data();
+        // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
+        if (postData.author === localStorage.getItem('username')) {
+            lastDeletedPost = { id: postId, data: postData };
+            await deleteDoc(doc(db, "posts", postId));
+            showNotification('تم حذف المنشور', 'delete');
+            displayPosts();
+        } else {
+            showNotification('لا يمكنك حذف منشور ليس لك', 'error');
+        }
     }
 });
 
