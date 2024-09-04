@@ -90,6 +90,7 @@ const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
     const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
+
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
@@ -119,7 +120,7 @@ const displayPosts = async () => {
         postItem.classList.add('post-item');
         postItem.style.fontFamily = 'Rubik, sans-serif';
         postItem.innerHTML = `
-            ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+            ${currentUserEmail === 'trendshussain@gmail.com' ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
             <p class="post-author">من قِبل: ${data.author}</p>
@@ -191,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (username) {
         usernameDisplay.textContent = `${username}`;
     } else {
-        usernameDisplay.textContent = `${username}`;
+        usernameDisplay.textContent = 'مستخدم';
     }
     displayPosts();
 });
@@ -200,7 +201,7 @@ onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } else {
+        localStorage.setItem('username', user.displayName || `${username}`);
         localStorage.setItem('email', user.email);
-        localStorage.setItem('username', user.displayName || `{$username}`);
     }
 });
