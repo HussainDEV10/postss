@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
@@ -34,38 +34,14 @@ const showNotification = (message, type) => {
     notification.innerHTML = `
         <span>${message}</span>
         ${type === 'delete' ? '<button class="undo-btn" id="undoBtn">إسترجاع</button>' : ''}
-        <div class="underline"></div>
     `;
     notificationContainer.innerHTML = ''; // Clear existing notifications
     notificationContainer.appendChild(notification);
 
-    let startX = 0;
-
-    notification.addEventListener('touchstart', (event) => {
-        startX = event.touches[0].clientX;
-    });
-
-    notification.addEventListener('touchmove', (event) => {
-        const touch = event.touches[0];
-        const diffX = touch.clientX - startX;
-        notification.style.transform = `translate(${diffX}px, 0)`;
-    });
-
-    notification.addEventListener('touchend', () => {
-        const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
-
-        if (Math.abs(finalPosition) > 10) {
-            notification.classList.add('hide');
-            notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
-            setTimeout(() => notification.remove(), 300); // إزالة الإشعار بعد 300 مللي ثانية
-        } else {
-            notification.style.transform = `translateX(0)`;
-        }
-    });
-
-    setTimeout(() => notification.classList.add('show'), 10);
-    setTimeout(() => notification.classList.add('hide'), 5000);
-    setTimeout(() => notification.remove(), 5500);
+    setTimeout(() => {
+        notification.classList.add('hide');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 
     if (type === 'delete') {
         document.getElementById('undoBtn').addEventListener('click', undoDelete);
@@ -81,50 +57,26 @@ const undoDelete = async () => {
     }
 };
 
-function convertToLinks(text) {
-    const urlPattern = /(https?:\/\/[^\s]+)/g;
-    return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
-}
-
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
-    postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
-    const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
+    postList.innerHTML = ''; // Clear current content before display
+    const currentUserEmail = localStorage.getItem('email'); // Get current user's email
 
     querySnapshot.forEach((doc) => {
         const data = doc.data();
-        const timestamp = new Date(data.timestamp.seconds * 1000);
-
-        let hours = timestamp.getHours();
-        const minutes = timestamp.getMinutes().toString().padStart(2, '0');
-        const seconds = timestamp.getSeconds().toString().padStart(2, '0');
-        const period = hours >= 12 ? 'م' : 'ص';
-        hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
-        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
-        const day = timestamp.getDate().toString().padStart(2, '0');
-        const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
-        const year = timestamp.getFullYear();
-        const formattedDate = `${year}/${month}/${day}`;
-        const arabicNumbers = (number) => {
-            const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
-            return number.split('').map(digit => arabicDigits[digit] || digit).join('');
-        };
-
-        const arabicFormattedTime = arabicNumbers(formattedTime);
-        const arabicFormattedDate = arabicNumbers(formattedDate);
-        const formattedDateTime = `
-            <span dir="rtl">${arabicFormattedDate}</span> | ${arabicFormattedTime}
-        `;
-
         const postItem = document.createElement('li');
         postItem.classList.add('post-item');
         postItem.style.fontFamily = 'Rubik, sans-serif';
+
+        // Show delete button if the current user's email is trendshussain@gmail.com
+        const showDeleteButton = currentUserEmail === 'trendshussain@gmail.com';
+
         postItem.innerHTML = `
-            ${currentUserEmail === 'trendshussain@gmail.com' ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+            ${showDeleteButton ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
-            <p class="post-description">${convertToLinks(data.description)}</p>
+            <p class="post-description">${data.description}</p>
             <p class="post-author">من قِبل: ${data.author}</p>
-            <p class="post-time">${formattedDateTime}</p>
+            <p class="post-time">${new Date(data.timestamp.seconds * 1000).toLocaleString()}</p>
         `;
         postList.appendChild(postItem);
     });
@@ -141,14 +93,12 @@ closeBtn.addEventListener('click', () => {
 publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
-    const author = localStorage.getItem('username');
-    const authorEmail = localStorage.getItem('email');
-    if (title && description && author && authorEmail) {
+    const author = localStorage.getItem('username'); // استخدام اسم المستخدم من التخزين المحلي
+    if (title && description && author) {
         await addDoc(collection(db, "posts"), {
             title,
             description,
             author,
-            authorEmail,
             timestamp: serverTimestamp()
         });
         postTitleInput.value = '';
@@ -156,18 +106,21 @@ publishBtn.addEventListener('click', async () => {
         overlay.classList.remove('show');
         showNotification('تم نشر المنشور بنجاح!', 'publish');
         displayPosts();
+    } else {
+        showNotification('يرجى إدخال عنوان ووصف للمنشور', 'error');
     }
 });
 
 postList.addEventListener('click', async (event) => {
     if (event.target.classList.contains('delete-btn')) {
         const postId = event.target.dataset.id;
-        const postDoc = await getDoc(doc(db, "posts", postId));
-        const postData = postDoc.data();
-        // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
-        if (postData.authorEmail === localStorage.getItem('email')) {
+        const postDoc = doc(db, "posts", postId);
+        const postData = (await getDoc(postDoc)).data();
+
+        // تحقق من أن المستخدم الحالي هو صاحب المنشور قبل الحذف
+        if (localStorage.getItem('email') === 'trendshussain@gmail.com') {
             lastDeletedPost = { id: postId, data: postData };
-            await deleteDoc(doc(db, "posts", postId));
+            await deleteDoc(postDoc);
             showNotification('تم حذف المنشور', 'delete');
             displayPosts();
         } else {
@@ -189,6 +142,7 @@ logoutBtn.addEventListener('click', async () => {
 
 document.addEventListener('DOMContentLoaded', () => {
     const username = localStorage.getItem('username');
+    const email = localStorage.getItem('email');
     if (username) {
         usernameDisplay.textContent = `${username}`;
     } else {
@@ -201,7 +155,7 @@ onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } else {
-        localStorage.setItem('username', user.displayName || `${username}`);
-        localStorage.setItem('email', user.email);
+        localStorage.setItem('username', user.displayName || `{username}`);
+        localStorage.setItem('email', user.email); // تخزين البريد الإلكتروني للمستخدم
     }
 });
