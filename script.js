@@ -194,7 +194,7 @@ logoutBtn.addEventListener('click', async () => {
 document.addEventListener('DOMContentLoaded', () => {
     const user = auth.currentUser;
     if (user) {
-        usernameDisplay.textContent = `${user.displayName || user.email}`;
+        usernameDisplay.textContent = `${username}`;
     } else {
         usernameDisplay.textContent = 'مستخدم';
     }
