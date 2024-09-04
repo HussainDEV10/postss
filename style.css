@@ -9,6 +9,8 @@ body {
     overflow-y: auto; /* السماح بالتمرير العمودي */
     width: 100%; /* ضمان عرض الجسم هو 100% */
     height: 100vh; /* ضبط ارتفاع الصفحة بشكل كامل */
+    box-sizing: border-box;
+    padding: 5vh 0;
 }
 
 /* الشريط العلوي */
@@ -188,10 +190,10 @@ a:hover {
         }
 
         .post-list {
-            margin-top: 20px;
+            margin-top: 10px;
             list-style: none;
             padding: 0;
-            margin-right: 0;
+            margin-bottom: 10;
         }
 
 .post-item {
@@ -204,6 +206,15 @@ a:hover {
             position: relative;
             overflow: hidden;
             }
+
+
+.post-item:first-child {
+    margin-top: 5vh; /* فراغ بين المنشور الأول والشاشة العليا */
+}
+
+.post-item:last-child {
+    margin-bottom: 5vh; /* فراغ بين المنشور الأخير والشاشة السفلى */
+}
 
         .post-title {
             margin: 0;
