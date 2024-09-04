@@ -155,7 +155,7 @@ onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } else {
-        localStorage.setItem('username', user.displayName || `{username}`);
+        localStorage.setItem('username', user.displayName || `${username}`);
         localStorage.setItem('email', user.email); // تخزين البريد الإلكتروني للمستخدم
     }
 });
