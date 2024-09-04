@@ -81,9 +81,15 @@ const undoDelete = async () => {
     }
 };
 
+function convertToLinks(text) {
+    const urlPattern = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
+}
+
+// وظيفة لعرض المنشورات
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
-    postList.innerHTML = '';
+    postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
@@ -115,7 +121,7 @@ const displayPosts = async () => {
         postItem.innerHTML = `
             <button class="delete-btn" data-id="${doc.id}">🗑️</button>
             <h3 class="post-title">${data.title}</h3>
-            <p class="post-description">${data.description}</p>
+            <p class="post-description">${convertToLinks(data.description)}</p>
             <p class="post-author">من قِبل: ${data.author}</p>
             <p class="post-time">${formattedDateTime}</p>
         `;
