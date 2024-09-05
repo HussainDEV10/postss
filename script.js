@@ -196,10 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        const displayName = user.displayName || 'مستخدم';  // الحصول على الاسم المعروض أو تعيين اسم افتراضي
+        const displayName = user.displayName || `${username}`;  // الحصول على الاسم المعروض أو تعيين اسم افتراضي
         localStorage.setItem('username', displayName);  // تخزين الاسم في localStorage
         localStorage.setItem('email', user.email);  // تخزين البريد الإلكتروني في localStorage
-        usernameDisplay.textContent = `${displayName}`;  // عرض اسم المستخدم في الصفحة
+        usernameDisplay.textContent = `${username}`;  // عرض اسم المستخدم في الصفحة
         displayPosts();  // عرض المنشورات بعد التحقق من حالة تسجيل الدخول
     } else {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';  // إعادة التوجيه إلى صفحة تسجيل الدخول في حال عدم تسجيل الدخول
