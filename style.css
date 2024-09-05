@@ -111,6 +111,12 @@ a:hover {
             z-index: 5;
         }
 
+
+.post-form input[type="file"] {
+    width: calc(105% - 20px); /* تنسيق الحقل */
+    margin-bottom: 10px;
+}
+
         .overlay.show {
             display: flex;
         }
