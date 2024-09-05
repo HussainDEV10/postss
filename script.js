@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
@@ -26,14 +26,68 @@ const closeBtn = document.getElementById('closeBtn');
 const publishBtn = document.getElementById('publishBtn');
 const postTitleInput = document.getElementById('postTitle');
 const postDescriptionInput = document.getElementById('postDescription');
-const fileInput = document.getElementById('fileInput');  // عنصر لإدخال الصورة أو الفيديو
+const fileInput = document.getElementById('fileInput'); // عنصر لإدخال الصورة أو الفيديو
 const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
 
 const showNotification = (message, type) => {
-    // ... محتوى دالة الإشعار كما هو ...
+    const notification = document.createElement('div');
+    notification.classList.add('notification');
+    notification.innerHTML = `
+        <span>${message}</span>
+        ${type === 'delete' ? '<button class="undo-btn" id="undoBtn">إسترجاع</button>' : ''}
+        <div class="underline"></div>
+    `;
+    notificationContainer.innerHTML = ''; // Clear existing notifications
+    notificationContainer.appendChild(notification);
+
+    let startX = 0;
+
+    notification.addEventListener('touchstart', (event) => {
+        startX = event.touches[0].clientX;
+    });
+
+    notification.addEventListener('touchmove', (event) => {
+        const touch = event.touches[0];
+        const diffX = touch.clientX - startX;
+        notification.style.transform = `translate(${diffX}px, 0)`;
+    });
+
+    notification.addEventListener('touchend', () => {
+        const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
+
+        if (Math.abs(finalPosition) > 10) {
+            notification.classList.add('hide');
+            notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
+            setTimeout(() => notification.remove(), 300); // إزالة الإشعار بعد 300 مللي ثانية
+        } else {
+            notification.style.transform = `translateX(0)`;
+        }
+    });
+
+    setTimeout(() => notification.classList.add('show'), 10);
+    setTimeout(() => notification.classList.add('hide'), 5000);
+    setTimeout(() => notification.remove(), 5500);
+
+    if (type === 'delete') {
+        document.getElementById('undoBtn').addEventListener('click', undoDelete);
+    }
 };
+
+const undoDelete = async () => {
+    if (lastDeletedPost) {
+        await setDoc(doc(db, "posts", lastDeletedPost.id), lastDeletedPost.data);
+        showNotification('تم إسترجاع المنشور', 'restore');
+        displayPosts();
+        lastDeletedPost = null;
+    }
+};
+
+function convertToLinks(text) {
+    const urlPattern = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
+}
 
 const uploadFile = async (file) => {
     const storageRef = ref(storage, `uploads/${file.name}`);
@@ -62,19 +116,6 @@ const publishPost = async (title, description, fileURL) => {
         displayPosts();
     }
 };
-
-publishBtn.addEventListener('click', async () => {
-    const title = postTitleInput.value.trim();
-    const description = postDescriptionInput.value.trim();
-    const file = fileInput.files[0]; // الحصول على الملف
-    let fileURL = '';
-
-    if (file) {
-        fileURL = await uploadFile(file); // رفع الملف والحصول على الرابط
-    }
-
-    publishPost(title, description, fileURL); // نشر المنشور مع الرابط
-});
 
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
@@ -120,6 +161,44 @@ const displayPosts = async () => {
     });
 };
 
+addPostBtn.addEventListener('click', () => {
+    overlay.classList.add('show');
+});
+
+closeBtn.addEventListener('click', () => {
+    overlay.classList.remove('show');
+});
+
+publishBtn.addEventListener('click', async () => {
+    const title = postTitleInput.value.trim();
+    const description = postDescriptionInput.value.trim();
+    const file = fileInput.files[0]; // الحصول على الملف
+    let fileURL = '';
+
+    if (file) {
+        fileURL = await uploadFile(file); // رفع الملف والحصول على الرابط
+    }
+
+    await publishPost(title, description, fileURL); // نشر المنشور مع الرابط
+});
+
+postList.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('delete-btn')) {
+        const postId = event.target.dataset.id;
+        const postDoc = await getDoc(doc(db, "posts", postId));
+        const postData = postDoc.data();
+        // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
+        if (postData.authorEmail === localStorage.getItem('email')) {
+            lastDeletedPost = { id: postId, data: postData };
+            await deleteDoc(doc(db, "posts", postId));
+            showNotification('تم حذف المنشور', 'delete');
+            displayPosts();
+        } else {
+            showNotification('لا يمكنك حذف منشور ليس لك', 'error');
+        }
+    }
+});
+
 logoutBtn.addEventListener('click', async () => {
     try {
         await signOut(auth);
@@ -132,13 +211,14 @@ logoutBtn.addEventListener('click', async () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Page loaded');
     const username = localStorage.getItem('username');
     if (username) {
         usernameDisplay.textContent = `${username}`;
     } else {
         usernameDisplay.textContent = 'مستخدم';
     }
-    displayPosts();
+    displayPosts(); // تأكد من أن هذه الدالة تعمل بدون أخطاء
 });
 
 onAuthStateChanged(auth, (user) => {
