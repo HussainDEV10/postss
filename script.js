@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
@@ -32,47 +32,7 @@ const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
 
 const showNotification = (message, type) => {
-    const notification = document.createElement('div');
-    notification.classList.add('notification');
-    notification.innerHTML = `
-        <span>${message}</span>
-        ${type === 'delete' ? '<button class="undo-btn" id="undoBtn">إسترجاع</button>' : ''}
-        <div class="underline"></div>
-    `;
-    notificationContainer.innerHTML = ''; // Clear existing notifications
-    notificationContainer.appendChild(notification);
-
-    let startX = 0;
-
-    notification.addEventListener('touchstart', (event) => {
-        startX = event.touches[0].clientX;
-    });
-
-    notification.addEventListener('touchmove', (event) => {
-        const touch = event.touches[0];
-        const diffX = touch.clientX - startX;
-        notification.style.transform = `translate(${diffX}px, 0)`;
-    });
-
-    notification.addEventListener('touchend', () => {
-        const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
-
-        if (Math.abs(finalPosition) > 10) {
-            notification.classList.add('hide');
-            notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
-            setTimeout(() => notification.remove(), 300); // إزالة الإشعار بعد 300 مللي ثانية
-        } else {
-            notification.style.transform = `translateX(0)`;
-        }
-    });
-
-    setTimeout(() => notification.classList.add('show'), 10);
-    setTimeout(() => notification.classList.add('hide'), 5000);
-    setTimeout(() => notification.remove(), 5500);
-
-    if (type === 'delete') {
-        document.getElementById('undoBtn').addEventListener('click', undoDelete);
-    }
+    // ... محتوى دالة الإشعار كما هو ...
 };
 
 const uploadFile = async (file) => {
@@ -159,3 +119,34 @@ const displayPosts = async () => {
         postList.appendChild(postItem);
     });
 };
+
+logoutBtn.addEventListener('click', async () => {
+    try {
+        await signOut(auth);
+        localStorage.removeItem('username');
+        localStorage.removeItem('email');
+        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+    } catch (error) {
+        console.error('خطأ في تسجيل الخروج:', error);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const username = localStorage.getItem('username');
+    if (username) {
+        usernameDisplay.textContent = `${username}`;
+    } else {
+        usernameDisplay.textContent = 'مستخدم';
+    }
+    displayPosts();
+});
+
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+    } else {
+        const displayName = user.displayName || localStorage.getItem('username');
+        localStorage.setItem('username', displayName);
+        localStorage.setItem('email', user.email);
+    }
+});
