@@ -89,7 +89,7 @@ function convertToLinks(text) {
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
-    const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني الحالي للمستخدم
+    const username = localStorage.getItem('username'); // الحصول على اسم المستخدم من localStorage
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
@@ -119,10 +119,10 @@ const displayPosts = async () => {
         postItem.classList.add('post-item');
         postItem.style.fontFamily = 'Rubik, sans-serif';
         postItem.innerHTML = `
-            ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+            ${username === data.author ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
-            <p class="post-author">من قِبل: ${data.authorEmail}</p>
+            <p class="post-author">من قِبل: ${data.author}</p>  <!-- عرض اسم المستخدم -->
             <p class="post-time">${formattedDateTime}</p>
         `;
         postList.appendChild(postItem);
@@ -140,12 +140,14 @@ closeBtn.addEventListener('click', () => {
 publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
-    const authorEmail = localStorage.getItem('email'); // استخدام البريد الإلكتروني بدلًا من اسم المستخدم
-    if (title && description && authorEmail) {
+    const author = localStorage.getItem('username');
+    const authorEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني
+    if (title && description && author && authorEmail) {
         await addDoc(collection(db, "posts"), {
             title,
             description,
-            authorEmail, // تخزين البريد الإلكتروني للمؤلف
+            author,
+            authorEmail, // تخزين البريد الإلكتروني مع المنشور
             timestamp: serverTimestamp()
         });
         postTitleInput.value = '';
@@ -161,8 +163,8 @@ postList.addEventListener('click', async (event) => {
         const postId = event.target.dataset.id;
         const postDoc = await getDoc(doc(db, "posts", postId));
         const postData = postDoc.data();
-        // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف بناءً على البريد الإلكتروني
-        if (postData.authorEmail === localStorage.getItem('email')) {
+        // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
+        if (postData.author === localStorage.getItem('username')) {
             lastDeletedPost = { id: postId, data: postData };
             await deleteDoc(doc(db, "posts", postId));
             showNotification('تم حذف المنشور', 'delete');
@@ -186,22 +188,16 @@ logoutBtn.addEventListener('click', async () => {
 
 document.addEventListener('DOMContentLoaded', () => {
     const username = localStorage.getItem('username');
-    if (username && username !== 'null') {
-        usernameDisplay.textContent = `${username}`;  // عرض اسم المستخدم في الصفحة
+    if (username) {
+        usernameDisplay.textContent = `${username}`;  // عرض اسم المستخدم في أعلى الشاشة
     } else {
-        usernameDisplay.textContent = 'مستخدم';  // إذا لم يكن هناك اسم مستخدم، يتم عرض "مستخدم"
+        usernameDisplay.textContent = 'مستخدم';
     }
     displayPosts();
 });
 
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        const displayName = user.displayName || `${username}`;  // الحصول على الاسم المعروض أو تعيين اسم افتراضي
-        localStorage.setItem('username', displayName);  // تخزين الاسم في localStorage
-        localStorage.setItem('email', user.email);  // تخزين البريد الإلكتروني في localStorage
-        usernameDisplay.textContent = `${username}`;  // عرض اسم المستخدم في الصفحة
-        displayPosts();  // عرض المنشورات بعد التحقق من حالة تسجيل الدخول
-    } else {
-        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';  // إعادة التوجيه إلى صفحة تسجيل الدخول في حال عدم تسجيل الدخول
+    if (!user) {
+        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // إعادة التوجيه إلى صفحة تسجيل الدخول إذا لم يكن هناك مستخدم مسجل
     }
 });
