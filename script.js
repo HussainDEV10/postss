@@ -141,13 +141,13 @@ publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
     const author = localStorage.getItem('username');
-    const authorEmail = localStorage.getItem('email');
+    const authorEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني
     if (title && description && author && authorEmail) {
         await addDoc(collection(db, "posts"), {
             title,
             description,
             author,
-            authorEmail,
+            authorEmail, // تخزين البريد الإلكتروني مع المنشور
             timestamp: serverTimestamp()
         });
         postTitleInput.value = '';
@@ -200,7 +200,7 @@ onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } else {
-        localStorage.setItem('username', user.displayName || `${username}`);
-        localStorage.setItem('email', user.email);
+        localStorage.setItem('username', user.displayName || 'مستخدم');
+        localStorage.setItem('email', user.email);  // تخزين البريد الإلكتروني في localStorage
     }
 });
