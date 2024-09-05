@@ -39,6 +39,30 @@ const showNotification = (message, type) => {
     notificationContainer.innerHTML = ''; // Clear existing notifications
     notificationContainer.appendChild(notification);
 
+    let startX = 0;
+
+    notification.addEventListener('touchstart', (event) => {
+        startX = event.touches[0].clientX;
+    });
+
+    notification.addEventListener('touchmove', (event) => {
+        const touch = event.touches[0];
+        const diffX = touch.clientX - startX;
+        notification.style.transform = `translate(${diffX}px, 0)`;
+    });
+
+    notification.addEventListener('touchend', () => {
+        const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
+
+        if (Math.abs(finalPosition) > 10) {
+            notification.classList.add('hide');
+            notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
+            setTimeout(() => notification.remove(), 300); // إزالة الإشعار بعد 300 مللي ثانية
+        } else {
+            notification.style.transform = `translateX(0)`;
+        }
+    });
+
     setTimeout(() => notification.classList.add('show'), 10);
     setTimeout(() => notification.classList.add('hide'), 5000);
     setTimeout(() => notification.remove(), 5500);
@@ -65,7 +89,7 @@ function convertToLinks(text) {
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
-    const currentUserEmail = localStorage.getItem('userEmail'); // الحصول على البريد الإلكتروني للمستخدم الحالي
+    const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
@@ -116,14 +140,14 @@ closeBtn.addEventListener('click', () => {
 publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
-    const authorEmail = localStorage.getItem('userEmail'); // الحصول على البريد الإلكتروني للمستخدم الحالي
     const author = localStorage.getItem('username');
-    if (title && description && authorEmail && author) {
+    const authorEmail = localStorage.getItem('email');
+    if (title && description && author && authorEmail) {
         await addDoc(collection(db, "posts"), {
             title,
             description,
             author,
-            authorEmail, // حفظ البريد الإلكتروني مع المنشور
+            authorEmail,
             timestamp: serverTimestamp()
         });
         postTitleInput.value = '';
@@ -139,8 +163,8 @@ postList.addEventListener('click', async (event) => {
         const postId = event.target.dataset.id;
         const postDoc = await getDoc(doc(db, "posts", postId));
         const postData = postDoc.data();
-        // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف بالبريد الإلكتروني
-        if (postData.authorEmail === localStorage.getItem('userEmail')) {
+        // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
+        if (postData.authorEmail === localStorage.getItem('email')) {
             lastDeletedPost = { id: postId, data: postData };
             await deleteDoc(doc(db, "posts", postId));
             showNotification('تم حذف المنشور', 'delete');
@@ -155,7 +179,7 @@ logoutBtn.addEventListener('click', async () => {
     try {
         await signOut(auth);
         localStorage.removeItem('username');
-        localStorage.removeItem('userEmail');
+        localStorage.removeItem('email');
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } catch (error) {
         console.error('خطأ في تسجيل الخروج:', error);
@@ -164,22 +188,19 @@ logoutBtn.addEventListener('click', async () => {
 
 document.addEventListener('DOMContentLoaded', () => {
     const username = localStorage.getItem('username');
-    const userEmail = localStorage.getItem('userEmail');
     if (username) {
         usernameDisplay.textContent = `${username}`;
     } else {
         usernameDisplay.textContent = 'مستخدم';
     }
-    if (userEmail) {
-        displayPosts(); // عرض المنشورات فقط إذا تم تخزين البريد الإلكتروني
-    }
+    displayPosts();
 });
 
 onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } else {
-        localStorage.setItem('username', user.displayName || `${username}`);
-        localStorage.setItem('userEmail', user.email);
+        localStorage.setItem('username', user.displayName || 'مستخدم');
+        localStorage.setItem('email', user.email);
     }
 });
