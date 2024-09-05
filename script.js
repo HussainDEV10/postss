@@ -89,9 +89,7 @@ function convertToLinks(text) {
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
-    const user = auth.currentUser;
-    const currentUsername = user ? user.displayName || user.email : ''; // الحصول على اسم المستخدم الحالي
-
+    const currentUser = localStorage.getItem('username'); // الحصول على اسم المستخدم الحالي
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
@@ -121,7 +119,7 @@ const displayPosts = async () => {
         postItem.classList.add('post-item');
         postItem.style.fontFamily = 'Rubik, sans-serif';
         postItem.innerHTML = `
-            ${currentUsername === data.author ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+            ${currentUser === data.author ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
             <p class="post-author">من قِبل: ${data.author}</p>
@@ -142,14 +140,12 @@ closeBtn.addEventListener('click', () => {
 publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
-    const user = auth.currentUser;
-    const username = user ? user.displayName || user.email : ''; // الحصول على اسم المستخدم
-
-    if (title && description && username) {
+    const author = localStorage.getItem('username');
+    if (title && description && author) {
         await addDoc(collection(db, "posts"), {
             title,
             description,
-            author: username, // حفظ اسم المستخدم كـ author
+            author,
             timestamp: serverTimestamp()
         });
         postTitleInput.value = '';
@@ -165,11 +161,8 @@ postList.addEventListener('click', async (event) => {
         const postId = event.target.dataset.id;
         const postDoc = await getDoc(doc(db, "posts", postId));
         const postData = postDoc.data();
-        const user = auth.currentUser;
-        const currentUsername = user ? user.displayName || user.email : ''; // الحصول على اسم المستخدم الحالي
-
         // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
-        if (postData.author === currentUsername) {
+        if (postData.author === localStorage.getItem('username')) {
             lastDeletedPost = { id: postId, data: postData };
             await deleteDoc(doc(db, "posts", postId));
             showNotification('تم حذف المنشور', 'delete');
@@ -191,9 +184,9 @@ logoutBtn.addEventListener('click', async () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    const user = auth.currentUser;
-    if (user) {
-        usernameDisplay.textContent = `${user.displayName || user.email}`; // عرض اسم المستخدم
+    const username = localStorage.getItem('username');
+    if (username) {
+        usernameDisplay.textContent = `${username}`;
     } else {
         usernameDisplay.textContent = 'مستخدم';
     }
@@ -204,4 +197,6 @@ onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } else {
-        localStorage.setItem('username')
+        localStorage.setItem('username', user.displayName || `${username}`);
+    }
+});
