@@ -160,9 +160,78 @@ postList.addEventListener('click', async (event) => {
     if (event.target.classList.contains('delete-btn')) {
         const postId = event.target.dataset.id;
         const postDoc = await getDoc(doc(db, "posts", postId));
+
+    const displayPosts = async () => {
+    const querySnapshot = await getDocs(collection(db, "posts"));
+    postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+    const currentUserEmail = localStorage.getItem('userEmail'); // الحصول على البريد الإلكتروني للمستخدم الحالي
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const timestamp = new Date(data.timestamp.seconds * 1000);
+
+        let hours = timestamp.getHours();
+        const minutes = timestamp.getMinutes().toString().padStart(2, '0');
+        const seconds = timestamp.getSeconds().toString().padStart(2, '0');
+        const period = hours >= 12 ? 'م' : 'ص';
+        hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
+        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
+        const day = timestamp.getDate().toString().padStart(2, '0');
+        const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
+        const year = timestamp.getFullYear();
+        const formattedDate = `${year}/${month}/${day}`;
+        const arabicNumbers = (number) => {
+            const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
+            return number.split('').map(digit => arabicDigits[digit] || digit).join('');
+        };
+
+        const arabicFormattedTime = arabicNumbers(formattedTime);
+        const arabicFormattedDate = arabicNumbers(formattedDate);
+        const formattedDateTime = `
+            <span dir="rtl">${arabicFormattedDate}</span> | ${arabicFormattedTime}
+        `;
+
+        const postItem = document.createElement('li');
+        postItem.classList.add('post-item');
+        postItem.style.fontFamily = 'Rubik, sans-serif';
+        postItem.innerHTML = `
+            ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+            <h3 class="post-title">${data.title}</h3>
+            <p class="post-description">${convertToLinks(data.description)}</p>
+            <p class="post-author">من قِبل: ${data.author}</p>
+            <p class="post-time">${formattedDateTime}</p>
+        `;
+        postList.appendChild(postItem);
+    });
+};
+
+publishBtn.addEventListener('click', async () => {
+    const title = postTitleInput.value.trim();
+    const description = postDescriptionInput.value.trim();
+    const authorEmail = localStorage.getItem('userEmail'); // حفظ البريد الإلكتروني بدلاً من اسم المستخدم
+    const author = localStorage.getItem('username');
+    if (title && description && authorEmail && author) {
+        await addDoc(collection(db, "posts"), {
+            title,
+            description,
+            author,
+            authorEmail, // حفظ البريد الإلكتروني مع البيانات
+            timestamp: serverTimestamp()
+        });
+        postTitleInput.value = '';
+        postDescriptionInput.value = '';
+        overlay.classList.remove('show');
+        showNotification('تم نشر المنشور بنجاح!', 'publish');
+        displayPosts();
+    }
+});
+
+postList.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('delete-btn')) {
+        const postId = event.target.dataset.id;
+        const postDoc = await getDoc(doc(db, "posts", postId));
         const postData = postDoc.data();
-        // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
-        if (postData.author === localStorage.getItem('username')) {
+        // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف بالبريد الإلكتروني
+        if (postData.authorEmail === localStorage.getItem('userEmail')) {
             lastDeletedPost = { id: postId, data: postData };
             await deleteDoc(doc(db, "posts", postId));
             showNotification('تم حذف المنشور', 'delete');
@@ -172,32 +241,3 @@ postList.addEventListener('click', async (event) => {
         }
     }
 });
-
-logoutBtn.addEventListener('click', async () => {
-    try {
-        await signOut(auth);
-        localStorage.removeItem('username');
-        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
-    } catch (error) {
-        console.error('خطأ في تسجيل الخروج:', error);
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const username = localStorage.getItem('username');
-    if (username) {
-        usernameDisplay.textContent = `${username}`;
-    } else {
-        usernameDisplay.textContent = 'مستخدم';
-    }
-    displayPosts();
-});
-
-onAuthStateChanged(auth, (user) => {
-    if (!user) {
-        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
-    } else {
-        localStorage.setItem('username', user.displayName || `${username}`);
-    }
-});
-        
