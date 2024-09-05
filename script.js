@@ -77,10 +77,14 @@ const showNotification = (message, type) => {
 
 const undoDelete = async () => {
     if (lastDeletedPost) {
-        await setDoc(doc(db, "posts", lastDeletedPost.id), lastDeletedPost.data);
-        showNotification('تم إسترجاع المنشور', 'restore');
-        displayPosts();
-        lastDeletedPost = null;
+        try {
+            await setDoc(doc(db, "posts", lastDeletedPost.id), lastDeletedPost.data);
+            showNotification('تم إسترجاع المنشور', 'restore');
+            displayPosts();
+            lastDeletedPost = null;
+        } catch (error) {
+            showNotification('فشل في إسترجاع المنشور: ' + error.message, 'error');
+        }
     }
 };
 
@@ -91,74 +95,86 @@ function convertToLinks(text) {
 
 const uploadFile = async (file) => {
     const storageRef = ref(storage, `uploads/${file.name}`);
-    await uploadBytes(storageRef, file);
-    const fileURL = await getDownloadURL(storageRef);
-    return fileURL;
+    try {
+        await uploadBytes(storageRef, file);
+        const fileURL = await getDownloadURL(storageRef);
+        return fileURL;
+    } catch (error) {
+        throw new Error('فشل في رفع الملف: ' + error.message);
+    }
 };
 
 const publishPost = async (title, description, fileURL) => {
     const author = localStorage.getItem('username');
     const authorEmail = localStorage.getItem('email');
     if (title && description && author && authorEmail) {
-        await addDoc(collection(db, "posts"), {
-            title,
-            description,
-            fileURL, // إضافة رابط الصورة أو الفيديو
-            author,
-            authorEmail,
-            timestamp: serverTimestamp()
-        });
-        postTitleInput.value = '';
-        postDescriptionInput.value = '';
-        fileInput.value = ''; // تفريغ حقل الملف
-        overlay.classList.remove('show');
-        showNotification('تم نشر المنشور بنجاح!', 'publish');
-        displayPosts();
+        try {
+            await addDoc(collection(db, "posts"), {
+                title,
+                description,
+                fileURL, // إضافة رابط الصورة أو الفيديو
+                author,
+                authorEmail,
+                timestamp: serverTimestamp()
+            });
+            postTitleInput.value = '';
+            postDescriptionInput.value = '';
+            fileInput.value = ''; // تفريغ حقل الملف
+            overlay.classList.remove('show');
+            showNotification('تم نشر المنشور بنجاح!', 'publish');
+            displayPosts();
+        } catch (error) {
+            showNotification('فشل في نشر المنشور: ' + error.message, 'error');
+        }
     }
 };
 
 const displayPosts = async () => {
-    const querySnapshot = await getDocs(collection(db, "posts"));
-    postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
-    const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const timestamp = new Date(data.timestamp.seconds * 1000);
+    try {
+        const querySnapshot = await getDocs(collection(db, "posts"));
+        postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+        const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const timestamp = new Date(data.timestamp.seconds * 1000);
 
-        let hours = timestamp.getHours();
-        const minutes = timestamp.getMinutes().toString().padStart(2, '0');
-        const seconds = timestamp.getSeconds().toString().padStart(2, '0');
-        const period = hours >= 12 ? 'م' : 'ص';
-        hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
-        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
-        const day = timestamp.getDate().toString().padStart(2, '0');
-        const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
-        const year = timestamp.getFullYear();
-        const formattedDate = `${year}/${month}/${day}`;
-        const arabicNumbers = (number) => {
-            const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
-            return number.split('').map(digit => arabicDigits[digit] || digit).join('');
-        };
+            let hours = timestamp.getHours();
+            const minutes = timestamp.getMinutes().toString().padStart(2, '0');
+            const seconds = timestamp.getSeconds().toString().padStart(2, '0');
+            const period = hours >= 12 ? 'م' : 'ص';
+            hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
+            const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
+            const day = timestamp.getDate().toString().padStart(2, '0');
+            const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
+            const year = timestamp.getFullYear();
+            const formattedDate = `${year}/${month}/${day}`;
+            const arabicNumbers = (number) => {
+                const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
+                return number.split('').map(digit => arabicDigits[digit] || digit).join('');
+            };
 
-        const arabicFormattedTime = arabicNumbers(formattedTime);
-        const arabicFormattedDate = arabicNumbers(formattedDate);
-        const formattedDateTime = `
-            <span dir="rtl">${arabicFormattedDate}</span> | ${arabicFormattedTime}
-        `;
+            const arabicFormattedTime = arabicNumbers(formattedTime);
+            const arabicFormattedDate = arabicNumbers(formattedDate);
+            const formattedDateTime = `
+                <span dir="rtl">${arabicFormattedDate}</span> | ${arabicFormattedTime}
+            `;
 
-        const postItem = document.createElement('li');
-        postItem.classList.add('post-item');
-        postItem.style.fontFamily = 'Rubik, sans-serif';
-        postItem.innerHTML = `
-            ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
-            <h3 class="post-title">${data.title}</h3>
-            <p class="post-description">${convertToLinks(data.description)}</p>
-            ${data.fileURL ? `<p><a href="${data.fileURL}" target="_blank">عرض الوسائط</a></p>` : ''}
-            <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
-            <p class="post-time">${formattedDateTime}</p>
-        `;
-        postList.appendChild(postItem);
-    });
+            const postItem = document.createElement('li');
+            postItem.classList.add('post-item');
+            postItem.style.fontFamily = 'Rubik, sans-serif';
+            postItem.innerHTML = `
+                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+                <h3 class="post-title">${data.title}</h3>
+                <p class="post-description">${convertToLinks(data.description)}</p>
+                ${data.fileURL ? `<p><a href="${data.fileURL}" target="_blank">عرض الوسائط</a></p>` : ''}
+                <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
+                <p class="post-time">${formattedDateTime}</p>
+            `;
+            postList.appendChild(postItem);
+        });
+    } catch (error) {
+        showNotification('فشل في عرض المنشورات: ' + error.message, 'error');
+    }
 };
 
 addPostBtn.addEventListener('click', () => {
@@ -176,25 +192,38 @@ publishBtn.addEventListener('click', async () => {
     let fileURL = '';
 
     if (file) {
-        fileURL = await uploadFile(file); // رفع الملف والحصول على الرابط
+        try {
+            fileURL = await uploadFile(file); // رفع الملف والحصول على الرابط
+        } catch (error) {
+            showNotification('فشل في رفع الملف: ' + error.message, 'error');
+            return;
+        }
     }
 
-    await publishPost(title, description, fileURL); // نشر المنشور مع الرابط
+    try {
+        await publishPost(title, description, fileURL); // نشر المنشور مع الرابط
+    } catch (error) {
+        showNotification('فشل في نشر المنشور: ' + error.message, 'error');
+    }
 });
 
 postList.addEventListener('click', async (event) => {
     if (event.target.classList.contains('delete-btn')) {
         const postId = event.target.dataset.id;
-        const postDoc = await getDoc(doc(db, "posts", postId));
-        const postData = postDoc.data();
-        // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
-        if (postData.authorEmail === localStorage.getItem('email')) {
-            lastDeletedPost = { id: postId, data: postData };
-            await deleteDoc(doc(db, "posts", postId));
-            showNotification('تم حذف المنشور', 'delete');
-            displayPosts();
-        } else {
-            showNotification('لا يمكنك حذف منشور ليس لك', 'error');
+        try {
+            const postDoc = await getDoc(doc(db, "posts", postId));
+            const postData = postDoc.data();
+            // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
+            if (postData.authorEmail === localStorage.getItem('email')) {
+                lastDeletedPost = { id: postId, data: postData };
+                await deleteDoc(doc(db, "posts", postId));
+                showNotification('تم حذف المنشور', 'delete');
+                displayPosts();
+            } else {
+                showNotification('لا يمكنك حذف منشور ليس لك', 'error');
+            }
+        } catch (error) {
+            showNotification('فشل في حذف المنشور: ' + error.message, 'error');
         }
     }
 });
@@ -206,7 +235,7 @@ logoutBtn.addEventListener('click', async () => {
         localStorage.removeItem('email');
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } catch (error) {
-        console.error('خطأ في تسجيل الخروج:', error);
+        showNotification('خطأ في تسجيل الخروج: ' + error.message, 'error');
     }
 });
 
