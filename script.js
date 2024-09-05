@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
@@ -100,7 +100,7 @@ const uploadFile = async (file) => {
         const fileURL = await getDownloadURL(storageRef);
         return fileURL;
     } catch (error) {
-        throw new Error('فشل في رفع الملف: ' + error.message);
+        showNotification('فشل في رفع الملف: ' + error.message, 'error');
     }
 };
 
@@ -126,6 +126,8 @@ const publishPost = async (title, description, fileURL) => {
         } catch (error) {
             showNotification('فشل في نشر المنشور: ' + error.message, 'error');
         }
+    } else {
+        showNotification('يرجى ملء جميع الحقول المطلوبة.', 'error');
     }
 };
 
@@ -173,7 +175,7 @@ const displayPosts = async () => {
             postList.appendChild(postItem);
         });
     } catch (error) {
-        showNotification('فشل في عرض المنشورات: ' + error.message, 'error');
+        showNotification('فشل في جلب المنشورات: ' + error.message, 'error');
     }
 };
 
@@ -191,16 +193,11 @@ publishBtn.addEventListener('click', async () => {
     const file = fileInput.files[0]; // الحصول على الملف
     let fileURL = '';
 
-    if (file) {
-        try {
-            fileURL = await uploadFile(file); // رفع الملف والحصول على الرابط
-        } catch (error) {
-            showNotification('فشل في رفع الملف: ' + error.message, 'error');
-            return;
-        }
-    }
-
     try {
+        if (file) {
+            fileURL = await uploadFile(file); // رفع الملف والحصول على الرابط
+        }
+
         await publishPost(title, description, fileURL); // نشر المنشور مع الرابط
     } catch (error) {
         showNotification('فشل في نشر المنشور: ' + error.message, 'error');
@@ -210,20 +207,20 @@ publishBtn.addEventListener('click', async () => {
 postList.addEventListener('click', async (event) => {
     if (event.target.classList.contains('delete-btn')) {
         const postId = event.target.dataset.id;
-        try {
-            const postDoc = await getDoc(doc(db, "posts", postId));
-            const postData = postDoc.data();
-            // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
-            if (postData.authorEmail === localStorage.getItem('email')) {
-                lastDeletedPost = { id: postId, data: postData };
+        const postDoc = await getDoc(doc(db, "posts", postId));
+        const postData = postDoc.data();
+        // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
+        if (postData.authorEmail === localStorage.getItem('email')) {
+            lastDeletedPost = { id: postId, data: postData };
+            try {
                 await deleteDoc(doc(db, "posts", postId));
                 showNotification('تم حذف المنشور', 'delete');
                 displayPosts();
-            } else {
-                showNotification('لا يمكنك حذف منشور ليس لك', 'error');
+            } catch (error) {
+                showNotification('فشل في حذف المنشور: ' + error.message, 'error');
             }
-        } catch (error) {
-            showNotification('فشل في حذف المنشور: ' + error.message, 'error');
+        } else {
+            showNotification('لا يمكنك حذف منشور ليس لك', 'error');
         }
     }
 });
