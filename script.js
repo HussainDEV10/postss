@@ -153,6 +153,7 @@ closeBtn.addEventListener('click', () => {
 });
 
 publishBtn.addEventListener('click', async () => {
+publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
     const author = localStorage.getItem('username');
@@ -164,28 +165,38 @@ publishBtn.addEventListener('click', async () => {
 
         if (mediaFile) {
             const mediaRef = ref(storage, `posts/${Date.now()}_${mediaFile.name}`);
-            await uploadBytes(mediaRef, mediaFile);
-            mediaUrl = await getDownloadURL(mediaRef);
+            try {
+                await uploadBytes(mediaRef, mediaFile);
+                mediaUrl = await getDownloadURL(mediaRef);
+            } catch (error) {
+                showNotification('خطأ في تحميل الملف', 'error');
+                return;
+            }
         }
 
-        await addDoc(collection(db, "posts"), {
-            title,
-            description,
-            author,
-            authorEmail,
-            mediaUrl,
-            timestamp: serverTimestamp()
-        });
-
-        postTitleInput.value = '';
-        postDescriptionInput.value = '';
-        mediaInput.value = ''; // مسح حقل الملف
-        overlay.classList.remove('show');
-        showNotification('تم نشر المنشور بنجاح!', 'publish');
-        displayPosts();
+        try {
+            await addDoc(collection(db, "posts"), {
+                title,
+                description,
+                author,
+                authorEmail,
+                mediaUrl,
+                timestamp: serverTimestamp()
+            });
+            postTitleInput.value = '';
+            postDescriptionInput.value = '';
+            mediaInput.value = ''; // مسح حقل الملف
+            overlay.classList.remove('show');
+            showNotification('تم نشر المنشور بنجاح!', 'publish');
+            displayPosts();
+        } catch (error) {
+            showNotification('خطأ في نشر المنشور', 'error');
+        }
+    } else {
+        showNotification('يرجى إدخال جميع الحقول', 'error');
     }
 });
-
+    
 postList.addEventListener('click', async (event) => {
     if (event.target.classList.contains('delete-btn')) {
         const postId = event.target.dataset.id;
