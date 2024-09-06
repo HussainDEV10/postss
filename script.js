@@ -207,10 +207,10 @@ logoutBtn.addEventListener('click', async () => {
     try {
         await signOut(auth);
         localStorage.removeItem('username');
-        localStorage.removeItem('email');
+localStorage.removeItem('email');
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } catch (error) {
-        console.error('خطأ في تسجيل الخروج:', error);
+        showNotification('خطأ في تسجيل الخروج', 'error');
     }
 });
 
