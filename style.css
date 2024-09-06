@@ -400,3 +400,17 @@ a:hover {
     z-index: 9;
     }
             
+/* تخصيص لعرض الصور والفيديوهات */
+.post-media {
+    max-width: 100%;
+    max-height: 300px;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+
+.post-video {
+    max-width: 100%;
+    max-height: 300px;
+    margin-top: 10px;
+    border-radius: 8px;
+}
