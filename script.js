@@ -1,81 +1,127 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-import { getAuth, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyBwIhzy0_RBqhMBlvJxbs5_760jP-Yv2fw",
+    authDomain: "facebookweb-2030.firebaseapp.com",
+    projectId: "facebookweb-2030",
+    storageBucket: "facebookweb-2030.appspot.com",
+    messagingSenderId: "912333220741",
+    appId: "1:912333220741:web:1c7425f4248b7465b45c67",
+    measurementId: "G-ZJ6M2D8T3M"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
 const storage = getStorage(app);
+const auth = getAuth(app);
 
 const postList = document.getElementById('postList');
 const publishBtn = document.getElementById('publishBtn');
 const postTitleInput = document.getElementById('postTitle');
 const postDescriptionInput = document.getElementById('postDescription');
-const postMediaInput = document.getElementById('postMedia');
+const mediaUpload = document.getElementById('mediaUpload');
 
-const displayPosts = async () => {
-    const querySnapshot = await getDocs(collection(db, "posts"));
-    postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
-    querySnapshot.forEach((doc) => {
-        const postData = doc.data();
-        const postItem = document.createElement('li');
-        postItem.classList.add('post-item');
-        postItem.innerHTML = `
-            <h3 class="post-title">${postData.title}</h3>
-            <p class="post-description">${postData.description}</p>
-            ${postData.mediaUrl ? `<img src="${postData.mediaUrl}" class="post-media">` : ''}
-            ${postData.videoUrl ? `<video src="${postData.videoUrl}" class="post-video" controls></video>` : ''}
-        `;
-        postList.appendChild(postItem);
-    });
-};
+// وظيفة لتحميل الوسائط على Firebase Storage
+async function uploadMedia(file) {
+    const storageRef = ref(storage, `media/${file.name}`);
+    await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL; // إرجاع رابط التحميل
+}
 
+// نشر المنشور
 publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value;
     const description = postDescriptionInput.value;
-    const file = postMediaInput.files[0];
+    const file = mediaUpload.files[0]; // الملف المرفق (إذا وجد)
 
-    if (!title || !description || !file) {
-        alert("يرجى ملء جميع الحقول واختيار صورة أو فيديو!");
-        return;
+    let mediaURL = '';
+    if (file) {
+        // تحميل الوسائط إذا تم اختيار ملف
+        mediaURL = await uploadMedia(file);
     }
 
-    let mediaUrl = null;
-    let videoUrl = null;
+    const postData = {
+        title: title,
+        description: description,
+        mediaURL: mediaURL,
+        timestamp: new Date(),
+        author: localStorage.getItem('username'), // افتراض أن اسم المستخدم محفوظ في localStorage
+        email: localStorage.getItem('email') // حفظ البريد الإلكتروني للتأكد من أن صاحب المنشور يمكنه حذفه
+    };
 
-    const storageRef = ref(storage, `media/${file.name}`);
-    await uploadBytes(storageRef, file);
-    const downloadUrl = await getDownloadURL(storageRef);
+    await addDoc(collection(db, 'posts'), postData);
 
-    if (file.type.startsWith("image/")) {
-        mediaUrl = downloadUrl;
-    } else if (file.type.startsWith("video/")) {
-        videoUrl = downloadUrl;
-    }
-
-    await addDoc(collection(db, "posts"), {
-        title,
-        description,
-        mediaUrl,
-        videoUrl,
-        timestamp: serverTimestamp()
-    });
-
+    // إعادة ضبط الحقول بعد النشر
     postTitleInput.value = '';
     postDescriptionInput.value = '';
-    postMediaInput.value = '';
-
+    mediaUpload.value = '';
+    
+    // إعادة عرض المنشورات
     displayPosts();
 });
 
-displayPosts();
+// عرض المنشورات
+async function displayPosts() {
+    const querySnapshot = await getDocs(collection(db, "posts"));
+    postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const postElement = document.createElement('li');
+        postElement.classList.add('post-item');
+
+        // إنشاء HTML للمنشور
+        let mediaHTML = '';
+        if (data.mediaURL) {
+            if (data.mediaURL.match(/\.(jpeg|jpg|gif|png)$/)) {
+                mediaHTML = `<img src="${data.mediaURL}" alt="Image" style="max-width: 100%; height: auto;">`;
+            } else if (data.mediaURL.match(/\.(mp4|webm|ogg)$/)) {
+                mediaHTML = `<video controls style="max-width: 100%; height: auto;">
+                                <source src="${data.mediaURL}" type="video/mp4">
+                                Your browser does not support the video tag.
+                             </video>`;
+            }
+        }
+
+        postElement.innerHTML = `
+            <h3 class="post-title">${data.title}</h3>
+            <p class="post-description">${data.description}</p>
+            ${mediaHTML}  <!-- تضمين الوسائط (صورة أو فيديو) -->
+            <p class="post-author">من قِبل: ${data.author}</p>
+        `;
+
+        // إضافة زر الحذف إذا كان البريد الإلكتروني للمستخدم هو نفسه كاتب المنشور
+        if (data.email === localStorage.getItem('email')) {
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'حذف المنشور';
+            deleteBtn.classList.add('delete-btn');
+            deleteBtn.addEventListener('click', async () => {
+                await deletePost(doc.id);
+                displayPosts();
+            });
+            postElement.appendChild(deleteBtn);
+        }
+
+        postList.appendChild(postElement);
+    });
+}
+
+// وظيفة لحذف المنشور
+async function deletePost(postId) {
+    await deleteDoc(doc(db, 'posts', postId));
+}
+
+// تحميل وعرض المنشورات عند تحميل الصفحة
+window.addEventListener('DOMContentLoaded', () => {
+    displayPosts();
+});
+
+// متابعة حالة تسجيل الدخول وإعادة التوجيه إذا لم يكن المستخدم مسجلاً دخوله
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = 'login.html';  // إعادة توجيه المستخدم إلى صفحة تسجيل الدخول
+    }
+});
