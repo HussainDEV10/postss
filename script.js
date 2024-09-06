@@ -75,6 +75,13 @@ const showNotification = (message, type) => {
     }
 };
 
+const showError = (message) => {
+    const errorDiv = document.createElement('div');
+    errorDiv.textContent = `خطأ: ${message}`;
+    errorDiv.style.color = 'red';
+    document.body.appendChild(errorDiv);
+};
+
 const undoDelete = async () => {
     if (lastDeletedPost) {
         await setDoc(doc(db, "posts", lastDeletedPost.id), lastDeletedPost.data);
@@ -153,7 +160,6 @@ closeBtn.addEventListener('click', () => {
 });
 
 publishBtn.addEventListener('click', async () => {
-publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
     const author = localStorage.getItem('username');
@@ -169,7 +175,7 @@ publishBtn.addEventListener('click', async () => {
                 await uploadBytes(mediaRef, mediaFile);
                 mediaUrl = await getDownloadURL(mediaRef);
             } catch (error) {
-                showNotification('خطأ في تحميل الملف', 'error');
+                showError(`خطأ في تحميل الملف: ${error.message}`);
                 return;
             }
         }
@@ -183,33 +189,35 @@ publishBtn.addEventListener('click', async () => {
                 mediaUrl,
                 timestamp: serverTimestamp()
             });
+            showNotification('تم نشر المنشور بنجاح!', 'publish');
             postTitleInput.value = '';
             postDescriptionInput.value = '';
             mediaInput.value = ''; // مسح حقل الملف
             overlay.classList.remove('show');
-            showNotification('تم نشر المنشور بنجاح!', 'publish');
             displayPosts();
         } catch (error) {
-            showNotification('خطأ في نشر المنشور', 'error');
+            showError(`خطأ في نشر المنشور: ${error.message}`);
         }
-    } else {
-        showNotification('يرجى إدخال جميع الحقول', 'error');
     }
 });
-    
+
 postList.addEventListener('click', async (event) => {
     if (event.target.classList.contains('delete-btn')) {
         const postId = event.target.dataset.id;
-        const postDoc = await getDoc(doc(db, "posts", postId));
-        const postData = postDoc.data();
-        // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
-        if (postData.authorEmail === localStorage.getItem('email')) {
-            lastDeletedPost = { id: postId, data: postData };
-            await deleteDoc(doc(db, "posts", postId));
-            showNotification('تم حذف المنشور', 'delete');
-            displayPosts();
-        } else {
-            showNotification('لا يمكنك حذف منشور ليس لك', 'error');
+        try {
+            const postDoc = await getDoc(doc(db, "posts", postId));
+            const postData = postDoc.data();
+            // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
+            if (postData.authorEmail === localStorage.getItem('email')) {
+                lastDeletedPost = { id: postId, data: postData };
+                await deleteDoc(doc(db, "posts", postId));
+                showNotification('تم حذف المنشور', 'delete');
+                displayPosts();
+            } else {
+                showNotification('لا يمكنك حذف منشور ليس لك', 'error');
+            }
+        } catch (error) {
+            showError(`خطأ في حذف المنشور: ${error.message}`);
         }
     }
 });
@@ -218,10 +226,10 @@ logoutBtn.addEventListener('click', async () => {
     try {
         await signOut(auth);
         localStorage.removeItem('username');
-localStorage.removeItem('email');
+        localStorage.removeItem('email');
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     } catch (error) {
-        showNotification('خطأ في تسجيل الخروج', 'error');
+        showError(`خطأ في تسجيل الخروج: ${error.message}`);
     }
 });
 
