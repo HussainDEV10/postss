@@ -26,7 +26,7 @@ const closeBtn = document.getElementById('closeBtn');
 const publishBtn = document.getElementById('publishBtn');
 const postTitleInput = document.getElementById('postTitle');
 const postDescriptionInput = document.getElementById('postDescription');
-const mediaInput = document.getElementById('mediaUpload');
+const postFileInput = document.getElementById('postFile');
 const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
@@ -39,7 +39,7 @@ const showNotification = (message, type) => {
         ${type === 'delete' ? '<button class="undo-btn" id="undoBtn">إسترجاع</button>' : ''}
         <div class="underline"></div>
     `;
-    notificationContainer.innerHTML = ''; // مسح الإشعارات القديمة
+    notificationContainer.innerHTML = ''; // Clear existing notifications
     notificationContainer.appendChild(notification);
 
     let startX = 0;
@@ -60,7 +60,7 @@ const showNotification = (message, type) => {
         if (Math.abs(finalPosition) > 10) {
             notification.classList.add('hide');
             notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
-            setTimeout(() => notification.remove(), 300);
+            setTimeout(() => notification.remove(), 300); // إزالة الإشعار بعد 300 مللي ثانية
         } else {
             notification.style.transform = `translateX(0)`;
         }
@@ -84,33 +84,48 @@ const undoDelete = async () => {
     }
 };
 
+function convertToLinks(text) {
+    const urlPattern = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
+}
+
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
-    postList.innerHTML = ''; 
-    const currentUserEmail = localStorage.getItem('email'); 
-
+    postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+    const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
-        const formattedDateTime = `${timestamp.toLocaleDateString()} ${timestamp.toLocaleTimeString()}`;
+
+        let hours = timestamp.getHours();
+        const minutes = timestamp.getMinutes().toString().padStart(2, '0');
+        const seconds = timestamp.getSeconds().toString().padStart(2, '0');
+        const period = hours >= 12 ? 'م' : 'ص';
+        hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
+        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
+        const day = timestamp.getDate().toString().padStart(2, '0');
+        const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
+        const year = timestamp.getFullYear();
+        const formattedDate = `${year}/${month}/${day}`;
+        const arabicNumbers = (number) => {
+            const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
+            return number.split('').map(digit => arabicDigits[digit] || digit).join('');
+        };
+
+        const arabicFormattedTime = arabicNumbers(formattedTime);
+        const arabicFormattedDate = arabicNumbers(formattedDate);
+        const formattedDateTime = `
+            <span dir="rtl">${arabicFormattedDate}</span> | ${arabicFormattedTime}
+        `;
 
         const postItem = document.createElement('li');
         postItem.classList.add('post-item');
-        
-        let mediaContent = '';
-        if (data.mediaUrl) {
-            if (data.mediaUrl.endsWith('.mp4')) {
-                mediaContent = `<video src="${data.mediaUrl}" controls style="max-width: 100%; height: auto;"></video>`;
-            } else {
-                mediaContent = `<img src="${data.mediaUrl}" style="max-width: 100%; height: auto;">`;
-            }
-        }
-
+        postItem.style.fontFamily = 'Rubik, sans-serif';
         postItem.innerHTML = `
             ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
-            <p class="post-description">${data.description}</p>
-            ${mediaContent}
+            <p class="post-description">${convertToLinks(data.description)}</p>
+            ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
             <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
             <p class="post-time">${formattedDateTime}</p>
         `;
@@ -127,97 +142,79 @@ closeBtn.addEventListener('click', () => {
 });
 
 publishBtn.addEventListener('click', async () => {
-publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
     const author = localStorage.getItem('username');
     const authorEmail = localStorage.getItem('email');
-    const mediaFile = mediaInput.files[0];
-
-    // التحقق من أن العنوان والوصف موجودان
+    const file = postFileInput.files[0];
+    
     if (title && description && author && authorEmail) {
-        let mediaUrl = '';
-
-        // التحقق إذا كان هناك ملف وسائط (صورة أو فيديو)
-        if (mediaFile) {
-            const mediaRef = ref(storage, `posts/${Date.now()}_${mediaFile.name}`);
-            try {
-                // محاولة رفع الملف إلى Firebase Storage
-                const uploadResult = await uploadBytes(mediaRef, mediaFile);
-                // الحصول على رابط الوسائط المرفوعة
-                mediaUrl = await getDownloadURL(uploadResult.ref);
-            } catch (error) {
-                showNotification(`خطأ في تحميل الملف: ${error.message}`, 'error');
-                return; // إيقاف التنفيذ إذا فشل رفع الملف
-            }
-        }
-
-        try {
-            // إضافة المنشور إلى Firestore مع رابط الوسائط (إذا وجد)
-            await addDoc(collection(db, "posts"), {
-                title,
-                description,
-                author,
-                authorEmail,
-                mediaUrl, // إضافة رابط الوسائط إذا كان موجودًا
-                timestamp: serverTimestamp()
-            });
-            showNotification('تم نشر المنشور بنجاح!', 'publish');
-            postTitleInput.value = '';
-            postDescriptionInput.value = '';
-            mediaInput.value = ''; // مسح حقل الوسائط
-            overlay.classList.remove('show');
-            displayPosts(); // تحديث قائمة المنشورات
-        } catch (error) {
-            showNotification(`خطأ في نشر المنشور: ${error.message}`, 'error');
-        }
-    } else {
-        showNotification('الرجاء ملء جميع الحقول!', 'error');
-    }
-});
-
-logoutBtn.addEventListener('click', () => {
-    signOut(auth).then(() => {
-        localStorage.removeItem('username');
-        localStorage.removeItem('email');
-        window.location.href = 'login.html'; // نقل المستخدم إلى صفحة تسجيل الدخول
-        showNotification('تم تسجيل الخروج بنجاح!', 'success');
-    }).catch((error) => {
-        showNotification(`خطأ في تسجيل الخروج: ${error.message}`, 'error');
-    });
-});
-
-// التحقق من حالة تسجيل الدخول عند تحميل الصفحة
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        const username = localStorage.getItem('username') || user.displayName;
-        const email = user.email;
-        usernameDisplay.textContent = username || 'مستخدم';
-        localStorage.setItem('username', username);
-        localStorage.setItem('email', email);
-        displayPosts(); // عرض المنشورات عند تسجيل الدخول
-    } else {
-        window.location.href = 'login.html'; // نقل المستخدم إلى صفحة تسجيل الدخول إذا لم يكن مسجلاً
-    }
-});
-
-// حذف المنشور
-postList.addEventListener('click', async (e) => {
-    if (e.target.classList.contains('delete-btn')) {
-        const postId = e.target.getAttribute('data-id');
-        const postRef = doc(db, "posts", postId);
+        let fileUrl = '';
         
-        const postDoc = await getDoc(postRef);
+        if (file) {
+            const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
+            await uploadBytes(storageRef, file);
+            fileUrl = await getDownloadURL(storageRef);
+        }
+        
+        await addDoc(collection(db, "posts"), {
+            title,
+            description,
+            author,
+            authorEmail,
+            timestamp: serverTimestamp(),
+            fileUrl
+        });
+        postTitleInput.value = '';
+        postDescriptionInput.value = '';
+        postFileInput.value = '';
+        overlay.classList.remove('show');
+showNotification('تم نشر المنشور بنجاح', 'success');
+        displayPosts();
+    } else {
+        showNotification('يرجى ملء جميع الحقول', 'error');
+    }
+});
+
+postList.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('delete-btn')) {
+        const postId = event.target.getAttribute('data-id');
+        const postDoc = await getDoc(doc(db, 'posts', postId));
+        
         if (postDoc.exists()) {
             lastDeletedPost = {
                 id: postDoc.id,
                 data: postDoc.data()
             };
-            await deleteDoc(postRef);
-            showNotification('تم حذف المنشور بنجاح', 'delete');
-            displayPosts(); // تحديث قائمة المنشورات بعد الحذف
-        } else {
-            showNotification('المنشور غير موجود', 'error');
+            
+            await deleteDoc(doc(db, 'posts', postId));
+            showNotification('تم حذف المنشور', 'delete');
+            displayPosts();
         }
     }
 });
+
+const checkAuthState = async () => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            const email = user.email;
+            const username = localStorage.getItem('username') || user.displayName || 'مستخدم';
+            localStorage.setItem('email', email);
+            usernameDisplay.textContent = `مرحباً، ${username}`;
+            displayPosts();
+        } else {
+            window.location.href = 'login.html'; // إعادة التوجيه إلى صفحة تسجيل الدخول
+        }
+    });
+};
+
+logoutBtn.addEventListener('click', () => {
+    signOut(auth).then(() => {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }).catch((error) => {
+        showNotification('حدث خطأ أثناء تسجيل الخروج', 'error');
+    });
+});
+
+checkAuthState();
