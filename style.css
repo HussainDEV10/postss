@@ -113,7 +113,7 @@ a:hover {
 
 
 .post-form input[type="file"] {
-    width: calc(105% - 20px); /* تنسيق الحقل */
+    display: block;
     margin-bottom: 10px;
 }
 
