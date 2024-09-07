@@ -39,7 +39,7 @@ const showNotification = (message, type) => {
         ${type === 'delete' ? '<button class="undo-btn" id="undoBtn">إسترجاع</button>' : ''}
         <div class="underline"></div>
     `;
-    notificationContainer.innerHTML = ''; // Clear existing notifications
+    notificationContainer.innerHTML = ''; // مسح الإشعارات القديمة
     notificationContainer.appendChild(notification);
 
     let startX = 0;
@@ -60,7 +60,7 @@ const showNotification = (message, type) => {
         if (Math.abs(finalPosition) > 10) {
             notification.classList.add('hide');
             notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
-            setTimeout(() => notification.remove(), 300); // إزالة الإشعار بعد 300 مللي ثانية
+            setTimeout(() => notification.remove(), 300);
         } else {
             notification.style.transform = `translateX(0)`;
         }
@@ -75,13 +75,6 @@ const showNotification = (message, type) => {
     }
 };
 
-const showError = (message) => {
-    const errorDiv = document.createElement('div');
-    errorDiv.textContent = `خطأ: ${message}`;
-    errorDiv.style.color = 'red';
-    document.body.appendChild(errorDiv);
-};
-
 const undoDelete = async () => {
     if (lastDeletedPost) {
         await setDoc(doc(db, "posts", lastDeletedPost.id), lastDeletedPost.data);
@@ -91,44 +84,18 @@ const undoDelete = async () => {
     }
 };
 
-function convertToLinks(text) {
-    const urlPattern = /(https?:\/\/[^\s]+)/g;
-    return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
-}
-
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
-    postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
-    const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
+    postList.innerHTML = ''; 
+    const currentUserEmail = localStorage.getItem('email'); 
 
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
-
-        let hours = timestamp.getHours();
-        const minutes = timestamp.getMinutes().toString().padStart(2, '0');
-        const seconds = timestamp.getSeconds().toString().padStart(2, '0');
-        const period = hours >= 12 ? 'م' : 'ص';
-        hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
-        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
-        const day = timestamp.getDate().toString().padStart(2, '0');
-        const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
-        const year = timestamp.getFullYear();
-        const formattedDate = `${year}/${month}/${day}`;
-        const arabicNumbers = (number) => {
-            const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
-            return number.split('').map(digit => arabicDigits[digit] || digit).join('');
-        };
-
-        const arabicFormattedTime = arabicNumbers(formattedTime);
-        const arabicFormattedDate = arabicNumbers(formattedDate);
-        const formattedDateTime = `
-            <span dir="rtl">${arabicFormattedDate}</span> | ${arabicFormattedTime}
-        `;
+        const formattedDateTime = `${timestamp.toLocaleDateString()} ${timestamp.toLocaleTimeString()}`;
 
         const postItem = document.createElement('li');
         postItem.classList.add('post-item');
-        postItem.style.fontFamily = 'Rubik, sans-serif';
         
         let mediaContent = '';
         if (data.mediaUrl) {
@@ -142,7 +109,7 @@ const displayPosts = async () => {
         postItem.innerHTML = `
             ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
-            <p class="post-description">${convertToLinks(data.description)}</p>
+            <p class="post-description">${data.description}</p>
             ${mediaContent}
             <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
             <p class="post-time">${formattedDateTime}</p>
@@ -173,9 +140,11 @@ publishBtn.addEventListener('click', async () => {
             const mediaRef = ref(storage, `posts/${Date.now()}_${mediaFile.name}`);
             try {
                 await uploadBytes(mediaRef, mediaFile);
+                showNotification('تم رفع الملف بنجاح!', 'success');
                 mediaUrl = await getDownloadURL(mediaRef);
+                showNotification(`تم الحصول على رابط الملف: ${mediaUrl}`, 'success');
             } catch (error) {
-                showError(`خطأ في تحميل الملف: ${error.message}`);
+                showNotification(`خطأ في تحميل الملف: ${error.message}`, 'error');
                 return;
             }
         }
@@ -192,63 +161,59 @@ publishBtn.addEventListener('click', async () => {
             showNotification('تم نشر المنشور بنجاح!', 'publish');
             postTitleInput.value = '';
             postDescriptionInput.value = '';
-            mediaInput.value = ''; // مسح حقل الملف
+            mediaInput.value = ''; 
             overlay.classList.remove('show');
-            displayPosts();
+            displayPosts(); // تحديث قائمة المنشورات بعد النشر
         } catch (error) {
-            showError(`خطأ في نشر المنشور: ${error.message}`);
+            showNotification(`خطأ في نشر المنشور: ${error.message}`, 'error');
         }
+    } else {
+        showNotification('الرجاء ملء جميع الحقول!', 'error');
     }
 });
 
-postList.addEventListener('click', async (event) => {
-    if (event.target.classList.contains('delete-btn')) {
-        const postId = event.target.dataset.id;
-        try {
-            const postDoc = await getDoc(doc(db, "posts", postId));
-            const postData = postDoc.data();
-            // التحقق من أن صاحب المنشور هو نفس المستخدم الذي يحاول الحذف
-            if (postData.authorEmail === localStorage.getItem('email')) {
-                lastDeletedPost = { id: postId, data: postData };
-                await deleteDoc(doc(db, "posts", postId));
-                showNotification('تم حذف المنشور', 'delete');
-                displayPosts();
-            } else {
-                showNotification('لا يمكنك حذف منشور ليس لك', 'error');
-            }
-        } catch (error) {
-            showError(`خطأ في حذف المنشور: ${error.message}`);
-        }
-    }
-});
-
-logoutBtn.addEventListener('click', async () => {
-    try {
-        await signOut(auth);
+logoutBtn.addEventListener('click', () => {
+    signOut(auth).then(() => {
         localStorage.removeItem('username');
         localStorage.removeItem('email');
-        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
-    } catch (error) {
-        showError(`خطأ في تسجيل الخروج: ${error.message}`);
-    }
+        window.location.href = 'login.html'; // نقل المستخدم إلى صفحة تسجيل الدخول
+        showNotification('تم تسجيل الخروج بنجاح!', 'success');
+    }).catch((error) => {
+        showNotification(`خطأ في تسجيل الخروج: ${error.message}`, 'error');
+    });
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    const username = localStorage.getItem('username');
-    if (username) {
-        usernameDisplay.textContent = `${username}`;
-    } else {
-        usernameDisplay.textContent = 'مستخدم';
-    }
-    displayPosts();
-});
-
+// التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 onAuthStateChanged(auth, (user) => {
-    if (!user) {
-        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+    if (user) {
+        const username = localStorage.getItem('username') || user.displayName;
+        const email = user.email;
+        usernameDisplay.textContent = username || 'مستخدم';
+        localStorage.setItem('username', username);
+        localStorage.setItem('email', email);
+        displayPosts(); // عرض المنشورات عند تسجيل الدخول
     } else {
-        const displayName = user.displayName || localStorage.getItem('username');
-        localStorage.setItem('username', displayName);
-        localStorage.setItem('email', user.email);
+        window.location.href = 'login.html'; // نقل المستخدم إلى صفحة تسجيل الدخول إذا لم يكن مسجلاً
+    }
+});
+
+// حذف المنشور
+postList.addEventListener('click', async (e) => {
+    if (e.target.classList.contains('delete-btn')) {
+        const postId = e.target.getAttribute('data-id');
+        const postRef = doc(db, "posts", postId);
+        
+        const postDoc = await getDoc(postRef);
+        if (postDoc.exists()) {
+            lastDeletedPost = {
+                id: postDoc.id,
+                data: postDoc.data()
+            };
+            await deleteDoc(postRef);
+            showNotification('تم حذف المنشور بنجاح', 'delete');
+            displayPosts(); // تحديث قائمة المنشورات بعد الحذف
+        } else {
+            showNotification('المنشور غير موجود', 'error');
+        }
     }
 });
