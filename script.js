@@ -139,10 +139,10 @@ publishBtn.addEventListener('click', async () => {
         if (mediaFile) {
             const mediaRef = ref(storage, `posts/${Date.now()}_${mediaFile.name}`);
             try {
-                await uploadBytes(mediaRef, mediaFile);
-                showNotification('تم رفع الملف بنجاح!', 'success');
-                mediaUrl = await getDownloadURL(mediaRef);
-                showNotification(`تم الحصول على رابط الملف: ${mediaUrl}`, 'success');
+                // رفع الملف إلى Firebase Storage
+                const uploadResult = await uploadBytes(mediaRef, mediaFile);
+                // الحصول على رابط التحميل بعد رفع الملف
+                mediaUrl = await getDownloadURL(uploadResult.ref);
             } catch (error) {
                 showNotification(`خطأ في تحميل الملف: ${error.message}`, 'error');
                 return;
@@ -150,20 +150,21 @@ publishBtn.addEventListener('click', async () => {
         }
 
         try {
+            // إضافة المنشور إلى Firestore
             await addDoc(collection(db, "posts"), {
                 title,
                 description,
                 author,
                 authorEmail,
-                mediaUrl,
+                mediaUrl, // إضافة رابط الوسائط (إن وجد)
                 timestamp: serverTimestamp()
             });
             showNotification('تم نشر المنشور بنجاح!', 'publish');
             postTitleInput.value = '';
             postDescriptionInput.value = '';
-            mediaInput.value = ''; 
+            mediaInput.value = ''; // مسح حقل الملف
             overlay.classList.remove('show');
-            displayPosts(); // تحديث قائمة المنشورات بعد النشر
+            displayPosts(); // تحديث قائمة المنشورات
         } catch (error) {
             showNotification(`خطأ في نشر المنشور: ${error.message}`, 'error');
         }
