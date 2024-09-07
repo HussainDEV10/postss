@@ -127,42 +127,45 @@ closeBtn.addEventListener('click', () => {
 });
 
 publishBtn.addEventListener('click', async () => {
+publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
     const author = localStorage.getItem('username');
     const authorEmail = localStorage.getItem('email');
     const mediaFile = mediaInput.files[0];
 
+    // التحقق من أن العنوان والوصف موجودان
     if (title && description && author && authorEmail) {
         let mediaUrl = '';
 
+        // التحقق إذا كان هناك ملف وسائط (صورة أو فيديو)
         if (mediaFile) {
             const mediaRef = ref(storage, `posts/${Date.now()}_${mediaFile.name}`);
             try {
-                // رفع الملف إلى Firebase Storage
+                // محاولة رفع الملف إلى Firebase Storage
                 const uploadResult = await uploadBytes(mediaRef, mediaFile);
-                // الحصول على رابط التحميل بعد رفع الملف
+                // الحصول على رابط الوسائط المرفوعة
                 mediaUrl = await getDownloadURL(uploadResult.ref);
             } catch (error) {
                 showNotification(`خطأ في تحميل الملف: ${error.message}`, 'error');
-                return;
+                return; // إيقاف التنفيذ إذا فشل رفع الملف
             }
         }
 
         try {
-            // إضافة المنشور إلى Firestore
+            // إضافة المنشور إلى Firestore مع رابط الوسائط (إذا وجد)
             await addDoc(collection(db, "posts"), {
                 title,
                 description,
                 author,
                 authorEmail,
-                mediaUrl, // إضافة رابط الوسائط (إن وجد)
+                mediaUrl, // إضافة رابط الوسائط إذا كان موجودًا
                 timestamp: serverTimestamp()
             });
             showNotification('تم نشر المنشور بنجاح!', 'publish');
             postTitleInput.value = '';
             postDescriptionInput.value = '';
-            mediaInput.value = ''; // مسح حقل الملف
+            mediaInput.value = ''; // مسح حقل الوسائط
             overlay.classList.remove('show');
             displayPosts(); // تحديث قائمة المنشورات
         } catch (error) {
