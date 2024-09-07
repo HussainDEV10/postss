@@ -215,7 +215,7 @@ const checkAuthState = async () => {
             usernameDisplay.textContent = `مرحباً، ${username}`;
             displayPosts();
         } else {
-            window.location.href = 'login.html'; // إعادة التوجيه إلى صفحة تسجيل الدخول
+            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // إعادة التوجيه إلى صفحة تسجيل الدخول
         }
     });
 };
@@ -223,7 +223,7 @@ const checkAuthState = async () => {
 logoutBtn.addEventListener('click', () => {
     signOut(auth).then(() => {
         localStorage.clear();
-        window.location.href = 'login.html';
+        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     }).catch((error) => {
         showNotification('حدث خطأ أثناء تسجيل الخروج', 'error');
     });
