@@ -125,9 +125,9 @@ const displayPosts = async () => {
         // فحص نوع الملف وعرضه بشكل مناسب
         let mediaElement = '';
         if (data.fileUrl) {
-            const fileExtension = data.fileUrl.split('.').pop();
-            if (fileExtension === 'mp4' || fileExtension === 'mov' || fileExtension === 'avi') {
-                mediaElement = `<video controls class="post-media"><source src="${data.fileUrl}" type="video/${fileExtension}"> المتصفح الخاص بك لا يدعم تشغيل الفيديو.</video>`;
+            const fileExtension = data.fileUrl.split('.').pop().toLowerCase();
+            if (['mp4', 'mov', 'avi'].includes(fileExtension)) {
+                mediaElement = `<video controls class="post-media" width="100%"><source src="${data.fileUrl}" type="video/${fileExtension}"> المتصفح الخاص بك لا يدعم تشغيل الفيديو.</video>`;
             } else {
                 mediaElement = `<img src="${data.fileUrl}" alt="Media" class="post-media"/>`;
             }
