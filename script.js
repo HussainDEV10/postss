@@ -121,11 +121,23 @@ const displayPosts = async () => {
         const postItem = document.createElement('li');
         postItem.classList.add('post-item');
         postItem.style.fontFamily = 'Rubik, sans-serif';
+
+        // فحص نوع الملف وعرضه بشكل مناسب
+        let mediaElement = '';
+        if (data.fileUrl) {
+            const fileExtension = data.fileUrl.split('.').pop();
+            if (fileExtension === 'mp4' || fileExtension === 'mov' || fileExtension === 'avi') {
+                mediaElement = `<video controls class="post-media"><source src="${data.fileUrl}" type="video/${fileExtension}"> المتصفح الخاص بك لا يدعم تشغيل الفيديو.</video>`;
+            } else {
+                mediaElement = `<img src="${data.fileUrl}" alt="Media" class="post-media"/>`;
+            }
+        }
+
         postItem.innerHTML = `
             ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
-            ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
+            ${mediaElement}
             <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
             <p class="post-time">${formattedDateTime}</p>
         `;
