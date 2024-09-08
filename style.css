@@ -220,23 +220,25 @@ a:hover {
     align-items: center;
 }
 
-.like-btn, .dislike-btn {
-    border: 2px solid black; /* حدود الأزرار */
-    color: black;
-    background-color: white; /* خلفية الأزرار بيضاء */
-    border-radius: 50%; /* شكل دائري */
-    padding: 10px 15px; /* حجم الأزرار */
+/* تعديل نمط زر التعديل */
+.edit-btn {
+    background-color: transparent;
+    border: none;
     cursor: pointer;
-    font-size: 18px; /* حجم الخط داخل الأزرار */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s, color 0.3s; /* تأثير عند التمرير */
+    font-size: 24px;
+    color: #00ff00; /* اللون الأخضر */
+    position: absolute;
+    top: 10px;
+    right: 80px; /* زيادة المسافة بين زر الحذف وزر التعديل */
+    transition: color 0.3s ease;
 }
 
-.like-btn:hover, .dislike-btn:hover {
-    background-color: black; /* تغيير اللون عند التمرير */
-    color: white; /* تغيير لون النص عند التمرير */
+.edit-btn:active {
+    transform: scale(0.90);
+}
+
+.edit-btn:hover {
+    color: #00cc00;
 }
 
 .post-footer span {
