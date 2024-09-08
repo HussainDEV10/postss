@@ -128,9 +128,10 @@ const displayPosts = async () => {
             const fileExtension = data.fileUrl.split('.').pop().toLowerCase();
             if (['mp4', 'mov', 'avi'].includes(fileExtension)) {
                 mediaElement = `<video controls class="post-media" width="100%"><source src="${data.fileUrl}" type="video/${fileExtension}"> المتصفح الخاص بك لا يدعم تشغيل الفيديو.</video>`;
-            } else {
-                mediaElement = `<img src="${data.fileUrl}" alt="Media" class="post-media"/>`;
-            }
+            } else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+                mediaElement = `<img src="${data.fileUrl}" alt="Image" class="post-media"/>`;
+            } 
+            // تجنب عرض "🖼️Media" عند عدم وجود صورة أو فيديو
         }
 
         postItem.innerHTML = `
