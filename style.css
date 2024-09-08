@@ -205,7 +205,7 @@ a:hover {
 .post-item {
     background-color: white;
     margin-bottom: 10px;
-    padding: 20px; /* زيادة الحجم من الأسفل */
+    padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: relative;
@@ -215,7 +215,8 @@ a:hover {
 .post-item .post-footer {
     margin-top: 15px; /* زيادة المسافة بين "من قِبل" والصور */
     display: flex;
-    justify-content: space-between; /* توزيع الأزرار على الأطراف */
+    justify-content: flex-end; /* محاذاة الأزرار لليمين */
+    gap: 10px; /* مسافة بين الأزرار */
     align-items: center;
 }
 
@@ -228,15 +229,20 @@ a:hover {
     cursor: pointer;
     font-size: 18px; /* حجم الخط داخل الأزرار */
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     transition: background-color 0.3s, color 0.3s; /* تأثير عند التمرير */
 }
 
 .like-btn:hover, .dislike-btn:hover {
     background-color: black; /* تغيير اللون عند التمرير */
     color: white; /* تغيير لون النص عند التمرير */
-                               }
+}
+
+.post-footer span {
+    margin-left: 5px; /* مسافة بين الرقم والزرد */
+    font-size: 14px; /* حجم الخط للأرقام */
+}
 
 
 .post-item:first-child {
