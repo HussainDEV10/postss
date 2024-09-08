@@ -217,5 +217,59 @@ logoutBtn.addEventListener('click', () => {
     });
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    // الحصول على عنصر قائمة المنشورات
+    const postList = document.getElementById('postList');
+
+    // افترض أن لديك دالة لتحميل المنشورات من قاعدة البيانات
+    loadPosts();
+
+    // وظيفة لتحميل المنشورات وعرضها
+    function loadPosts() {
+        // هنا يجب أن تكون لديك دالة لتحميل المنشورات من قاعدة البيانات
+        // على سبيل المثال، البيانات هنا افتراضية
+        const posts = [
+            { id: '1', title: 'منشور 1', description: 'وصف المنشور 1', likes: 10, dislikes: 2 },
+            { id: '2', title: 'منشور 2', description: 'وصف المنشور 2', likes: 5, dislikes: 1 },
+            // أضف المزيد من المنشورات هنا
+        ];
+
+        // تنظيف القائمة الحالية
+        postList.innerHTML = '';
+
+        // إضافة المنشورات إلى القائمة
+        posts.forEach(post => {
+            const listItem = document.createElement('li');
+            listItem.classList.add('post-item');
+            listItem.innerHTML = `
+                <h3 class="post-title">${post.title}</h3>
+                <p class="post-description">${post.description}</p>
+                <div class="post-footer">
+                    <button class="dislike-btn" data-id="${post.id}">👎 <span class="dislike-count">${post.dislikes}</span></button>
+                    <button class="like-btn" data-id="${post.id}">👍 <span class="like-count">${post.likes}</span></button>
+                </div>
+            `;
+            postList.appendChild(listItem);
+        });
+    }
+
+    // إدارة التفاعل مع أزرار الإعجاب وعدم الإعجاب
+    postList.addEventListener('click', async (event) => {
+        if (event.target.classList.contains('like-btn') || event.target.classList.contains('dislike-btn')) {
+            const postId = event.target.getAttribute('data-id');
+            const isLike = event.target.classList.contains('like-btn');
+            const field = isLike ? 'likes' : 'dislikes';
+
+            // افترض أنك تتعامل مع قاعدة بيانات، ستحتاج إلى الكود الخاص بك هنا
+            // على سبيل المثال:
+            // await updatePostInDatabase(postId, field);
+
+            // تحديث العرض
+            const countElement = event.target.querySelector(`.${field}-count`);
+            countElement.textContent = parseInt(countElement.textContent) + 1;
+        }
+    });
+});
+
 checkAuthState();
     
