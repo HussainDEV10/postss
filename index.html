@@ -10,14 +10,10 @@
     <ul class="post-list" id="postList"></ul>
     <div class="add-post-btn" id="addPostBtn">+</div>
 
-<li class="post-item">
-    <h3 class="post-title">عنوان المنشور</h3>
-    <p class="post-description">وصف المنشور</p>
-    <div class="post-footer">
-        <button class="dislike-btn" data-id="0">👎 <span class="dislike-count">0</span></button>
-        <button class="like-btn" data-id="0">👍 <span class="like-count">1</span></button>
-    </div>
-</li>
+<div class="post-item" data-post-id="1" id="post-1">
+    <button class="delete-btn">🗑️</button>
+    <button class="edit-btn">✏️</button>
+</div>
     
     <div class="bottom-bar">
         <div class="color-options" id="colorOptions">
@@ -32,11 +28,11 @@
     <div class="overlay" id="overlay">
         <div class="post-form">
             <button class="close-btn" id="closeBtn">&times;</button>
-            <h2>أضف منشور</h2>
+            <h2 id="formTitle">أضف منشور</h2>
             <input type="text" id="postTitle" placeholder="العنوان">
             <textarea id="postDescription" placeholder="الوصف"></textarea>
-            <input type="file" id="postFile" accept="image/*, video/*">
-            <button class="publish-btn" id="publishBtn">نشر<span>+</span></button>
+            <input type="file" id="postFile" accept="image/*,video/*">
+            <button class="publish-btn" id="submitBtn">نشر<span>+</span></button>
         </div>
     </div>
 
@@ -49,3 +45,5 @@
     <script src="script.js" type="module"></script>
 </body>
 </html>
+
+صحيح
