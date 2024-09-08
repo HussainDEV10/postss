@@ -121,25 +121,11 @@ const displayPosts = async () => {
         const postItem = document.createElement('li');
         postItem.classList.add('post-item');
         postItem.style.fontFamily = 'Rubik, sans-serif';
-
-        // فحص نوع الملف وعرضه بشكل مناسب
-        let mediaElement = '';
-        if (data.fileUrl) {
-            const fileExtension = data.fileUrl.split('.').pop().toLowerCase();
-            
-            // التحقق من نوع الملف وعرضه
-            if (['mp4', 'mov', 'avi'].includes(fileExtension)) {
-                mediaElement = `<video controls class="post-media" width="100%"><source src="${data.fileUrl}" type="video/${fileExtension}">المتصفح الخاص بك لا يدعم تشغيل الفيديو.</video>`;
-            } else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
-                mediaElement = `<img src="${data.fileUrl}" alt="Image" class="post-media"/>`;
-            } 
-        }
-
         postItem.innerHTML = `
             ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
-            ${mediaElement} <!-- يتم عرض الوسائط هنا -->
+            ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
             <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
             <p class="post-time">${formattedDateTime}</p>
         `;
@@ -232,3 +218,4 @@ logoutBtn.addEventListener('click', () => {
 });
 
 checkAuthState();
+        
