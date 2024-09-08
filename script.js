@@ -126,19 +126,20 @@ const displayPosts = async () => {
         let mediaElement = '';
         if (data.fileUrl) {
             const fileExtension = data.fileUrl.split('.').pop().toLowerCase();
+            
+            // التحقق من نوع الملف وعرضه
             if (['mp4', 'mov', 'avi'].includes(fileExtension)) {
-                mediaElement = `<video controls class="post-media" width="100%"><source src="${data.fileUrl}" type="video/${fileExtension}"> المتصفح الخاص بك لا يدعم تشغيل الفيديو.</video>`;
+                mediaElement = `<video controls class="post-media" width="100%"><source src="${data.fileUrl}" type="video/${fileExtension}">المتصفح الخاص بك لا يدعم تشغيل الفيديو.</video>`;
             } else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
                 mediaElement = `<img src="${data.fileUrl}" alt="Image" class="post-media"/>`;
             } 
-            // تجنب عرض "🖼️Media" عند عدم وجود صورة أو فيديو
         }
 
         postItem.innerHTML = `
             ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
-            ${mediaElement}
+            ${mediaElement} <!-- يتم عرض الوسائط هنا -->
             <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
             <p class="post-time">${formattedDateTime}</p>
         `;
