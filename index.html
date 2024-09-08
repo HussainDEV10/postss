@@ -17,8 +17,8 @@
     ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
     <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
     <div class="post-footer">
-        <button class="like-btn">👍</button>
-        <button class="dislike-btn">👎</button>
+        <button class="dislike-btn" data-id="${doc.id}">👎 <span class="dislike-count">0</span></button>
+        <button class="like-btn" data-id="${doc.id}">👍 <span class="like-count">1</span></button>
     </div>
     <p class="post-time">${formattedDateTime}</p>
     </li>
