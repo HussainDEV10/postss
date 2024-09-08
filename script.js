@@ -30,6 +30,7 @@ const postFileInput = document.getElementById('postFile');
 const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
+let editingPostId = null;
 
 const showNotification = (message, type) => {
     const notification = document.createElement('div');
@@ -122,7 +123,9 @@ const displayPosts = async () => {
         postItem.classList.add('post-item');
         postItem.style.fontFamily = 'Rubik, sans-serif';
         postItem.innerHTML = `
-            ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+            ${currentUserEmail === data.authorEmail ? `
+                <button class="edit-btn" data-id="${doc.id}">✏️</button>
+                <button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
             ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
@@ -133,8 +136,23 @@ const displayPosts = async () => {
     });
 };
 
+const openFormForEditing = async (postId) => {
+    const postDoc = await getDoc(doc(db, 'posts', postId));
+    if (postDoc.exists()) {
+        const data = postDoc.data();
+        postTitleInput.value = data.title;
+        postDescriptionInput.value = data.description;
+        editingPostId = postId;
+        overlay.classList.add('show');
+    }
+};
+
 addPostBtn.addEventListener('click', () => {
     overlay.classList.add('show');
+    editingPostId = null;
+    postTitleInput.value = '';
+    postDescriptionInput.value = '';
+    postFileInput.value = '';
 });
 
 closeBtn.addEventListener('click', () => {
@@ -156,120 +174,35 @@ publishBtn.addEventListener('click', async () => {
             await uploadBytes(storageRef, file);
             fileUrl = await getDownloadURL(storageRef);
         }
-        
-        await addDoc(collection(db, "posts"), {
-            title,
-            description,
-            author,
-            authorEmail,
-            timestamp: serverTimestamp(),
-            fileUrl
-        });
+
+        if (editingPostId) {
+            // Update existing post
+            await setDoc(doc(db, "posts", editingPostId), {
+                title,
+                description,
+                author,
+                authorEmail,
+                timestamp: serverTimestamp(),
+                fileUrl
+            });
+            showNotification('تم تحديث المنشور بنجاح', 'success');
+        } else {
+            // Add new post
+            await addDoc(collection(db, "posts"), {
+                title,
+                description,
+                author,
+                authorEmail,
+                timestamp: serverTimestamp(),
+                fileUrl
+            });
+            showNotification('تم نشر المنشور بنجاح', 'success');
+        }
+
         postTitleInput.value = '';
         postDescriptionInput.value = '';
         postFileInput.value = '';
         overlay.classList.remove('show');
-showNotification('تم نشر المنشور بنجاح', 'success');
         displayPosts();
     } else {
-        showNotification('يرجى ملء جميع الحقول', 'error');
-    }
-});
-
-postList.addEventListener('click', async (event) => {
-    if (event.target.classList.contains('delete-btn')) {
-        const postId = event.target.getAttribute('data-id');
-        const postDoc = await getDoc(doc(db, 'posts', postId));
-        
-        if (postDoc.exists()) {
-            lastDeletedPost = {
-                id: postDoc.id,
-                data: postDoc.data()
-            };
-            
-            await deleteDoc(doc(db, 'posts', postId));
-            showNotification('تم حذف المنشور', 'delete');
-            displayPosts();
-        }
-    }
-});
-
-const checkAuthState = async () => {
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            const email = user.email;
-            const username = localStorage.getItem('username') || user.displayName || 'مستخدم';
-            localStorage.setItem('email', email);
-            usernameDisplay.textContent = `مرحباً، ${username}`;
-            displayPosts();
-        } else {
-            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // إعادة التوجيه إلى صفحة تسجيل الدخول
-        }
-    });
-};
-
-logoutBtn.addEventListener('click', () => {
-    signOut(auth).then(() => {
-        localStorage.clear();
-        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
-    }).catch((error) => {
-        showNotification('حدث خطأ أثناء تسجيل الخروج', 'error');
-    });
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    // الحصول على عنصر قائمة المنشورات
-    const postList = document.getElementById('postList');
-
-    // افترض أن لديك دالة لتحميل المنشورات من قاعدة البيانات
-    loadPosts();
-
-    // وظيفة لتحميل المنشورات وعرضها
-    function loadPosts() {
-        // هنا يجب أن تكون لديك دالة لتحميل المنشورات من قاعدة البيانات
-        // على سبيل المثال، البيانات هنا افتراضية
-        const posts = [
-            { id: '1', title: 'منشور 1', description: 'وصف المنشور 1', likes: 10, dislikes: 2 },
-            { id: '2', title: 'منشور 2', description: 'وصف المنشور 2', likes: 5, dislikes: 1 },
-            // أضف المزيد من المنشورات هنا
-        ];
-
-        // تنظيف القائمة الحالية
-        postList.innerHTML = '';
-
-        // إضافة المنشورات إلى القائمة
-        posts.forEach(post => {
-            const listItem = document.createElement('li');
-            listItem.classList.add('post-item');
-            listItem.innerHTML = `
-                <h3 class="post-title">${post.title}</h3>
-                <p class="post-description">${post.description}</p>
-                <div class="post-footer">
-                    <button class="dislike-btn" data-id="${post.id}">👎 <span class="dislike-count">${post.dislikes}</span></button>
-                    <button class="like-btn" data-id="${post.id}">👍 <span class="like-count">${post.likes}</span></button>
-                </div>
-            `;
-            postList.appendChild(listItem);
-        });
-    }
-
-    // إدارة التفاعل مع أزرار الإعجاب وعدم الإعجاب
-    postList.addEventListener('click', async (event) => {
-        if (event.target.classList.contains('like-btn') || event.target.classList.contains('dislike-btn')) {
-            const postId = event.target.getAttribute('data-id');
-            const isLike = event.target.classList.contains('like-btn');
-            const field = isLike ? 'likes' : 'dislikes';
-
-            // افترض أنك تتعامل مع قاعدة بيانات، ستحتاج إلى الكود الخاص بك هنا
-            // على سبيل المثال:
-            // await updatePostInDatabase(postId, field);
-
-            // تحديث العرض
-            const countElement = event.target.querySelector(`.${field}-count`);
-            countElement.textContent = parseInt(countElement.textContent) + 1;
-        }
-    });
-});
-
-checkAuthState();
-    
+        showNotification('يرجى ملء جميع الحقول
