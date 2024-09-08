@@ -9,6 +9,20 @@
 <body>
     <ul class="post-list" id="postList"></ul>
     <div class="add-post-btn" id="addPostBtn">+</div>
+
+    <li class="post-item">
+    ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+    <h3 class="post-title">${data.title}</h3>
+    <p class="post-description">${convertToLinks(data.description)}</p>
+    ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
+    <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
+    <div class="post-footer">
+        <button class="like-btn">👍</button>
+        <button class="dislike-btn">👎</button>
+    </div>
+    <p class="post-time">${formattedDateTime}</p>
+    </li>
+
     
     <div class="bottom-bar">
         <div class="color-options" id="colorOptions">
