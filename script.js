@@ -90,6 +90,7 @@ function convertToLinks(text) {
 }
 
 const displayPosts = async () => {
+const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
     const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
@@ -119,19 +120,27 @@ const displayPosts = async () => {
         `;
 
         const postItem = document.createElement('li');
-postItem.classList.add('post-item');
-postItem.style.fontFamily = 'Rubik, sans-serif';
-postItem.innerHTML = `
-    ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
-    <h3 class="post-title">${data.title}</h3>
-    <p class="post-description">${convertToLinks(data.description)}</p>
-    ${data.fileUrl ? (data.fileUrl.match(/\.mp4|\.avi|\.mov|\.webm$/i) ? 
-        `<video controls class="post-media"><source src="${data.fileUrl}" type="video/mp4"></video>` :
-        `<img src="${data.fileUrl}" alt="Media" class="post-media"/>`) : ''}
-    <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
-    <p class="post-time">${formattedDateTime}</p>
-`;
-postList.appendChild(postItem);
+        postItem.classList.add('post-item');
+        postItem.style.fontFamily = 'Rubik, sans-serif';
+        postItem.innerHTML = `
+            ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+            <h3 class="post-title">${data.title}</h3>
+            <p class="post-description">${convertToLinks(data.description)}</p>
+            ${data.fileUrl ? `
+                ${data.fileUrl.endsWith('.mp4') ? 
+                    `<video controls class="post-media">
+                        <source src="${data.fileUrl}" type="video/mp4">
+                        متصفحك لا يدعم الفيديو.
+                    </video>` :
+                    `<img src="${data.fileUrl}" alt="Media" class="post-media"/>`
+                }
+            ` : ''}
+            <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
+            <p class="post-time">${formattedDateTime}</p>
+        `;
+        postList.appendChild(postItem);
+    });
+};
 
 addPostBtn.addEventListener('click', () => {
     overlay.classList.add('show');
