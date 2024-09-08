@@ -10,12 +10,6 @@
     <ul class="post-list" id="postList"></ul>
     <div class="add-post-btn" id="addPostBtn">+</div>
 
-    <li class="post-item">
-    <button class="dislike-btn" data-id="${doc.id}">👎 <span class="dislike-count">0</span></button>
-        <button class="like-btn" data-id="${doc.id}">👍 <span class="like-count">1</span></button>
-    </li>
-
-    
     <div class="bottom-bar">
         <div class="color-options" id="colorOptions">
             <div class="color-option" data-color="#ff0000" style="background-color: #ff0000;"></div>
@@ -27,14 +21,14 @@
     </div>
 
     <div class="overlay" id="overlay">
-    <div class="post-form">
-        <button class="close-btn" id="closeBtn">&times;</button>
-        <h2>أضف منشور</h2>
-        <input type="text" id="postTitle" placeholder="العنوان">
-        <textarea id="postDescription" placeholder="الوصف"></textarea>
-        <input type="file" id="postFile" accept="image/*, video/*">
-        <button class="publish-btn" id="publishBtn">نشر<span>+</span></button>
-    </div>
+        <div class="post-form">
+            <button class="close-btn" id="closeBtn">&times;</button>
+            <h2>أضف منشور</h2>
+            <input type="text" id="postTitle" placeholder="العنوان">
+            <textarea id="postDescription" placeholder="الوصف"></textarea>
+            <input type="file" id="postFile" accept="image/*, video/*">
+            <button class="publish-btn" id="publishBtn">نشر<span>+</span></button>
+        </div>
     </div>
 
     <header>
@@ -45,4 +39,4 @@
     <div id="notificationContainer"></div>
     <script src="script.js" type="module"></script>
 </body>
-    </html>
+</html>
