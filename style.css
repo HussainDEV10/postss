@@ -203,15 +203,40 @@ a:hover {
         }
 
 .post-item {
-    background-color: var(--post-bg-color, white); /* لون الخلفية الافتراضي هو الأبيض */
     background-color: white;
-            margin-bottom: 10px;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-            }
+    margin-bottom: 10px;
+    padding: 20px; /* زيادة الحجم من الأسفل */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.post-item .post-footer {
+    margin-top: 15px; /* زيادة المسافة بين "من قِبل" والصور */
+    display: flex;
+    justify-content: space-between; /* توزيع الأزرار على الأطراف */
+    align-items: center;
+}
+
+.like-btn, .dislike-btn {
+    border: 2px solid black; /* حدود الأزرار */
+    color: black;
+    background-color: white; /* خلفية الأزرار بيضاء */
+    border-radius: 50%; /* شكل دائري */
+    padding: 10px 15px; /* حجم الأزرار */
+    cursor: pointer;
+    font-size: 18px; /* حجم الخط داخل الأزرار */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s, color 0.3s; /* تأثير عند التمرير */
+}
+
+.like-btn:hover, .dislike-btn:hover {
+    background-color: black; /* تغيير اللون عند التمرير */
+    color: white; /* تغيير لون النص عند التمرير */
+                               }
 
 
 .post-item:first-child {
