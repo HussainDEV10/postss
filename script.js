@@ -193,7 +193,7 @@ const displayPosts = async () => {
             displayPosts();
         });
     });
-};
+}
 
 addPostBtn.addEventListener('click', () => {
     overlay.classList.add('show');
