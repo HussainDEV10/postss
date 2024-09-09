@@ -95,7 +95,7 @@ a:hover {
 }
 
 .add-post-btn:active {
-    transform: scale(1.1);
+    transform: scale(0.90);
 }
 
          .overlay {
@@ -203,48 +203,15 @@ a:hover {
         }
 
 .post-item {
+    background-color: var(--post-bg-color, white); /* لون الخلفية الافتراضي هو الأبيض */
     background-color: white;
-    margin-bottom: 10px;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: relative;
-    overflow: hidden;
-}
-
-.post-item .post-footer {
-    margin-top: 15px; /* زيادة المسافة بين "من قِبل" والصور */
-    display: flex;
-    justify-content: flex-end; /* محاذاة الأزرار لليمين */
-    gap: 10px; /* مسافة بين الأزرار */
-    align-items: center;
-}
-
-/* تعديل نمط زر التعديل */
-.edit-btn {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 24px;
-    color: #00ff00; /* اللون الأخضر */
-    position: absolute;
-    top: 10px;
-    right: 80px; /* زيادة المسافة بين زر الحذف وزر التعديل */
-    transition: color 0.3s ease;
-}
-
-.edit-btn:active {
-    transform: scale(0.90);
-}
-
-.edit-btn:hover {
-    color: #00cc00;
-}
-
-.post-footer span {
-    margin-left: 5px; /* مسافة بين الرقم والزرد */
-    font-size: 14px; /* حجم الخط للأرقام */
-}
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            }
 
 
 .post-item:first-child {
@@ -296,6 +263,28 @@ a:hover {
             word-break: break-word;
             text-align: right;
         }
+        
+        /* أزرار اللايك والديسلايك */
+.like-btn, .dislike-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    margin: 0 5px;
+    color: gray;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.like-btn.active, .dislike-btn.active {
+    color: blue;
+}
+
+.likes-count, .dislikes-count {
+    font-size: 16px;
+    color: #555;
+}
 
         .delete-btn {
             background-color: transparent;
@@ -441,4 +430,4 @@ a:hover {
     align-items: center;
     padding: 0 20px;
     z-index: 9;
-    }
+        }
