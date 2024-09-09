@@ -212,20 +212,6 @@ publishBtn.addEventListener('click', async () => {
     if (title && description) {
         await addDoc(collection(db, "posts"), {
             title,
-            description,
-            author,
-            authorEmail,
-            timestamp: serverTimestamp(),
-            likes: 0, // تعيين قيم اللايك والديسلايك الأولية
-            dislikes: 0
-        });
-        overlay.classList.remove('show');
-        displayPosts();
-        showNotification('تم نشر المنشور بنجاح', 'success');
-    } else {
-        showNotification('يرجى ملء الحقول المطلوبة', 'error');
-    }
-});
 
 postList.addEventListener('click', async (event) => {
     if (event.target.classList.contains('delete-btn')) {
