@@ -30,7 +30,6 @@ const postFileInput = document.getElementById('postFile');
 const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
-let editingPostId = null;
 
 const showNotification = (message, type) => {
     const notification = document.createElement('div');
@@ -90,6 +89,7 @@ function convertToLinks(text) {
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
+// إضافة عناصر اللايكات والديسلايكات للمنشورات
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
@@ -97,62 +97,53 @@ const displayPosts = async () => {
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
-
-        let hours = timestamp.getHours();
-        const minutes = timestamp.getMinutes().toString().padStart(2, '0');
-        const seconds = timestamp.getSeconds().toString().padStart(2, '0');
-        const period = hours >= 12 ? 'م' : 'ص';
-        hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
-        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
-        const day = timestamp.getDate().toString().padStart(2, '0');
-        const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
-        const year = timestamp.getFullYear();
-        const formattedDate = `${year}/${month}/${day}`;
-        const arabicNumbers = (number) => {
-            const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
-            return number.split('').map(digit => arabicDigits[digit] || digit).join('');
-        };
-
-        const arabicFormattedTime = arabicNumbers(formattedTime);
-        const arabicFormattedDate = arabicNumbers(formattedDate);
         const formattedDateTime = `
-            <span dir="rtl">${arabicFormattedDate}</span> | ${arabicFormattedTime}
+            <span dir="rtl">${timestamp.toLocaleDateString('ar-EG')}</span> | ${timestamp.toLocaleTimeString('ar-EG')}
         `;
 
         const postItem = document.createElement('li');
         postItem.classList.add('post-item');
-        postItem.style.fontFamily = 'Rubik, sans-serif';
         postItem.innerHTML = `
-            ${currentUserEmail === data.authorEmail ? `
-                <button class="edit-btn" data-id="${doc.id}">✏️</button>
-                <button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+            ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
             ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
             <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
             <p class="post-time">${formattedDateTime}</p>
+            <div class="likes-container">
+                <button class="like-btn" data-id="${doc.id}">👍 <span class="likes-count">${data.likes || 0}</span></button>
+                <button class="dislike-btn" data-id="${doc.id}">👎 <span class="dislikes-count">${data.dislikes || 0}</span></button>
+            </div>
         `;
         postList.appendChild(postItem);
     });
-};
 
-const openFormForEditing = async (postId) => {
-    const postDoc = await getDoc(doc(db, 'posts', postId));
-    if (postDoc.exists()) {
-        const data = postDoc.data();
-        postTitleInput.value = data.title;
-        postDescriptionInput.value = data.description;
-        editingPostId = postId;
-        overlay.classList.add('show');
-    }
+    // إضافة الاستماع لأحداث اللايك والديسلايك
+    document.querySelectorAll('.like-btn').forEach(button => {
+        button.addEventListener('click', async () => {
+            const postId = button.getAttribute('data-id');
+            const postRef = doc(db, "posts", postId);
+            const postDoc = await getDoc(postRef);
+            let currentLikes = postDoc.data().likes || 0;
+            await setDoc(postRef, { likes: currentLikes + 1 }, { merge: true });
+            displayPosts();
+        });
+    });
+
+    document.querySelectorAll('.dislike-btn').forEach(button => {
+        button.addEventListener('click', async () => {
+            const postId = button.getAttribute('data-id');
+            const postRef = doc(db, "posts", postId);
+            const postDoc = await getDoc(postRef);
+            let currentDislikes = postDoc.data().dislikes || 0;
+            await setDoc(postRef, { dislikes: currentDislikes + 1 }, { merge: true });
+            displayPosts();
+        });
+    });
 };
 
 addPostBtn.addEventListener('click', () => {
     overlay.classList.add('show');
-    editingPostId = null;
-    postTitleInput.value = '';
-    postDescriptionInput.value = '';
-    postFileInput.value = '';
 });
 
 closeBtn.addEventListener('click', () => {
@@ -164,45 +155,65 @@ publishBtn.addEventListener('click', async () => {
     const description = postDescriptionInput.value.trim();
     const author = localStorage.getItem('username');
     const authorEmail = localStorage.getItem('email');
-    const file = postFileInput.files[0];
-    
-    if (title && description && author && authorEmail) {
-        let fileUrl = '';
-        
-        if (file) {
-            const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
-            await uploadBytes(storageRef, file);
-            fileUrl = await getDownloadURL(storageRef);
-        }
 
-        if (editingPostId) {
-            // Update existing post
-            await setDoc(doc(db, "posts", editingPostId), {
-                title,
-                description,
-                author,
-                authorEmail,
-                timestamp: serverTimestamp(),
-                fileUrl
-            });
-            showNotification('تم تحديث المنشور بنجاح', 'success');
-        } else {
-            // Add new post
-            await addDoc(collection(db, "posts"), {
-                title,
-                description,
-                author,
-                authorEmail,
-                timestamp: serverTimestamp(),
-                fileUrl
-            });
-            showNotification('تم نشر المنشور بنجاح', 'success');
-        }
-
-        postTitleInput.value = '';
-        postDescriptionInput.value = '';
-        postFileInput.value = '';
+    if (title && description) {
+        await addDoc(collection(db, "posts"), {
+            title,
+            description,
+            author,
+            authorEmail,
+            timestamp: serverTimestamp(),
+            likes: 0, // تعيين قيم اللايك والديسلايك الأولية
+            dislikes: 0
+        });
         overlay.classList.remove('show');
         displayPosts();
+        showNotification('تم نشر المنشور بنجاح', 'success');
     } else {
-        showNotification('يرجى ملء جميع الحقول
+        showNotification('يرجى ملء الحقول المطلوبة', 'error');
+    }
+});
+
+postList.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('delete-btn')) {
+        const postId = event.target.getAttribute('data-id');
+        const postDoc = await getDoc(doc(db, 'posts', postId));
+        
+        if (postDoc.exists()) {
+            lastDeletedPost = {
+                id: postDoc.id,
+                data: postDoc.data()
+            };
+            
+            await deleteDoc(doc(db, 'posts', postId));
+            showNotification('تم حذف المنشور', 'delete');
+            displayPosts();
+        }
+    }
+});
+
+const checkAuthState = async () => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            const email = user.email;
+            const username = localStorage.getItem('username') || user.displayName || 'مستخدم';
+            localStorage.setItem('email', email);
+            usernameDisplay.textContent = `مرحباً، ${username}`;
+            displayPosts();
+        } else {
+            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // إعادة التوجيه إلى صفحة تسجيل الدخول
+        }
+    });
+};
+
+logoutBtn.addEventListener('click', () => {
+    signOut(auth).then(() => {
+        localStorage.clear();
+        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+    }).catch((error) => {
+        showNotification('حدث خطأ أثناء تسجيل الخروج', 'error');
+    });
+});
+
+checkAuthState();
+        
