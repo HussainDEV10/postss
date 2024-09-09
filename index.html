@@ -7,9 +7,11 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <ul class="post-list" id="postList"></ul>
-    <div class="add-post-btn" id="addPostBtn">+</div>
-    
+    <div class="container">
+        <ul class="post-list" id="postList"></ul>
+        <div class="add-post-btn" id="addPostBtn">+</div>
+    </div>
+
     <div class="bottom-bar">
         <div class="color-options" id="colorOptions">
             <div class="color-option" data-color="#ff0000" style="background-color: #ff0000;"></div>
@@ -23,11 +25,10 @@
     <div class="overlay" id="overlay">
         <div class="post-form">
             <button class="close-btn" id="closeBtn">&times;</button>
-            <h2 id="formTitle">أضف منشور</h2>
+            <h2>أضف منشور</h2>
             <input type="text" id="postTitle" placeholder="العنوان">
             <textarea id="postDescription" placeholder="الوصف"></textarea>
-            <input type="file" id="postFile" accept="image/*,video/*">
-            <button class="publish-btn" id="submitBtn">نشر<span>+</span></button>
+            <button class="publish-btn" id="publishBtn">نشر<span>+</span></button>
         </div>
     </div>
 
@@ -39,4 +40,4 @@
     <div id="notificationContainer"></div>
     <script src="script.js" type="module"></script>
 </body>
-</html>
+    </html>
