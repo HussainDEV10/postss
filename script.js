@@ -89,52 +89,90 @@ function convertToLinks(text) {
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
-// إضافة عناصر اللايكات والديسلايكات للمنشورات
 const displayPosts = async () => {
+    try {
+        const querySnapshot = await getDocs(collection(db, "posts"));
+        postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+        const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
 
-    document.querySelectorAll('.dislike-btn').forEach(button => {
-        button.addEventListener('click', async () => {
-            const postId = button.getAttribute('data-id');
-            const postRef = doc(db, "posts", postId);
-            const postDoc = await getDoc(postRef);
-            let currentDislikes = postDoc.data().dislikes || 0;
-            await setDoc(postRef, { dislikes: currentDislikes + 1 }, { merge: true });
-            displayPosts();
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+
+            // تأكد من أن حقول likes و dislikes موجودة
+            const likes = data.likes || 0;
+            const dislikes = data.dislikes || 0;
+
+            const timestamp = new Date(data.timestamp.seconds * 1000);
+            let hours = timestamp.getHours();
+            const minutes = timestamp.getMinutes().toString().padStart(2, '0');
+            const seconds = timestamp.getSeconds().toString().padStart(2, '0');
+            const period = hours >= 12 ? 'م' : 'ص';
+            hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
+            const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
+            const day = timestamp.getDate().toString().padStart(2, '0');
+            const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
+            const year = timestamp.getFullYear();
+            const formattedDate = `${year}/${month}/${day}`;
+            const arabicNumbers = (number) => {
+                const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
+                return number.split('').map(digit => arabicDigits[digit] || digit).join('');
+            };
+
+            const arabicFormattedTime = arabicNumbers(formattedTime);
+            const arabicFormattedDate = arabicNumbers(formattedDate);
+            const formattedDateTime = `
+                <span dir="rtl">${arabicFormattedDate}</span> | ${arabicFormattedTime}
+            `;
+
+            const postItem = document.createElement('li');
+            postItem.classList.add('post-item');
+            postItem.style.fontFamily = 'Rubik, sans-serif';
+            postItem.innerHTML = `
+                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+                <h3 class="post-title">${data.title}</h3>
+                <p class="post-description">${convertToLinks(data.description)}</p>
+                ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
+                <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
+                <p class="post-time">${formattedDateTime}</p>
+                <div class="likes-container">
+                    <button class="like-btn" data-id="${doc.id}">👍 <span class="likes-count">${likes}</span></button>
+                    <button class="dislike-btn" data-id="${doc.id}">👎 <span class="dislikes-count">${dislikes}</span></button>
+                </div>
+            `;
+            postList.appendChild(postItem);
         });
-    });
-};
 
-addPostBtn.addEventListener('click', () => {
-    overlay.classList.add('show');
-});
-
-closeBtn.addEventListener('click', () => {
-    overlay.classList.remove('show');
-});
-
-publishBtn.addEventListener('click', async () => {
-    const title = postTitleInput.value.trim();
-    const description = postDescriptionInput.value.trim();
-    const author = localStorage.getItem('username');
-    const authorEmail = localStorage.getItem('email');
-
-    if (title && description) {
-        await addDoc(collection(db, "posts"), {
-            title,
-            description,
-            author,
-            authorEmail,
-            timestamp: serverTimestamp(),
-            likes: 0, // تعيين قيم اللايك والديسلايك الأولية
-            dislikes: 0
+        // إضافة الاستماع لأحداث اللايك والديسلايك
+        document.querySelectorAll('.like-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+                const postId = button.getAttribute('data-id');
+                const postRef = doc(db, "posts", postId);
+                const postDoc = await getDoc(postRef);
+                if (postDoc.exists()) {
+                    let currentLikes = postDoc.data().likes || 0;
+                    await setDoc(postRef, { likes: currentLikes + 1 }, { merge: true });
+                    displayPosts();
+                }
+            });
         });
-        overlay.classList.remove('show');
-        displayPosts();
-        showNotification('تم نشر المنشور بنجاح', 'success');
-    } else {
-        showNotification('يرجى ملء الحقول المطلوبة', 'error');
+
+        document.querySelectorAll('.dislike-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+                const postId = button.getAttribute('data-id');
+                const postRef = doc(db, "posts", postId);
+                const postDoc = await getDoc(postRef);
+                if (postDoc.exists()) {
+                    let currentDislikes = postDoc.data().dislikes || 0;
+                    await setDoc(postRef, { dislikes: currentDislikes + 1 }, { merge: true });
+                    displayPosts();
+                }
+            });
+        });
+    } catch (error) {
+        console.error("Error loading posts: ", error);
+        showNotification('حدث خطأ أثناء تحميل المنشورات', 'error');
     }
-});
+};
 
 postList.addEventListener('click', async (event) => {
     if (event.target.classList.contains('delete-btn')) {
