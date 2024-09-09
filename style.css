@@ -264,27 +264,6 @@ a:hover {
             text-align: right;
         }
         
-        /* أزرار اللايك والديسلايك */
-.like-btn, .dislike-btn {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 20px;
-    margin: 0 5px;
-    color: gray;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.like-btn.active, .dislike-btn.active {
-    color: blue;
-}
-
-.likes-count, .dislikes-count {
-    font-size: 16px;
-    color: #555;
-}
 
         .delete-btn {
             background-color: transparent;
