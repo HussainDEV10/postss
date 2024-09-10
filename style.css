@@ -173,7 +173,7 @@ a:hover {
     color: #888; /* لون النص داخل الـplaceholder */
 }
 
-                .publish-btn {
+        .publish-btn {
             display: flex;
             align-items: center;
             justify-content: center;
