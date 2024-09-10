@@ -60,7 +60,7 @@ const showNotification = (message, type) => {
         if (Math.abs(finalPosition) > 10) {
             notification.classList.add('hide');
             notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
-            setTimeout(() => notification.remove(), 300); // Remove notification after 300ms
+            setTimeout(() => notification.remove(), 300); // إزالة الإشعار بعد 300 مللي ثانية
         } else {
             notification.style.transform = `translateX(0)`;
         }
@@ -91,24 +91,32 @@ function convertToLinks(text) {
 
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
-    postList.innerHTML = ''; // Clear existing posts
-    const currentUserEmail = localStorage.getItem('email');
-    
+    postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+    const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
 
-        // Format timestamp
-        const hours = timestamp.getHours();
+        let hours = timestamp.getHours();
         const minutes = timestamp.getMinutes().toString().padStart(2, '0');
         const seconds = timestamp.getSeconds().toString().padStart(2, '0');
         const period = hours >= 12 ? 'م' : 'ص';
-        const formattedTime = `${(hours % 12 || 12).toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
-        const formattedDate = `${timestamp.getFullYear()}/${(timestamp.getMonth() + 1).toString().padStart(2, '0')}/${timestamp.getDate().toString().padStart(2, '0')}`;
-        const arabicNumbers = number => number.split('').map(digit => '٠١٢٣٤٥٦٧٨٩'[digit] || digit).join('');
+        hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
+        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
+        const day = timestamp.getDate().toString().padStart(2, '0');
+        const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
+        const year = timestamp.getFullYear();
+        const formattedDate = `${year}/${month}/${day}`;
+        const arabicNumbers = (number) => {
+            const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
+            return number.split('').map(digit => arabicDigits[digit] || digit).join('');
+        };
+
         const arabicFormattedTime = arabicNumbers(formattedTime);
         const arabicFormattedDate = arabicNumbers(formattedDate);
-        const formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${arabicFormattedTime}`;
+        const formattedDateTime = `
+            <span dir="rtl">${arabicFormattedDate}</span> | ${arabicFormattedTime}
+        `;
 
         const postItem = document.createElement('li');
         postItem.classList.add('post-item');
@@ -117,13 +125,9 @@ const displayPosts = async () => {
             ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
-            ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="postFile"/>` : ''}
+            ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
             <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
             <p class="post-time">${formattedDateTime}</p>
-            <div class="post-reactions">
-                <button class="like-btn" data-id="${doc.id}">👍 ${data.likes || 0}</button>
-                <button class="dislike-btn" data-id="${doc.id}">👎 ${data.dislikes || 0}</button>
-            </div>
         `;
         postList.appendChild(postItem);
     });
@@ -159,15 +163,13 @@ publishBtn.addEventListener('click', async () => {
             author,
             authorEmail,
             timestamp: serverTimestamp(),
-            fileUrl,
-            likes: 0,       // Initialize likes
-            dislikes: 0     // Initialize dislikes
+            fileUrl
         });
         postTitleInput.value = '';
         postDescriptionInput.value = '';
         postFileInput.value = '';
         overlay.classList.remove('show');
-        showNotification('تم نشر المنشور بنجاح', 'success');
+showNotification('تم نشر المنشور بنجاح', 'success');
         displayPosts();
     } else {
         showNotification('يرجى ملء جميع الحقول', 'error');
@@ -175,41 +177,18 @@ publishBtn.addEventListener('click', async () => {
 });
 
 postList.addEventListener('click', async (event) => {
-    const postId = event.target.getAttribute('data-id');
-    
     if (event.target.classList.contains('delete-btn')) {
+        const postId = event.target.getAttribute('data-id');
         const postDoc = await getDoc(doc(db, 'posts', postId));
+        
         if (postDoc.exists()) {
             lastDeletedPost = {
                 id: postDoc.id,
                 data: postDoc.data()
             };
+            
             await deleteDoc(doc(db, 'posts', postId));
             showNotification('تم حذف المنشور', 'delete');
-            displayPosts();
-        }
-    } else if (event.target.classList.contains('like-btn') || event.target.classList.contains('dislike-btn')) {
-        const postDoc = await getDoc(doc(db, 'posts', postId));
-        if (postDoc.exists()) {
-            const data = postDoc.data();
-            let updates = {};
-            
-            if (event.target.classList.contains('like-btn')) {
-                updates = {
-                    likes: (data.likes || 0) + 1
-                };
-            } else if (event.target.classList.contains('dislike-btn')) {
-                updates = {
-                    dislikes: (data.dislikes || 0) + 1
-                };
-            }
-
-            await setDoc(doc(db, 'posts', postId), {
-                ...data,
-                ...updates
-            }, { merge: true });
-            
-            showNotification('تم تحديث التفاعل بنجاح', 'success');
             displayPosts();
         }
     }
@@ -224,7 +203,7 @@ const checkAuthState = async () => {
             usernameDisplay.textContent = `مرحباً، ${username}`;
             displayPosts();
         } else {
-            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // Redirect to login page
+            window.location.href = 'login.html'; // إعادة التوجيه إلى صفحة تسجيل الدخول
         }
     });
 };
@@ -232,10 +211,11 @@ const checkAuthState = async () => {
 logoutBtn.addEventListener('click', () => {
     signOut(auth).then(() => {
         localStorage.clear();
-        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+        window.location.href = 'login.html';
     }).catch((error) => {
         showNotification('حدث خطأ أثناء تسجيل الخروج', 'error');
     });
 });
 
 checkAuthState();
+        
