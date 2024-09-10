@@ -264,6 +264,40 @@ a:hover {
             word-break: break-word;
             text-align: right;
         }
+
+/* باقي الأنماط السابقة */
+
+.like-dislike-btns {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 10px;
+}
+
+.like-dislike-btn {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.like-dislike-btn span {
+    margin-left: 5px;
+}
+
+.like-btn {
+    color: #007bff;
+}
+
+.dislike-btn {
+    color: #dc3545;
+}
+
+.like-btn:hover, .dislike-btn:hover {
+    opacity: 0.8;
+}
+
+/* الأنماط الأخرى */
         
         
         .delete-btn {
