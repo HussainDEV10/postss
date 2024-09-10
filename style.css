@@ -264,7 +264,7 @@ a:hover {
             text-align: right;
         }
         
-
+        
         .delete-btn {
             background-color: transparent;
             border: none;
@@ -409,4 +409,5 @@ a:hover {
     align-items: center;
     padding: 0 20px;
     z-index: 9;
-        }
+    }
+    
