@@ -42,30 +42,6 @@ const showNotification = (message, type) => {
     notificationContainer.innerHTML = ''; // Clear existing notifications
     notificationContainer.appendChild(notification);
 
-    let startX = 0;
-
-    notification.addEventListener('touchstart', (event) => {
-        startX = event.touches[0].clientX;
-    });
-
-    notification.addEventListener('touchmove', (event) => {
-        const touch = event.touches[0];
-        const diffX = touch.clientX - startX;
-        notification.style.transform = `translate(${diffX}px, 0)`;
-    });
-
-    notification.addEventListener('touchend', () => {
-        const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
-
-        if (Math.abs(finalPosition) > 10) {
-            notification.classList.add('hide');
-            notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
-            setTimeout(() => notification.remove(), 300); // إزالة الإشعار بعد 300 مللي ثانية
-        } else {
-            notification.style.transform = `translateX(0)`;
-        }
-    });
-
     setTimeout(() => notification.classList.add('show'), 10);
     setTimeout(() => notification.classList.add('hide'), 5000);
     setTimeout(() => notification.remove(), 5500);
@@ -154,7 +130,7 @@ const displayPosts = async () => {
             }
         });
 
-        // إضافة حدث زر الدسلايك
+        // إضافة حدث زر عدم الإعجاب
         const dislikeBtn = postItem.querySelector('.dislike-btn');
         const dislikeCount = postItem.querySelector('.dislike-count');
         
@@ -207,7 +183,7 @@ publishBtn.addEventListener('click', async () => {
             timestamp: serverTimestamp(),
             fileUrl,
             likes: 0, // تهيئة الإعجابات بصفر
-            dislikes: 0 // تهيئة الدسلايكات بصفر
+            dislikes: 0 // تهيئة عدم الإعجاب بصفر
         });
         postTitleInput.value = '';
         postDescriptionInput.value = '';
@@ -216,49 +192,8 @@ publishBtn.addEventListener('click', async () => {
         showNotification('تم نشر المنشور بنجاح', 'success');
         displayPosts();
     } else {
-        showNotification('يرجى ملء جميع الحقول', 'error');
-    }
-});
+        showNotification('يرجى ملء جميع الحقول المطلوبة قبل النشر', 'error'); } });
 
-postList.addEventListener('click', async (event) => {
-    if (event.target.classList.contains('delete-btn')) {
-        const postId = event.target.getAttribute('data-id');
-        const postDoc = await getDoc(doc(db, 'posts', postId));
-        
-        if (postDoc.exists()) {
-            lastDeletedPost = {
-                id: postDoc.id,
-                data: postDoc.data()
-            };
-            
-            await deleteDoc(doc(db, 'posts', postId));
-            showNotification('تم حذف المنشور', 'delete');
-            displayPosts();
-        }
-    }
-});
+logoutBtn.addEventListener('click', async () => { try { await signOut(auth); localStorage.removeItem('username'); localStorage.removeItem('email'); window.location.href = "login.html"; } catch (error) { console.error("Error signing out:", error); } });
 
-const checkAuthState = async () => {
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            const email = user.email;
-            const username = localStorage.getItem('username') || user.displayName || 'مستخدم';
-            localStorage.setItem('email', email);
-            usernameDisplay.textContent = `مرحباً، ${username}`;
-            displayPosts();
-        } else {
-            window.location.href = 'login.html'; // إعادة التوجيه إلى صفحة تسجيل الدخول
-        }
-    });
-};
-
-logoutBtn.addEventListener('click', () => {
-    signOut(auth).then(() => {
-        localStorage.clear();
-        window.location.href = 'login.html';
-    }).catch((error) => {
-        showNotification('حدث خطأ أثناء تسجيل الخروج', 'error');
-    });
-});
-
-checkAuthState();
+onAuthStateChanged(auth, (user) => { if (user) { localStorage.setItem('username', user.displayName); localStorage.setItem('email', user.email); usernameDisplay.textContent = مرحبًا، ${user.displayName}; displayPosts(); } else { window.location.href = "login.html"; } });
