@@ -74,29 +74,30 @@ a:hover {
 }
 
 .add-post-btn {
-    position: fixed;
-    margin-right: auto;
-    bottom: 25px;
-    left: 50%;
-    transform: translateX(0.90);
-    width: 60px;
-    height: 60px;
-    background-color: black;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 30px;
-    cursor: pointer;
-    z-index: 10;
-    box-shadow: 0 4px 8px #2E2E2E;
-    transition: transform 0.3s ease;
-}
-
-.add-post-btn:active {
-    transform: scale(0.90);
-}
+            position: fixed;
+            margin-right: auto;
+            bottom: 25px;
+            left: 42%;
+            transform: translateX(0.90);
+            width: 60px;
+            height: 60px;
+            background-color: black;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 4px 8px #2E2E2E;
+            transition: transform 0.3s ease;
+        
+        }
+        
+        .add-post-btn:active {
+            transform: scale(0.90);
+        }
 
          .overlay {
             position: fixed;
