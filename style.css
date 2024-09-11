@@ -95,7 +95,7 @@ a:hover {
 }
 
 .add-post-btn:active {
-    transform: scale(0.90);
+    transform: transformX(0.90);
 }
 
          .overlay {
