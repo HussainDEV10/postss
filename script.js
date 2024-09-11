@@ -89,6 +89,7 @@ function convertToLinks(text) {
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
+// عرض المنشورات
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
@@ -128,9 +129,9 @@ const displayPosts = async () => {
             ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
             <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
             <p class="post-time">${formattedDateTime}</p>
-            <div class="like-section">
-                <button class="like-btn" data-id="${doc.id}">👍</button>
-                <span class="like-count">${data.likes || 0}</span> إعجابات
+            <div class="like-dislike">
+                <span class="like-count">${data.likes || 0}</span><span class="like-btn" data-id="${doc.id}">👍</span>
+                <span class="dislike-count">${data.dislikes || 0}</span><span class="dislike-btn" data-id="${doc.id}">👎</span>
             </div>
         `;
         postList.appendChild(postItem);
@@ -153,8 +154,51 @@ const displayPosts = async () => {
                 likeCount.textContent = newLikes;
             }
         });
+
+        // إضافة حدث زر الدسلايك
+        const dislikeBtn = postItem.querySelector('.dislike-btn');
+        const dislikeCount = postItem.querySelector('.dislike-count');
+
+        dislikeBtn.addEventListener('click', async () => {
+            const postId = dislikeBtn.getAttribute('data-id');
+            const postDoc = doc(db, "posts", postId);
+            const postSnapshot = await getDoc(postDoc);
+
+            if (postSnapshot.exists()) {
+                const currentDislikes = postSnapshot.data().dislikes || 0;
+                const newDislikes = currentDislikes + 1;
+
+                await setDoc(postDoc, { dislikes: newDislikes }, { merge: true });
+
+                dislikeCount.textContent = newDislikes;
+            }
+        });
     });
 };
+
+// تحديث CSS لتعديل موقع وحجم الأزرار
+const cssStyles = `
+.like-dislike {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+    font-size: 20px; /* تكبير الإيموجي */
+    margin-top: 10px;
+}
+.like-btn, .dislike-btn {
+    cursor: pointer;
+    font-size: 24px; /* تكبير الإيموجي */
+}
+.like-count, .dislike-count {
+    margin-left: 5px;
+}
+`;
+
+const styleSheet = document.createElement("style");
+styleSheet.type = "text/css";
+styleSheet.innerText = cssStyles;
+document.head.appendChild(styleSheet);
+
 
 addPostBtn.addEventListener('click', () => {
     overlay.classList.add('show');
