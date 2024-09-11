@@ -90,6 +90,7 @@ function convertToLinks(text) {
 }
 
 // عرض المنشورات
+
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
@@ -130,8 +131,8 @@ const displayPosts = async () => {
             <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
             <p class="post-time">${formattedDateTime}</p>
             <div class="like-dislike">
-                <span class="like-count">${data.likes || 0}</span><span class="like-btn" data-id="${doc.id}">👍</span>
-                <span class="dislike-count">${data.dislikes || 0}</span><span class="dislike-btn" data-id="${doc.id}">👎</span>
+                <span class="like-btn" data-id="${doc.id}">👍</span><span class="like-count">${data.likes || 0}</span>
+                <span class="dislike-btn" data-id="${doc.id}">👎</span><span class="dislike-count">${data.dislikes || 0}</span>
             </div>
         `;
         postList.appendChild(postItem);
@@ -139,7 +140,7 @@ const displayPosts = async () => {
         // إضافة حدث زر الإعجاب
         const likeBtn = postItem.querySelector('.like-btn');
         const likeCount = postItem.querySelector('.like-count');
-
+        
         likeBtn.addEventListener('click', async () => {
             const postId = likeBtn.getAttribute('data-id');
             const postDoc = doc(db, "posts", postId);
@@ -158,7 +159,7 @@ const displayPosts = async () => {
         // إضافة حدث زر الدسلايك
         const dislikeBtn = postItem.querySelector('.dislike-btn');
         const dislikeCount = postItem.querySelector('.dislike-count');
-
+        
         dislikeBtn.addEventListener('click', async () => {
             const postId = dislikeBtn.getAttribute('data-id');
             const postDoc = doc(db, "posts", postId);
@@ -198,7 +199,6 @@ const styleSheet = document.createElement("style");
 styleSheet.type = "text/css";
 styleSheet.innerText = cssStyles;
 document.head.appendChild(styleSheet);
-
 
 addPostBtn.addEventListener('click', () => {
     overlay.classList.add('show');
