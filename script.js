@@ -287,14 +287,16 @@ publishBtn.addEventListener('click', async () => {
         }
         
         await addDoc(collection(db, "posts"), {
-            title,
-            description,
-            author,
-            authorEmail,
-            timestamp: serverTimestamp(),
-            fileUrl,
-            likes: 0 // تهيئة الإعجابات بصفر
-        });
+    title,
+    description,
+    author,
+    authorEmail,
+    timestamp: serverTimestamp(),
+    fileUrl,
+    likes: 0, // تهيئة الإعجابات بصفر
+    dislikes: 0 // تهيئة الدسلايكات بصفر
+});
+        
         postTitleInput.value = '';
         postDescriptionInput.value = '';
         postFileInput.value = '';
