@@ -153,6 +153,68 @@ const displayPosts = async () => {
                 await setDoc(postDoc, { likes: newLikes }, { merge: true });
 
                 likeCount.textContent = newLikes;
+const displayPosts = async () => {
+    const querySnapshot = await getDocs(collection(db, "posts"));
+    postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+    const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const timestamp = new Date(data.timestamp.seconds * 1000);
+
+        let hours = timestamp.getHours();
+        const minutes = timestamp.getMinutes().toString().padStart(2, '0');
+        const seconds = timestamp.getSeconds().toString().padStart(2, '0');
+        const period = hours >= 12 ? 'م' : 'ص';
+        hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
+        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
+        const day = timestamp.getDate().toString().padStart(2, '0');
+        const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
+        const year = timestamp.getFullYear();
+        const formattedDate = `${year}/${month}/${day}`;
+        const arabicNumbers = (number) => {
+            const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
+            return number.split('').map(digit => arabicDigits[digit] || digit).join('');
+        };
+
+        const arabicFormattedTime = arabicNumbers(formattedTime);
+        const arabicFormattedDate = arabicNumbers(formattedDate);
+        const formattedDateTime = `
+            <span dir="rtl">${arabicFormattedDate}</span> | ${arabicFormattedTime}
+        `;
+
+        const postItem = document.createElement('li');
+        postItem.classList.add('post-item');
+        postItem.style.fontFamily = 'Rubik, sans-serif';
+        postItem.innerHTML = `
+            ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+            <h3 class="post-title">${data.title}</h3>
+            <p class="post-description">${convertToLinks(data.description)}</p>
+            ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
+            <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
+            <p class="post-time">${formattedDateTime}</p>
+            <div class="like-dislike">
+                <span class="like-btn" data-id="${doc.id}">👍</span><span class="like-count">${data.likes || 0}</span>
+                <span class="dislike-btn" data-id="${doc.id}">👎</span><span class="dislike-count">${data.dislikes || 0}</span>
+            </div>
+        `;
+        postList.appendChild(postItem);
+
+        // إضافة حدث زر الإعجاب
+        const likeBtn = postItem.querySelector('.like-btn');
+        const likeCount = postItem.querySelector('.like-count');
+        
+        likeBtn.addEventListener('click', async () => {
+            const postId = likeBtn.getAttribute('data-id');
+            const postDoc = doc(db, "posts", postId);
+            const postSnapshot = await getDoc(postDoc);
+
+            if (postSnapshot.exists()) {
+                const currentLikes = postSnapshot.data().likes || 0;
+                const newLikes = currentLikes + 1;
+
+                await updateDoc(postDoc, { likes: newLikes });
+
+                likeCount.textContent = newLikes;
             }
         });
 
@@ -169,14 +231,14 @@ const displayPosts = async () => {
                 const currentDislikes = postSnapshot.data().dislikes || 0;
                 const newDislikes = currentDislikes + 1;
 
-                await setDoc(postDoc, { dislikes: newDislikes }, { merge: true });
+                await updateDoc(postDoc, { dislikes: newDislikes });
 
                 dislikeCount.textContent = newDislikes;
             }
         });
     });
 };
-
+                
 // تحديث CSS لتعديل موقع وحجم الأزرار
 const cssStyles = `
 .like-dislike {
