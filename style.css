@@ -78,7 +78,7 @@ a:hover {
     margin-right: auto;
     bottom: 25px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: transformX(0.90);
     width: 60px;
     height: 60px;
     background-color: black;
@@ -95,7 +95,7 @@ a:hover {
 }
 
 .add-post-btn:active {
-    transform: transformX(0.90);
+    transform: scale(0.90);
 }
 
          .overlay {
