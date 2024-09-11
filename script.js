@@ -128,8 +128,31 @@ const displayPosts = async () => {
             ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
             <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
             <p class="post-time">${formattedDateTime}</p>
+            <div class="like-section">
+                <button class="like-btn" data-id="${doc.id}">👍</button>
+                <span class="like-count">${data.likes || 0}</span> إعجابات
+            </div>
         `;
         postList.appendChild(postItem);
+
+        // إضافة حدث زر الإعجاب
+        const likeBtn = postItem.querySelector('.like-btn');
+        const likeCount = postItem.querySelector('.like-count');
+
+        likeBtn.addEventListener('click', async () => {
+            const postId = likeBtn.getAttribute('data-id');
+            const postDoc = doc(db, "posts", postId);
+            const postSnapshot = await getDoc(postDoc);
+
+            if (postSnapshot.exists()) {
+                const currentLikes = postSnapshot.data().likes || 0;
+                const newLikes = currentLikes + 1;
+
+                await setDoc(postDoc, { likes: newLikes }, { merge: true });
+
+                likeCount.textContent = newLikes;
+            }
+        });
     });
 };
 
@@ -163,13 +186,14 @@ publishBtn.addEventListener('click', async () => {
             author,
             authorEmail,
             timestamp: serverTimestamp(),
-            fileUrl
+            fileUrl,
+            likes: 0 // تهيئة الإعجابات بصفر
         });
         postTitleInput.value = '';
         postDescriptionInput.value = '';
         postFileInput.value = '';
         overlay.classList.remove('show');
-showNotification('تم نشر المنشور بنجاح', 'success');
+        showNotification('تم نشر المنشور بنجاح', 'success');
         displayPosts();
     } else {
         showNotification('يرجى ملء جميع الحقول', 'error');
@@ -203,7 +227,7 @@ const checkAuthState = async () => {
             usernameDisplay.textContent = `مرحباً، ${username}`;
             displayPosts();
         } else {
-            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // إعادة التوجيه إلى صفحة تسجيل الدخول
+            window.location.href = 'login.html'; // إعادة التوجيه إلى صفحة تسجيل الدخول
         }
     });
 };
@@ -211,12 +235,10 @@ const checkAuthState = async () => {
 logoutBtn.addEventListener('click', () => {
     signOut(auth).then(() => {
         localStorage.clear();
-        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+        window.location.href = 'login.html';
     }).catch((error) => {
         showNotification('حدث خطأ أثناء تسجيل الخروج', 'error');
     });
 });
 
 checkAuthState();
-
-    
