@@ -74,30 +74,29 @@ a:hover {
 }
 
 .add-post-btn {
-            position: fixed;
-            margin-right: auto;
-            bottom: 25px;
-            left: 42%;
-            transform: translateX(0.90);
-            width: 60px;
-            height: 60px;
-            background-color: black;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 30px;
-            cursor: pointer;
-            z-index: 10;
-            box-shadow: 0 4px 8px #2E2E2E;
-            transition: transform 0.3s ease;
-        
-        }
-        
-        .add-post-btn:active {
-            transform: scale(0.90);
-        }
+    position: fixed;
+    margin-right: auto;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    background-color: black;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 4px 8px #2E2E2E;
+    transition: transform 0.3s ease;
+}
+
+.add-post-btn:active {
+    transform: scale(0.90);
+}
 
          .overlay {
             position: fixed;
@@ -265,40 +264,6 @@ a:hover {
             word-break: break-word;
             text-align: right;
         }
-
-/* باقي الأنماط السابقة */
-
-.like-dislike-btns {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    margin-top: 10px;
-}
-
-.like-dislike-btn {
-    display: flex;
-    align-items: center;
-    margin-right: 10px;
-    cursor: pointer;
-}
-
-.like-dislike-btn span {
-    margin-left: 5px;
-}
-
-.like-btn {
-    color: #007bff;
-}
-
-.dislike-btn {
-    color: #dc3545;
-}
-
-.like-btn:hover, .dislike-btn:hover {
-    opacity: 0.8;
-}
-
-/* الأنماط الأخرى */
         
         
         .delete-btn {
@@ -446,4 +411,5 @@ a:hover {
     padding: 0 20px;
     z-index: 9;
     }
-    
+
+            
