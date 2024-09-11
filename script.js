@@ -93,7 +93,7 @@ const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
     const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
-    querySnapshot.forEach((doc) => {
+    querySnapshot.forEach(async (doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
 
@@ -149,7 +149,6 @@ const displayPosts = async () => {
                 const newLikes = currentLikes + 1;
 
                 await updateDoc(postDoc, { likes: newLikes });
-
                 likeCount.textContent = newLikes;
             }
         });
@@ -168,7 +167,6 @@ const displayPosts = async () => {
                 const newDislikes = currentDislikes + 1;
 
                 await updateDoc(postDoc, { dislikes: newDislikes });
-
                 dislikeCount.textContent = newDislikes;
             }
         });
@@ -256,10 +254,9 @@ logoutBtn.addEventListener('click', () => {
     signOut(auth).then(() => {
         localStorage.clear();
         window.location.href = 'login.html';
-    }).catch((error) => {
+    }).catch(() => {
         showNotification('حدث خطأ أثناء تسجيل الخروج', 'error');
     });
 });
 
 checkAuthState();
-        
