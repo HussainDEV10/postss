@@ -91,6 +91,7 @@ const displayPosts = async () => {
 
         const postItem = document.createElement('li');
         postItem.classList.add('post-item');
+        postItem.setAttribute('data-id', doc.id); // إضافة معرف العنصر
         postItem.innerHTML = `
             ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
@@ -122,7 +123,17 @@ const handleLikeDislike = async (postId, type) => {
         }
 
         await updateDoc(postRef, updateData);
-        displayPosts();
+
+        // تحديث الأرقام دون تحريك الشاشة
+        requestAnimationFrame(() => {
+            const postItem = document.querySelector(`.post-item[data-id="${postId}"]`);
+            if (postItem) {
+                const countSpan = postItem.querySelector(`.like-dislike-btn[data-type="${type}"] span`);
+                if (countSpan) {
+                    countSpan.textContent = (parseInt(countSpan.textContent) || 0) + 1;
+                }
+            }
+        });
     }
 };
 
@@ -191,7 +202,7 @@ postList.addEventListener('click', async (e) => {
         const postRef = doc(db, "posts", postId);
         const postDoc = await getDoc(postRef);
 
-        if (postDoc.exists()) {
+if (postDoc.exists()) {
             lastDeletedPost = {
                 id: postId,
                 data: postDoc.data()
@@ -224,6 +235,3 @@ onAuthStateChanged(auth, (user) => {
         window.location.href = 'login.html';
     }
 });
-
-
-checkAuthState();
