@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
@@ -149,7 +149,7 @@ const displayPosts = async () => {
                 const newLikes = currentLikes + 1;
 
                 await updateDoc(postDoc, { likes: newLikes });
-                likeCount.textContent = newLikes;
+                likeCount.textContent = newLikes; // تحديث واجهة المستخدم
             }
         });
 
@@ -167,7 +167,7 @@ const displayPosts = async () => {
                 const newDislikes = currentDislikes + 1;
 
                 await updateDoc(postDoc, { dislikes: newDislikes });
-                dislikeCount.textContent = newDislikes;
+                dislikeCount.textContent = newDislikes; // تحديث واجهة المستخدم
             }
         });
     });
