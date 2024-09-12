@@ -227,7 +227,7 @@ const convertToLinks = (text) => {
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        localStorage.setItem('username', user.displayName || 'مستخدم');
+        localStorage.setItem('username', user.displayName || `${username}`);
         localStorage.setItem('email', user.email);
         usernameDisplay.textContent = user.displayName = `${username}`;
         displayPosts();
