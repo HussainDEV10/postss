@@ -193,7 +193,7 @@ logoutBtn.addEventListener('click', async () => {
     await signOut(auth);
     localStorage.removeItem('username');
     localStorage.removeItem('email');
-    window.location.href = 'login.html'; // إعادة التوجيه لصفحة تسجيل الدخول
+    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // إعادة التوجيه لصفحة تسجيل الدخول
 });
 
 postList.addEventListener('click', async (e) => {
@@ -229,10 +229,10 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         localStorage.setItem('username', user.displayName || 'مستخدم');
         localStorage.setItem('email', user.email);
-        usernameDisplay.textContent = user.displayName || `${username}`;
+        usernameDisplay.textContent = user.displayName = `${username}`;
         displayPosts();
     } else {
-        window.location.href = 'login.html';
+        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     }
 });
 
