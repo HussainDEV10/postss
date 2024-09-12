@@ -227,13 +227,27 @@ const convertToLinks = (text) => {
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        localStorage.setItem('username', user.displayName || `${username}`);
+        localStorage.setItem('username', user.displayName || 'مستخدم');
         localStorage.setItem('email', user.email);
-        usernameDisplay.textContent = user.displayName = `${username}`;
+        usernameDisplay.textContent = user.displayName || 'مستخدم';
         displayPosts();
     } else {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     }
 });
+
+const checkAuthState = async () => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            const email = user.email;
+            const username = localStorage.getItem('username') || user.displayName || 'مستخدم';
+            localStorage.setItem('email', email);
+            usernameDisplay.textContent = `مرحباً، ${username}`;
+            displayPosts();
+        } else {
+            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // إعادة التوجيه إلى صفحة تسجيل الدخول
+        }
+    });
+};
 
 checkAuthState();
