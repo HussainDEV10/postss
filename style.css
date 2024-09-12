@@ -99,7 +99,7 @@ a:hover {
 }
 
 .like-dislike-btns:active {
-filter: drop-shadow(0px, 0px, 12px grey);
+filter: drop-shadow(0px, 0px, 12px green);
 }
 
          .overlay {
