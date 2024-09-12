@@ -229,7 +229,7 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         localStorage.setItem('username', user.displayName || 'مستخدم');
         localStorage.setItem('email', user.email);
-        usernameDisplay.textContent = user.displayName || 'مستخدم';
+        usernameDisplay.textContent = user.displayName || `${username}`;
         displayPosts();
     } else {
         window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
