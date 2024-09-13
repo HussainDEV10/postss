@@ -108,32 +108,75 @@ const displayPosts = async () => {
     });
 };
 
+// الكود الجديد لإعجابات وعدم إعجابات
 const handleLikeDislike = async (postId, type) => {
     const postRef = doc(db, "posts", postId);
     const postDoc = await getDoc(postRef);
 
     if (postDoc.exists()) {
         const data = postDoc.data();
-        const updateData = {};
+
+        // استرجاع البريد الإلكتروني للمستخدم المسجل دخولاً
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+            console.error('لا يوجد مستخدم مسجل دخول');
+            return;
+        }
+        const currentUserEmail = currentUser.email;
+
+        let updateData = {};
+
+        const likedUsers = data.likedUsers || [];
+        const dislikedUsers = data.dislikedUsers || [];
 
         if (type === 'like') {
+            if (likedUsers.includes(currentUserEmail)) {
+                return; // المستخدم أعجب بالفعل
+            }
+
+            // إزالة المستخدم من قائمة عدم الإعجاب إذا كان موجودًا
+            if (dislikedUsers.includes(currentUserEmail)) {
+                updateData.dislikes = (data.dislikes || 0) - 1;
+                updateData.dislikedUsers = dislikedUsers.filter(user => user !== currentUserEmail);
+            }
+
             updateData.likes = (data.likes || 0) + 1;
+            updateData.likedUsers = [...likedUsers, currentUserEmail];
         } else if (type === 'dislike') {
+            if (dislikedUsers.includes(currentUserEmail)) {
+                return; // المستخدم لم يعجب بالفعل
+            }
+
+            // إزالة المستخدم من قائمة الإعجاب إذا كان موجودًا
+            if (likedUsers.includes(currentUserEmail)) {
+                updateData.likes = (data.likes || 0) - 1;
+                updateData.likedUsers = likedUsers.filter(user => user !== currentUserEmail);
+            }
+
             updateData.dislikes = (data.dislikes || 0) + 1;
+            updateData.dislikedUsers = [...dislikedUsers, currentUserEmail];
         }
 
+        // تحديث البيانات في Firestore
         await updateDoc(postRef, updateData);
 
-        // تحديث الأرقام دون تحريك الشاشة
+        // تحديث الأرقام دون إعادة تحميل الصفحة
         requestAnimationFrame(() => {
             const postItem = document.querySelector(`.post-item[data-id="${postId}"]`);
             if (postItem) {
-                const countSpan = postItem.querySelector(`.like-dislike-btn[data-type="${type}"] span`);
-                if (countSpan) {
-                    countSpan.textContent = (parseInt(countSpan.textContent) || 0) + 1;
+                const likeSpan = postItem.querySelector(`.like-dislike-btn[data-type="like"] span`);
+                const dislikeSpan = postItem.querySelector(`.like-dislike-btn[data-type="dislike"] span`);
+                
+                if (likeSpan) {
+                    likeSpan.textContent = updateData.likes || data.likes;
+                }
+                if (dislikeSpan) {
+                    dislikeSpan.textContent = updateData.dislikes || data.dislikes;
                 }
             }
         });
+    } else {
+        console.error('المنشور غير موجود');
     }
 };
 
@@ -151,10 +194,10 @@ publishBtn.addEventListener('click', async () => {
     const author = localStorage.getItem('username');
     const authorEmail = localStorage.getItem('email');
     const file = postFileInput.files[0];
-    
+
     if (title && description && author && authorEmail) {
         let fileUrl = '';
-        
+
         if (file) {
             const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
             await uploadBytes(storageRef, file);
@@ -170,7 +213,9 @@ publishBtn.addEventListener('click', async () => {
             fileUrl,
             timestamp: serverTimestamp(),
             likes: 0,
-            dislikes: 0
+            dislikes: 0,
+            likedUsers: [], // قائمة المستخدمين الذين أعجبوا
+            dislikedUsers: [] // قائمة المستخدمين الذين لم يعجبوا
         });
 
         // إظهار رسالة نجاح
@@ -202,7 +247,7 @@ postList.addEventListener('click', async (e) => {
         const postRef = doc(db, "posts", postId);
         const postDoc = await getDoc(postRef);
 
-if (postDoc.exists()) {
+        if (postDoc.exists()) {
             lastDeletedPost = {
                 id: postId,
                 data: postDoc.data()
