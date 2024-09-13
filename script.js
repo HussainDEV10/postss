@@ -163,22 +163,7 @@ const handleLikeDislike = async (postId, type) => {
         // تحديث الأرقام دون إعادة تحميل الصفحة
         requestAnimationFrame(() => {
             const postItem = document.querySelector(`.post-item[data-id="${postId}"]`);
-            if (postItem) {
-                const likeSpan = postItem.querySelector(`.like-dislike-btn[data-type="like"] span`);
-                const dislikeSpan = postItem.querySelector(`.like-dislike-btn[data-type="dislike"] span`);
-                
-                if (likeSpan) {
-                    likeSpan.textContent = updateData.likes || data.likes;
-                }
-                if (dislikeSpan) {
-                    dislikeSpan.textContent = updateData.dislikes || data.dislikes;
-                }
-            }
-        });
-    } else {
-        console.error('المنشور غير موجود');
-    }
-};
+
 
 addPostBtn.addEventListener('click', () => {
     overlay.classList.add('show');
