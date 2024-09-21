@@ -19,7 +19,7 @@ header {
     top: 0;
     left: 0;
     width: 100%;
-    background-color: #FF5722; /* لون الخلفية */
+    background-color: #f4f4f4; /* لون الخلفية */
     z-index: 100;
     padding: 15px 20px; /* حواف متساوية على جميع الجهات */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* ظل الشريط */
@@ -78,7 +78,7 @@ a:hover {
     margin-right: auto;
     bottom: 25px;
     left: 50%;
-    transform: translateX(0.90);
+    transform: translateX(-50%);
     width: 60px;
     height: 60px;
     background-color: black;
@@ -96,10 +96,6 @@ a:hover {
 
 .add-post-btn:active {
     transform: scale(0.90);
-}
-
-.like-dislike-btns:active {
-filter: drop-shadow(0px, 0px, 12px green);
 }
 
          .overlay {
@@ -213,7 +209,7 @@ filter: drop-shadow(0px, 0px, 12px green);
             margin-bottom: 10px;
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
             }
@@ -416,4 +412,4 @@ filter: drop-shadow(0px, 0px, 12px green);
     z-index: 9;
     }
 
-            
+    
