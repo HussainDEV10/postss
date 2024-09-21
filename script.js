@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
@@ -42,6 +42,30 @@ const showNotification = (message, type) => {
     notificationContainer.innerHTML = ''; // Clear existing notifications
     notificationContainer.appendChild(notification);
 
+    let startX = 0;
+
+    notification.addEventListener('touchstart', (event) => {
+        startX = event.touches[0].clientX;
+    });
+
+    notification.addEventListener('touchmove', (event) => {
+        const touch = event.touches[0];
+        const diffX = touch.clientX - startX;
+        notification.style.transform = `translate(${diffX}px, 0)`;
+    });
+
+    notification.addEventListener('touchend', () => {
+        const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
+
+        if (Math.abs(finalPosition) > 10) {
+            notification.classList.add('hide');
+            notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
+            setTimeout(() => notification.remove(), 300); // إزالة الإشعار بعد 300 مللي ثانية
+        } else {
+            notification.style.transform = `translateX(0)`;
+        }
+    });
+
     setTimeout(() => notification.classList.add('show'), 10);
     setTimeout(() => notification.classList.add('hide'), 5000);
     setTimeout(() => notification.remove(), 5500);
@@ -60,10 +84,15 @@ const undoDelete = async () => {
     }
 };
 
+function convertToLinks(text) {
+    const urlPattern = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
+}
+
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
-    const currentUserEmail = localStorage.getItem('email');
+    const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
     querySnapshot.forEach((doc) => {
         const data = doc.data();
         const timestamp = new Date(data.timestamp.seconds * 1000);
@@ -72,7 +101,7 @@ const displayPosts = async () => {
         const minutes = timestamp.getMinutes().toString().padStart(2, '0');
         const seconds = timestamp.getSeconds().toString().padStart(2, '0');
         const period = hours >= 12 ? 'م' : 'ص';
-        hours = hours % 12 || 12;
+        hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
         const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
         const day = timestamp.getDate().toString().padStart(2, '0');
         const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
@@ -91,7 +120,7 @@ const displayPosts = async () => {
 
         const postItem = document.createElement('li');
         postItem.classList.add('post-item');
-        postItem.setAttribute('data-id', doc.id); // إضافة معرف العنصر
+        postItem.style.fontFamily = 'Rubik, sans-serif';
         postItem.innerHTML = `
             ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
@@ -99,71 +128,10 @@ const displayPosts = async () => {
             ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
             <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
             <p class="post-time">${formattedDateTime}</p>
-            <div class="like-dislike-btns">
-                <div class="like-dislike-btn like-btn" data-id="${doc.id}" data-type="like">👍 <span>${data.likes || 0}</span></div>
-                <div class="like-dislike-btn dislike-btn" data-id="${doc.id}" data-type="dislike">👎 <span>${data.dislikes || 0}</span></div>
-            </div>
         `;
         postList.appendChild(postItem);
     });
 };
-
-// الكود الجديد لإعجابات وعدم إعجابات
-const handleLikeDislike = async (postId, type) => {
-    const postRef = doc(db, "posts", postId);
-    const postDoc = await getDoc(postRef);
-
-    if (postDoc.exists()) {
-        const data = postDoc.data();
-
-        // استرجاع البريد الإلكتروني للمستخدم المسجل دخولاً
-        const currentUser = auth.currentUser;
-        if (!currentUser) {
-            console.error('لا يوجد مستخدم مسجل دخول');
-            return;
-        }
-        const currentUserEmail = currentUser.email;
-
-        let updateData = {};
-
-        const likedUsers = data.likedUsers || [];
-        const dislikedUsers = data.dislikedUsers || [];
-
-        if (type === 'like') {
-            if (likedUsers.includes(currentUserEmail)) {
-                return; // المستخدم أعجب بالفعل
-            }
-
-            // إزالة المستخدم من قائمة عدم الإعجاب إذا كان موجودًا
-            if (dislikedUsers.includes(currentUserEmail)) {
-                updateData.dislikes = (data.dislikes || 0) - 1;
-                updateData.dislikedUsers = dislikedUsers.filter(user => user !== currentUserEmail);
-            }
-
-            updateData.likes = (data.likes || 0) + 1;
-            updateData.likedUsers = [...likedUsers, currentUserEmail];
-        } else if (type === 'dislike') {
-            if (dislikedUsers.includes(currentUserEmail)) {
-                return; // المستخدم لم يعجب بالفعل
-            }
-
-            // إزالة المستخدم من قائمة الإعجاب إذا كان موجودًا
-            if (likedUsers.includes(currentUserEmail)) {
-                updateData.likes = (data.likes || 0) - 1;
-                updateData.likedUsers = likedUsers.filter(user => user !== currentUserEmail);
-            }
-
-            updateData.dislikes = (data.dislikes || 0) + 1;
-            updateData.dislikedUsers = [...dislikedUsers, currentUserEmail];
-        }
-
-        // تحديث البيانات في Firestore
-        await updateDoc(postRef, updateData);
-
-        // تحديث الأرقام دون إعادة تحميل الصفحة
-        requestAnimationFrame(() => {
-            const postItem = document.querySelector(`.post-item[data-id="${postId}"]`);
-
 
 addPostBtn.addEventListener('click', () => {
     overlay.classList.add('show');
@@ -179,90 +147,50 @@ publishBtn.addEventListener('click', async () => {
     const author = localStorage.getItem('username');
     const authorEmail = localStorage.getItem('email');
     const file = postFileInput.files[0];
-
+    
     if (title && description && author && authorEmail) {
         let fileUrl = '';
-
+        
         if (file) {
             const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
             await uploadBytes(storageRef, file);
             fileUrl = await getDownloadURL(storageRef);
         }
-
-        // إضافة المنشور الجديد إلى قاعدة البيانات
+        
         await addDoc(collection(db, "posts"), {
             title,
             description,
             author,
             authorEmail,
-            fileUrl,
             timestamp: serverTimestamp(),
-            likes: 0,
-            dislikes: 0,
-            likedUsers: [], // قائمة المستخدمين الذين أعجبوا
-            dislikedUsers: [] // قائمة المستخدمين الذين لم يعجبوا
+            fileUrl
         });
-
-        // إظهار رسالة نجاح
-        showNotification('تم نشر المنشور بنجاح', 'success');
-
-        // إخفاء الفورم وتفريغ الحقول
-        overlay.classList.remove('show');
         postTitleInput.value = '';
         postDescriptionInput.value = '';
         postFileInput.value = '';
-
-        // تحديث قائمة المنشورات
+        overlay.classList.remove('show');
+showNotification('تم نشر المنشور بنجاح', 'success');
         displayPosts();
     } else {
-        showNotification('يرجى تعبئة جميع الحقول', 'error');
+        showNotification('يرجى ملء جميع الحقول', 'error');
     }
 });
 
-logoutBtn.addEventListener('click', async () => {
-    await signOut(auth);
-    localStorage.removeItem('username');
-    localStorage.removeItem('email');
-    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // إعادة التوجيه لصفحة تسجيل الدخول
-});
-
-postList.addEventListener('click', async (e) => {
-    if (e.target.classList.contains('delete-btn')) {
-        const postId = e.target.getAttribute('data-id');
-        const postRef = doc(db, "posts", postId);
-        const postDoc = await getDoc(postRef);
-
+postList.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('delete-btn')) {
+        const postId = event.target.getAttribute('data-id');
+        const postDoc = await getDoc(doc(db, 'posts', postId));
+        
         if (postDoc.exists()) {
             lastDeletedPost = {
-                id: postId,
+                id: postDoc.id,
                 data: postDoc.data()
             };
-            await deleteDoc(postRef);
+            
+            await deleteDoc(doc(db, 'posts', postId));
             showNotification('تم حذف المنشور', 'delete');
             displayPosts();
         }
-    } else if (e.target.classList.contains('like-btn')) {
-        const postId = e.target.getAttribute('data-id');
-        await handleLikeDislike(postId, 'like');
-    } else if (e.target.classList.contains('dislike-btn')) {
-        const postId = e.target.getAttribute('data-id');
-        await handleLikeDislike(postId, 'dislike');
-    }
-});
-
-const convertToLinks = (text) => {
-    const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-    return text.replace(urlPattern, (url) => `<a href="${url}" target="_blank">${url}</a>`);
-};
-
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        localStorage.setItem('username', user.displayName || 'مستخدم');
-        localStorage.setItem('email', user.email);
-        usernameDisplay.textContent = user.displayName || `${username}`;
-        displayPosts();
-    } else {
-        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
     }
 });
 
@@ -275,9 +203,20 @@ const checkAuthState = async () => {
             usernameDisplay.textContent = `مرحباً، ${username}`;
             displayPosts();
         } else {
-            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // إعادة التوجيه إلى صفحة تسجيل الدخول
+            window.location.href = 'login.html'; // إعادة التوجيه إلى صفحة تسجيل الدخول
         }
     });
 };
 
+logoutBtn.addEventListener('click', () => {
+    signOut(auth).then(() => {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }).catch((error) => {
+        showNotification('حدث خطأ أثناء تسجيل الخروج', 'error');
+    });
+});
+
 checkAuthState();
+
+    
