@@ -126,7 +126,7 @@ const displayPosts = async () => {
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
             ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
-            <p class="post-author">من قِبل: ${data.author || `${username}`</p>
+            <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
             <p class="post-time">${formattedDateTime}</p>
         `;
         postList.appendChild(postItem);
@@ -200,7 +200,7 @@ const checkAuthState = async () => {
             const email = user.email;
             const username = localStorage.getItem('username') || user.displayName || 'مستخدم';
             localStorage.setItem('email', email);
-            usernameDisplay.textContent = `${username}`;
+            usernameDisplay.textContent = `مرحباً، ${username}`;
             displayPosts();
         } else {
             window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // إعادة التوجيه إلى صفحة تسجيل الدخول
@@ -219,4 +219,4 @@ logoutBtn.addEventListener('click', () => {
 
 checkAuthState();
 
-    
+        
