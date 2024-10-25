@@ -109,21 +109,21 @@ const displayPosts = async () => {
             const formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${formattedTime}`;
 
             const postItem = document.createElement('li');
-postItem.classList.add('post-item');
-postItem.innerHTML = `
-    ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
-    <h3 class="post-title">${data.title}</h3>
-    <p class="post-description">${convertToLinks(data.description)}</p>
-    ${
-        data.fileUrl 
-        ? data.fileType === 'image' 
-            ? `<img src="${data.fileUrl}" alt="Media" class="post-media" style="max-width: 100%; height: auto;" />` 
-            : `<video src="${data.fileUrl}" controls class="post-media" style="max-width: 100%; height: auto;"></video>`
-        : ''
-    }
-    <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
-    <p class="post-time">${formattedDateTime}</p>
-`;
+            postItem.classList.add('post-item');
+            postItem.innerHTML = `
+                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+                <h3 class="post-title">${data.title}</h3>
+                <p class="post-description">${convertToLinks(data.description)}</p>
+                ${
+                    data.fileUrl 
+                    ? data.fileType === 'image' 
+                        ? `<img src="${data.fileUrl}" alt="Media" class="post-media" style="max-width: 100%; height: auto;" />` 
+                        : `<video src="${data.fileUrl}" controls class="post-media" style="max-width: 100%; height: auto;"></video>`
+                    : ''
+                }
+                <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
+                <p class="post-time">${formattedDateTime}</p>
+            `;
             postList.appendChild(postItem);
         });
     } catch (error) {
@@ -203,20 +203,18 @@ const checkAuthState = async () => {
             usernameDisplay.textContent = `مرحباً، ${username}`;
             displayPosts();
         } else {
-            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+            window.location.href = 'https://hussaindev10.github.io/D'; // استبدل بهذا الرابط الخاص بتسجيل الدخول
         }
     });
 };
 
+// تنفيذ عملية تسجيل الخروج
 logoutBtn.addEventListener('click', async () => {
-    try {
-        await signOut(auth);
-        localStorage.removeItem('email');
-        localStorage.removeItem('username');
-        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
-    } catch (error) {
-        showNotification('حدث خطأ أثناء تسجيل الخروج', 'error');
-    }
+    await signOut(auth);
+    localStorage.removeItem('email');
+    localStorage.removeItem('username');
+    window.location.href = 'https://hussaindev10.github.io/D'; // استبدل بهذا الرابط الخاص بتسجيل الدخول
 });
 
+// استدعاء وظيفة التحقق من حالة المصادقة عند تحميل الصفحة
 checkAuthState();
