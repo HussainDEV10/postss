@@ -150,11 +150,15 @@ publishBtn.addEventListener('click', async () => {
     
     if (title && description && author && authorEmail) {
         let fileUrl = '';
-        
+        let fileType = '';
+
         if (file) {
             const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
             await uploadBytes(storageRef, file);
             fileUrl = await getDownloadURL(storageRef);
+            
+            // تحقق من نوع الملف إذا كان صورة أو فيديو
+            fileType = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('video/') ? 'video' : '');
         }
         
         await addDoc(collection(db, "posts"), {
@@ -163,13 +167,14 @@ publishBtn.addEventListener('click', async () => {
             author,
             authorEmail,
             timestamp: serverTimestamp(),
-            fileUrl
+            fileUrl,
+            fileType // إضافة نوع الملف
         });
         postTitleInput.value = '';
         postDescriptionInput.value = '';
         postFileInput.value = '';
         overlay.classList.remove('show');
-showNotification('تم نشر المنشور بنجاح', 'success');
+        showNotification('تم نشر المنشور بنجاح', 'success');
         displayPosts();
     } else {
         showNotification('يرجى ملء جميع الحقول', 'error');
