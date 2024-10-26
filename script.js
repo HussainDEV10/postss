@@ -162,59 +162,65 @@ publishBtn.addEventListener('click', async () => {
             description,
             author,
             authorEmail,
-            timestamp: serverTimestamp(),
             fileUrl,
-            fileType
+            fileType,
+            timestamp: serverTimestamp()
         });
+
+        showNotification("تم نشر المنشور بنجاح", "success");
+        overlay.classList.remove('show');
         postTitleInput.value = '';
         postDescriptionInput.value = '';
         postFileInput.value = '';
-        overlay.classList.remove('show');
-        showNotification('تم نشر المنشور بنجاح', 'success');
         displayPosts();
     } else {
-        showNotification('يرجى ملء جميع الحقول', 'error');
+        showNotification("يرجى ملء جميع الحقول", "error");
     }
 });
 
-postList.addEventListener('click', async (event) => {
-    if (event.target.classList.contains('delete-btn')) {
-        const postId = event.target.getAttribute('data-id');
-        const postDoc = await getDoc(doc(db, 'posts', postId));
-        
-        if (postDoc.exists()) {
-            lastDeletedPost = {
-                id: postDoc.id,
-                data: postDoc.data()
-            };
-            await deleteDoc(doc(db, 'posts', postId));
-            showNotification('تم حذف المنشور', 'delete');
-            displayPosts();
-        }
-    }
-});
-
-const checkAuthState = async () => {
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            const email = user.email;
-            const username = localStorage.getItem('username') || user.displayName || 'مستخدم';
-            localStorage.setItem('email', email);
-            usernameDisplay.textContent = `مرحباً، ${username}`;
-            displayPosts();
-        } else {
-            window.location.href = 'https://hussaindev10.github.io/D'; // استبدل بهذا الرابط الخاص بتسجيل الدخول
-        }
-    });
-};
-
-// تنفيذ عملية تسجيل الخروج
 logoutBtn.addEventListener('click', async () => {
     await signOut(auth);
     localStorage.removeItem('email');
     localStorage.removeItem('username');
-    window.location.href = 'https://hussaindev10.github.io/D'; // استبدل بهذا الرابط الخاص بتسجيل الدخول
+    window.location.href = 'https://hussaindev10.github.io/D'; // استبدل برابط صفحة تسجيل الدخول
 });
 
-// استدعاء وظيفة التحقق من حالة المصادقة عند تحميل الصفحة
+const checkAuthState = () => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            localStorage.setItem('email', user.email);
+            getDoc(doc(db, "users", user.uid)).then((doc) => {
+                if (doc.exists()) {
+                    const userData = doc.data();
+                    localStorage.setItem('username', userData.username);
+                    usernameDisplay.textContent = `مرحباً، ${userData.username}`;
+                }
+            });
+            displayPosts();
+        } else {
+            window.location.href = 'https://hussaindev10.github.io/D'; // استبدل برابط صفحة تسجيل الدخول
+        }
+    });
+};
+
+document.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('delete-btn')) {
+        const postId = event.target.getAttribute('data-id');
+        const postRef = doc(db, "posts", postId);
+
+        try {
+            const postDoc = await getDoc(postRef);
+            if (postDoc.exists()) {
+                lastDeletedPost = { id: postId, data: postDoc.data() };
+                await deleteDoc(postRef);
+                showNotification("تم حذف المنشور", "delete");
+                displayPosts();
+            }
+        } catch (error) {
+            showNotification("حدث خطأ أثناء حذف المنشور", "error");
+        }
+    }
+});
+
+// التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 checkAuthState();
