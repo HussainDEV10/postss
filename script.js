@@ -193,7 +193,7 @@ const checkAuthState = () => {
                 if (doc.exists()) {
                     const userData = doc.data();
                     localStorage.setItem('username', userData.username);
-                    usernameDisplay.textContent = `مرحباً، ${username}`;
+                    usernameDisplay.textContent = `${username}`;
                 }
             });
             displayPosts();
