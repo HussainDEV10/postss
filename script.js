@@ -182,7 +182,7 @@ logoutBtn.addEventListener('click', async () => {
     await signOut(auth);
     localStorage.removeItem('email');
     localStorage.removeItem('username');
-    window.location.href = 'https://hussaindev10.github.io/D'; // استبدل برابط صفحة تسجيل الدخول
+    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
 });
 
 const checkAuthState = () => {
@@ -198,7 +198,7 @@ const checkAuthState = () => {
             });
             displayPosts();
         } else {
-            window.location.href = 'https://hussaindev10.github.io/D'; // استبدل برابط صفحة تسجيل الدخول
+            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
         }
     });
 };
