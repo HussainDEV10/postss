@@ -111,7 +111,7 @@ const displayPosts = async () => {
             const postItem = document.createElement('li');
             postItem.classList.add('post-item');
             postItem.innerHTML = `
-                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}"><img src="trush.png" alt="Delete" style="width: 20px; height: 20px;" /></button>` : ''}
                 <h3 class="post-title">${data.title}</h3>
                 <p class="post-description">${convertToLinks(data.description)}</p>
                 ${
