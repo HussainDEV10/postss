@@ -39,7 +39,7 @@ const showNotification = (message, type) => {
         ${type === 'delete' ? '<button class="undo-btn" id="undoBtn">إسترجاع</button>' : ''}
         <div class="underline"></div>
     `;
-    notificationContainer.innerHTML = ''; // مسح الإشعارات السابقة
+    notificationContainer.innerHTML = '';
     notificationContainer.appendChild(notification);
 
     notification.addEventListener('touchstart', (event) => {
@@ -89,7 +89,7 @@ function convertToLinks(text) {
 const displayPosts = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "posts"));
-        postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+        postList.innerHTML = '';
         const currentUserEmail = localStorage.getItem('email');
 
         querySnapshot.forEach((doc) => {
@@ -111,13 +111,10 @@ const displayPosts = async () => {
             const postItem = document.createElement('li');
             postItem.classList.add('post-item');
             postItem.innerHTML = `
-    ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}"><img src="trush.png" alt="Delete" class="delete-icon"/></button>` : ''}
-    <h3 class="post-title">${data.title}</h3>
-    <p class="post-description">${convertToLinks(data.description)}</p>
-    ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
-    <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
-    <p class="post-time">${formattedDateTime}</p>
-`;
+                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}"><img src="trush.png" alt="Delete" class="delete-icon"/></button>` : ''}
+                <h3 class="post-title">${data.title}</h3>
+                <p class="post-description">${convertToLinks(data.description)}</p>
+                ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
                 <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
                 <p class="post-time">${formattedDateTime}</p>
             `;
@@ -179,7 +176,7 @@ logoutBtn.addEventListener('click', async () => {
     await signOut(auth);
     localStorage.removeItem('email');
     localStorage.removeItem('username');
-    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
+    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
 });
 
 const checkAuthState = () => {
@@ -195,7 +192,7 @@ const checkAuthState = () => {
             });
             displayPosts();
         } else {
-            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
+            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
         }
     });
 };
@@ -219,5 +216,4 @@ document.addEventListener('click', async (event) => {
     }
 });
 
-// التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 checkAuthState();
