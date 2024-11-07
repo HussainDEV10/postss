@@ -39,10 +39,8 @@ const showNotification = (message, type) => {
         ${type === 'delete' ? '<button class="undo-btn" id="undoBtn">إسترجاع</button>' : ''}
         <div class="underline"></div>
     `;
-    notificationContainer.innerHTML = ''; // Clear existing notifications
+    notificationContainer.innerHTML = ''; // مسح الإشعارات السابقة
     notificationContainer.appendChild(notification);
-
-    let startX = 0;
 
     notification.addEventListener('touchstart', (event) => {
         startX = event.touches[0].clientX;
@@ -56,11 +54,10 @@ const showNotification = (message, type) => {
 
     notification.addEventListener('touchend', () => {
         const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
-
         if (Math.abs(finalPosition) > 10) {
             notification.classList.add('hide');
             notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
-            setTimeout(() => notification.remove(), 300); // إزالة الإشعار بعد 300 مللي ثانية
+            setTimeout(() => notification.remove(), 300);
         } else {
             notification.style.transform = `translateX(0)`;
         }
@@ -126,6 +123,7 @@ const displayPosts = async () => {
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
             ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
+            ${data.videoUrl ? `<video controls class="post-media"><source src="${data.videoUrl}" type="video/mp4"></video>` : ''}
             <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
             <p class="post-time">${formattedDateTime}</p>
         `;
@@ -150,11 +148,15 @@ publishBtn.addEventListener('click', async () => {
     
     if (title && description && author && authorEmail) {
         let fileUrl = '';
-        
+        let videoUrl = '';
+
         if (file) {
             const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
             await uploadBytes(storageRef, file);
             fileUrl = await getDownloadURL(storageRef);
+            if (file.type.startsWith('video/')) {
+                videoUrl = fileUrl;  // إذا كان الملف فيديو، نستخدم رابط الفيديو
+            }
         }
         
         await addDoc(collection(db, "posts"), {
@@ -163,13 +165,14 @@ publishBtn.addEventListener('click', async () => {
             author,
             authorEmail,
             timestamp: serverTimestamp(),
-            fileUrl
+            fileUrl,
+            videoUrl
         });
         postTitleInput.value = '';
         postDescriptionInput.value = '';
         postFileInput.value = '';
         overlay.classList.remove('show');
-showNotification('تم نشر المنشور بنجاح', 'success');
+        showNotification('تم نشر المنشور بنجاح', 'success');
         displayPosts();
     } else {
         showNotification('يرجى ملء جميع الحقول', 'error');
@@ -183,39 +186,38 @@ postList.addEventListener('click', async (event) => {
         
         if (postDoc.exists()) {
             lastDeletedPost = {
-                id: postDoc.id,
-                data: postDoc.data()
+                id: postId,
+                data: postDoc.data(),
             };
-            
+
+            // حذف المنشور من قاعدة البيانات
             await deleteDoc(doc(db, 'posts', postId));
-            showNotification('تم حذف المنشور', 'delete');
+
+            showNotification('تم حذف المنشور بنجاح', 'delete');
             displayPosts();
         }
     }
 });
 
-const checkAuthState = async () => {
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            const email = user.email;
-            const username = localStorage.getItem('username') || user.displayName || 'مستخدم';
-            localStorage.setItem('email', email);
-            usernameDisplay.textContent = `مرحباً، ${username}`;
-            displayPosts();
-        } else {
-            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // إعادة التوجيه إلى صفحة تسجيل الدخول
-        }
-    });
-};
-
+// تسجيل الخروج
 logoutBtn.addEventListener('click', () => {
     signOut(auth).then(() => {
-        localStorage.clear();
-        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+        localStorage.removeItem('username');
+        localStorage.removeItem('email');
+        window.location.href = '/login'; // إعادة توجيه المستخدم إلى صفحة تسجيل الدخول
     }).catch((error) => {
-        showNotification('حدث خطأ أثناء تسجيل الخروج', 'error');
+        console.error('حدث خطأ أثناء تسجيل الخروج:', error);
     });
 });
 
-checkAuthState();
-
+// التحقق من حالة المستخدم
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        const userEmail = user.email;
+        const userName = localStorage.getItem('username');
+        usernameDisplay.textContent = `مرحباً، ${userName || userEmail}`;
+        displayPosts();
+    } else {
+        window.location.href = '/login'; // إعادة توجيه المستخدم إلى صفحة تسجيل الدخول إذا لم يكن هناك مستخدم
+    }
+});
