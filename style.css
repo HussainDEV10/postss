@@ -263,16 +263,21 @@ a:hover {
         
         
         .delete-btn {
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 24px;
-            color: #ff0000;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            transition: color 0.3s ease;
-        }
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.delete-icon {
+    width: 16px;  /* يمكنك تعديل هذا الرقم للتحكم في حجم الصورة */
+    height: 16px;
+    object-fit: cover;
+}
+
 
 .delete-btn:active {
     transform: scale(0.90);
