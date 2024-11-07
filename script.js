@@ -39,8 +39,10 @@ const showNotification = (message, type) => {
         ${type === 'delete' ? '<button class="undo-btn" id="undoBtn">إسترجاع</button>' : ''}
         <div class="underline"></div>
     `;
-    notificationContainer.innerHTML = ''; // مسح الإشعارات السابقة
+    notificationContainer.innerHTML = ''; // Clear existing notifications
     notificationContainer.appendChild(notification);
+
+    let startX = 0;
 
     notification.addEventListener('touchstart', (event) => {
         startX = event.touches[0].clientX;
@@ -54,10 +56,11 @@ const showNotification = (message, type) => {
 
     notification.addEventListener('touchend', () => {
         const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
+
         if (Math.abs(finalPosition) > 10) {
             notification.classList.add('hide');
             notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
-            setTimeout(() => notification.remove(), 300);
+            setTimeout(() => notification.remove(), 300); // إزالة الإشعار بعد 300 مللي ثانية
         } else {
             notification.style.transform = `translateX(0)`;
         }
@@ -87,47 +90,47 @@ function convertToLinks(text) {
 }
 
 const displayPosts = async () => {
-    try {
-        const querySnapshot = await getDocs(collection(db, "posts"));
-        postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
-        const currentUserEmail = localStorage.getItem('email');
+    const querySnapshot = await getDocs(collection(db, "posts"));
+    postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+    const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const timestamp = new Date(data.timestamp.seconds * 1000);
 
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const timestamp = new Date(data.timestamp.seconds * 1000);
-            let hours = timestamp.getHours();
-            const minutes = timestamp.getMinutes().toString().padStart(2, '0');
-            const period = hours >= 12 ? 'م' : 'ص';
-            hours = hours % 12 || 12;
-            const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes} ${period}`;
-            const day = timestamp.getDate().toString().padStart(2, '0');
-            const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
-            const year = timestamp.getFullYear();
+        let hours = timestamp.getHours();
+        const minutes = timestamp.getMinutes().toString().padStart(2, '0');
+        const seconds = timestamp.getSeconds().toString().padStart(2, '0');
+        const period = hours >= 12 ? 'م' : 'ص';
+        hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
+        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
+        const day = timestamp.getDate().toString().padStart(2, '0');
+        const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
+        const year = timestamp.getFullYear();
+        const formattedDate = `${year}/${month}/${day}`;
+        const arabicNumbers = (number) => {
             const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
-            const formattedDate = `${day}/${month}/${year}`;
-            const arabicFormattedDate = formattedDate.replace(/\d/g, (d) => arabicDigits[d]);
-            const formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${formattedTime}`;
+            return number.split('').map(digit => arabicDigits[digit] || digit).join('');
+        };
 
-            const postItem = document.createElement('li');
-            postItem.classList.add('post-item');
-            postItem.innerHTML = `
-    ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}"><img src="trush.png" alt="حذف" style="width: 20px; height: 20px;"></button>` : ''}
-    <h3 class="post-title">${data.title}</h3>
-    <p class="post-description">${convertToLinks(data.description)}</p>
-    ${
-        data.fileUrl 
-        ? data.fileType === 'image' 
-            ? `<img src="${data.fileUrl}" alt="Media" class="post-media" style="max-width: 100%; height: auto;" />` 
-            : `<video src="${data.fileUrl}" controls class="post-media" style="max-width: 100%; height: auto;"></video>`
-    : ''
-    }
-    <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
-    <p class="post-time">${formattedDateTime}</p>
-`;            postList.appendChild(postItem);
-        });
-    } catch (error) {
-        showNotification("حدث خطأ أثناء تحميل المنشورات", "error");
-    }
+        const arabicFormattedTime = arabicNumbers(formattedTime);
+        const arabicFormattedDate = arabicNumbers(formattedDate);
+        const formattedDateTime = `
+            <span dir="rtl">${arabicFormattedDate}</span> | ${arabicFormattedTime}
+        `;
+
+        const postItem = document.createElement('li');
+        postItem.classList.add('post-item');
+        postItem.style.fontFamily = 'Rubik, sans-serif';
+        postItem.innerHTML = `
+            ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+            <h3 class="post-title">${data.title}</h3>
+            <p class="post-description">${convertToLinks(data.description)}</p>
+            ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
+            <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
+            <p class="post-time">${formattedDateTime}</p>
+        `;
+        postList.appendChild(postItem);
+    });
 };
 
 addPostBtn.addEventListener('click', () => {
@@ -147,13 +150,11 @@ publishBtn.addEventListener('click', async () => {
     
     if (title && description && author && authorEmail) {
         let fileUrl = '';
-        let fileType = '';
-
+        
         if (file) {
             const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
             await uploadBytes(storageRef, file);
             fileUrl = await getDownloadURL(storageRef);
-            fileType = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('video/') ? 'video' : '');
         }
         
         await addDoc(collection(db, "posts"), {
@@ -161,66 +162,60 @@ publishBtn.addEventListener('click', async () => {
             description,
             author,
             authorEmail,
-            fileUrl,
-            fileType,
-            timestamp: serverTimestamp()
+            timestamp: serverTimestamp(),
+            fileUrl
         });
-
-        showNotification("تم نشر المنشور بنجاح", "success");
-        overlay.classList.remove('show');
         postTitleInput.value = '';
         postDescriptionInput.value = '';
         postFileInput.value = '';
+        overlay.classList.remove('show');
+showNotification('تم نشر المنشور بنجاح', 'success');
         displayPosts();
     } else {
-        showNotification("يرجى ملء جميع الحقول", "error");
+        showNotification('يرجى ملء جميع الحقول', 'error');
     }
 });
 
-logoutBtn.addEventListener('click', async () => {
-    await signOut(auth);
-    localStorage.removeItem('email');
-    localStorage.removeItem('username');
-    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
+postList.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('delete-btn')) {
+        const postId = event.target.getAttribute('data-id');
+        const postDoc = await getDoc(doc(db, 'posts', postId));
+        
+        if (postDoc.exists()) {
+            lastDeletedPost = {
+                id: postDoc.id,
+                data: postDoc.data()
+            };
+            
+            await deleteDoc(doc(db, 'posts', postId));
+            showNotification('تم حذف المنشور', 'delete');
+            displayPosts();
+        }
+    }
 });
 
-const checkAuthState = () => {
+const checkAuthState = async () => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            localStorage.setItem('email', user.email);
-            getDoc(doc(db, "users", user.uid)).then((doc) => {
-                if (doc.exists()) {
-                    const userData = doc.data();
-                    localStorage.setItem('username', userData.username);
-                    usernameDisplay.textContent = userData.username || "مستخدم";
-                }
-            });
+            const email = user.email;
+            const username = localStorage.getItem('username') || user.displayName || 'مستخدم';
+            localStorage.setItem('email', email);
+            usernameDisplay.textContent = `مرحباً، ${username}`;
             displayPosts();
         } else {
-            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
+            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // إعادة التوجيه إلى صفحة تسجيل الدخول
         }
     });
 };
 
-document.addEventListener('click', async (event) => {
-    if (event.target.classList.contains('delete-btn')) {
-        const postId = event.target.getAttribute('data-id');
-        const postRef = doc(db, "posts", postId);
-
-        try {
-            const postDoc = await getDoc(postRef);
-            if (postDoc.exists()) {
-                lastDeletedPost = { id: postId, data: postDoc.data() };
-                await deleteDoc(postRef);
-                showNotification("تم حذف المنشور");
-                showNotification("حدث خطأ أثناء محاولة حذف المنشور. حاول مجددًا.");
-                displayPosts();
-            }
-        } catch (error) {
-            showNotification("حدث خطأ أثناء حذف المنشور", "error");
-        }
-    }
+logoutBtn.addEventListener('click', () => {
+    signOut(auth).then(() => {
+        localStorage.clear();
+        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+    }).catch((error) => {
+        showNotification('حدث خطأ أثناء تسجيل الخروج', 'error');
+    });
 });
 
-// التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 checkAuthState();
+
