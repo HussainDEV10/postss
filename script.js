@@ -212,7 +212,8 @@ document.addEventListener('click', async (event) => {
             if (postDoc.exists()) {
                 lastDeletedPost = { id: postId, data: postDoc.data() };
                 await deleteDoc(postRef);
-                showNotification("تم حذف المنشور", "delete");
+                showNotification("تم حذف المنشور");
+                showNotification("حدث خطأ أثناء محاولة حذف المنشور. حاول مجددًا.");
                 displayPosts();
             }
         } catch (error) {
