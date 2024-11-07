@@ -273,8 +273,8 @@ a:hover {
 }
 
 .delete-icon {
-    width: 16px;  /* يمكنك تعديل هذا الرقم للتحكم في حجم الصورة */
-    height: 16px;
+    width: 48px;  /* يمكنك تعديل هذا الرقم للتحكم في حجم الصورة */
+    height: 48px;
     object-fit: cover;
 }
 
