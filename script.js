@@ -1,10 +1,8 @@
-// إعداد Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
-// تكوين Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyBwIhzy0_RBqhMBlvJxbs5_760jP-Yv2fw",
     authDomain: "facebookweb-2030.firebaseapp.com",
@@ -15,13 +13,11 @@ const firebaseConfig = {
     measurementId: "G-ZJ6M2D8T3M"
 };
 
-// تهيئة التطبيق و Firestore و Auth و Storage
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// عناصر HTML
 const usernameDisplay = document.getElementById('usernameDisplay');
 const postList = document.getElementById('postList');
 const overlay = document.getElementById('overlay');
@@ -35,7 +31,6 @@ const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
 
-// دالة عرض الإشعارات
 const showNotification = (message, type) => {
     const notification = document.createElement('div');
     notification.classList.add('notification');
@@ -47,6 +42,27 @@ const showNotification = (message, type) => {
     notificationContainer.innerHTML = ''; // مسح الإشعارات السابقة
     notificationContainer.appendChild(notification);
 
+    notification.addEventListener('touchstart', (event) => {
+        startX = event.touches[0].clientX;
+    });
+
+    notification.addEventListener('touchmove', (event) => {
+        const touch = event.touches[0];
+        const diffX = touch.clientX - startX;
+        notification.style.transform = `translate(${diffX}px, 0)`;
+    });
+
+    notification.addEventListener('touchend', () => {
+        const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
+        if (Math.abs(finalPosition) > 10) {
+            notification.classList.add('hide');
+            notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        } else {
+            notification.style.transform = `translateX(0)`;
+        }
+    });
+
     setTimeout(() => notification.classList.add('show'), 10);
     setTimeout(() => notification.classList.add('hide'), 5000);
     setTimeout(() => notification.remove(), 5500);
@@ -56,7 +72,6 @@ const showNotification = (message, type) => {
     }
 };
 
-// دالة استرجاع المنشور بعد الحذف
 const undoDelete = async () => {
     if (lastDeletedPost) {
         await setDoc(doc(db, "posts", lastDeletedPost.id), lastDeletedPost.data);
@@ -66,20 +81,18 @@ const undoDelete = async () => {
     }
 };
 
-// دالة لتحويل الروابط داخل النص إلى روابط قابلة للنقر
 function convertToLinks(text) {
     const urlPattern = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
-// دالة لعرض المنشورات
 const displayPosts = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "posts"));
-        postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+        postList.innerHTML = ''; // Clear current content before displaying posts
         const currentUserEmail = localStorage.getItem('email');
 
-        querySnapshot.forEach((doc) => {
+        for (const doc of querySnapshot.docs) {
             const data = doc.data();
             const timestamp = new Date(data.timestamp.seconds * 1000);
             let hours = timestamp.getHours();
@@ -95,6 +108,15 @@ const displayPosts = async () => {
             const arabicFormattedDate = formattedDate.replace(/\d/g, (d) => arabicDigits[d]);
             const formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${formattedTime}`;
 
+            // Retrieve the username based on the author’s email
+            let authorUsername = 'مستخدم';
+            if (data.authorEmail) {
+                const userDoc = await getDoc(doc(db, "users", data.authorEmail));
+                if (userDoc.exists()) {
+                    authorUsername = userDoc.data().username || 'مستخدم';
+                }
+            }
+
             const postItem = document.createElement('li');
             postItem.classList.add('post-item');
             postItem.innerHTML = `
@@ -108,17 +130,24 @@ const displayPosts = async () => {
                         : `<video src="${data.fileUrl}" controls class="post-media" style="max-width: 100%; height: auto;"></video>`
                     : ''
                 }
-                <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
+                <p class="post-author">من قِبل: ${authorUsername}</p>
                 <p class="post-time">${formattedDateTime}</p>
             `;
             postList.appendChild(postItem);
-        });
+        }
     } catch (error) {
         showNotification("حدث خطأ أثناء تحميل المنشورات", "error");
     }
 };
 
-// دالة نشر منشور جديد
+addPostBtn.addEventListener('click', () => {
+    overlay.classList.add('show');
+});
+
+closeBtn.addEventListener('click', () => {
+    overlay.classList.remove('show');
+});
+
 publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
@@ -158,33 +187,49 @@ publishBtn.addEventListener('click', async () => {
     }
 });
 
-// دالة تسجيل الخروج
 logoutBtn.addEventListener('click', async () => {
     await signOut(auth);
     localStorage.removeItem('email');
     localStorage.removeItem('username');
-    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
 });
 
-// التحقق من حالة تسجيل الدخول
 const checkAuthState = () => {
-    onAuthStateChanged(auth, async (user) => {
+    onAuthStateChanged(auth, (user) => {
         if (user) {
             localStorage.setItem('email', user.email);
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                localStorage.setItem('username', userData.username);
-                usernameDisplay.textContent = userData.username || "مستخدم";
-            } else {
-                usernameDisplay.textContent = "مستخدم";
-            }
+            getDoc(doc(db, "users", user.uid)).then((doc) => {
+                if (doc.exists()) {
+                    const userData = doc.data();
+                    localStorage.setItem('username', userData.username);
+                    usernameDisplay.textContent = userData.username || "مستخدم";
+                }
+            });
             displayPosts();
         } else {
-            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
         }
     });
 };
 
-// استدعاء التحقق من حالة تسجيل الدخول عند تحميل الصفحة
+document.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('delete-btn')) {
+        const postId = event.target.getAttribute('data-id');
+        const postRef = doc(db, "posts", postId);
+
+        try {
+            const postDoc = await getDoc(postRef);
+            if (postDoc.exists()) {
+                lastDeletedPost = { id: postId, data: postDoc.data() };
+                await deleteDoc(postRef);
+                showNotification("تم حذف المنشور", "delete");
+                displayPosts();
+            }
+        } catch (error) {
+            showNotification("حدث خطأ أثناء حذف المنشور", "error");
+        }
+    }
+});
+
+// التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 checkAuthState();
