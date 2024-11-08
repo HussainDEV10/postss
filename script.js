@@ -87,48 +87,48 @@ function convertToLinks(text) {
 }
 
 const displayPosts = async () => {
-    const querySnapshot = await getDocs(collection(db, "posts"));
-    postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
-    const currentUserEmail = localStorage.getItem('email'); // الحصول على البريد الإلكتروني للمستخدم الحالي
-    querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const timestamp = new Date(data.timestamp.seconds * 1000);
+    try {
+        const querySnapshot = await getDocs(collection(db, "posts"));
+        postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+        const currentUserEmail = localStorage.getItem('email');
 
-        let hours = timestamp.getHours();
-        const minutes = timestamp.getMinutes().toString().padStart(2, '0');
-        const seconds = timestamp.getSeconds().toString().padStart(2, '0');
-        const period = hours >= 12 ? 'م' : 'ص';
-        hours = hours % 12 || 12; // تحويل الساعة لنظام 12 ساعة
-        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${period}`;
-        const day = timestamp.getDate().toString().padStart(2, '0');
-        const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
-        const year = timestamp.getFullYear();
-        const formattedDate = `${year}/${month}/${day}`;
-        const arabicNumbers = (number) => {
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const timestamp = new Date(data.timestamp.seconds * 1000);
+            let hours = timestamp.getHours();
+            const minutes = timestamp.getMinutes().toString().padStart(2, '0');
+            const period = hours >= 12 ? 'م' : 'ص';
+            hours = hours % 12 || 12;
+            const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes} ${period}`;
+            const day = timestamp.getDate().toString().padStart(2, '0');
+            const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
+            const year = timestamp.getFullYear();
             const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
-            return number.split('').map(digit => arabicDigits[digit] || digit).join('');
-        };
+            const formattedDate = `${day}/${month}/${year}`;
+            const arabicFormattedDate = formattedDate.replace(/\d/g, (d) => arabicDigits[d]);
+            const formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${formattedTime}`;
 
-        const arabicFormattedTime = arabicNumbers(formattedTime);
-        const arabicFormattedDate = arabicNumbers(formattedDate);
-        const formattedDateTime = `
-            <span dir="rtl">${arabicFormattedDate}</span> | ${arabicFormattedTime}
-        `;
-
-        const postItem = document.createElement('li');
-        postItem.classList.add('post-item');
-        postItem.style.fontFamily = 'Rubik, sans-serif';
-        postItem.innerHTML = `
-            ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
-            <h3 class="post-title">${data.title}</h3>
-            <p class="post-description">${convertToLinks(data.description)}</p>
-            ${data.fileUrl ? `<img src="${data.fileUrl}" alt="Media" class="post-media"/>` : ''}
-            ${data.videoUrl ? `<video controls class="post-media"><source src="${data.videoUrl}" type="video/mp4"></video>` : ''}
-            <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
-            <p class="post-time">${formattedDateTime}</p>
-        `;
-        postList.appendChild(postItem);
-    });
+            const postItem = document.createElement('li');
+            postItem.classList.add('post-item');
+            postItem.innerHTML = `
+                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}">🗑️</button>` : ''}
+                <h3 class="post-title">${data.title}</h3>
+                <p class="post-description">${convertToLinks(data.description)}</p>
+                ${
+                    data.fileUrl 
+                    ? data.fileType === 'image' 
+                        ? `<img src="${data.fileUrl}" alt="Media" class="post-media" style="max-width: 100%; height: auto;" />` 
+                        : `<video src="${data.fileUrl}" controls class="post-media" style="max-width: 100%; height: auto;"></video>`
+                    : ''
+                }
+                <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
+                <p class="post-time">${formattedDateTime}</p>
+            `;
+            postList.appendChild(postItem);
+        });
+    } catch (error) {
+        showNotification("حدث خطأ أثناء تحميل المنشورات", "error");
+    }
 };
 
 addPostBtn.addEventListener('click', () => {
@@ -148,15 +148,13 @@ publishBtn.addEventListener('click', async () => {
     
     if (title && description && author && authorEmail) {
         let fileUrl = '';
-        let videoUrl = '';
+        let fileType = '';
 
         if (file) {
             const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
             await uploadBytes(storageRef, file);
             fileUrl = await getDownloadURL(storageRef);
-            if (file.type.startsWith('video/')) {
-                videoUrl = fileUrl;  // إذا كان الملف فيديو، نستخدم رابط الفيديو
-            }
+            fileType = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('video/') ? 'video' : '');
         }
         
         await addDoc(collection(db, "posts"), {
@@ -164,60 +162,65 @@ publishBtn.addEventListener('click', async () => {
             description,
             author,
             authorEmail,
-            timestamp: serverTimestamp(),
             fileUrl,
-            videoUrl
+            fileType,
+            timestamp: serverTimestamp()
         });
+
+        showNotification("تم نشر المنشور بنجاح", "success");
+        overlay.classList.remove('show');
         postTitleInput.value = '';
         postDescriptionInput.value = '';
         postFileInput.value = '';
-        overlay.classList.remove('show');
-        showNotification('تم نشر المنشور بنجاح', 'success');
         displayPosts();
     } else {
-        showNotification('يرجى ملء جميع الحقول', 'error');
+        showNotification("يرجى ملء جميع الحقول", "error");
     }
 });
 
-postList.addEventListener('click', async (event) => {
+logoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    localStorage.removeItem('email');
+    localStorage.removeItem('username');
+    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
+});
+
+const checkAuthState = () => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            localStorage.setItem('email', user.email);
+            getDoc(doc(db, "users", user.uid)).then((doc) => {
+                if (doc.exists()) {
+                    const userData = doc.data();
+                    localStorage.setItem('username', userData.username);
+                    usernameDisplay.textContent = userData.username || "مستخدم";
+                }
+            });
+            displayPosts();
+        } else {
+            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
+        }
+    });
+};
+
+document.addEventListener('click', async (event) => {
     if (event.target.classList.contains('delete-btn')) {
         const postId = event.target.getAttribute('data-id');
-        const postDoc = await getDoc(doc(db, 'posts', postId));
-        
-        if (postDoc.exists()) {
-            lastDeletedPost = {
-                id: postId,
-                data: postDoc.data(),
-            };
+        const postRef = doc(db, "posts", postId);
 
-            // حذف المنشور من قاعدة البيانات
-            await deleteDoc(doc(db, 'posts', postId));
-
-            showNotification('تم حذف المنشور بنجاح', 'delete');
-            displayPosts();
+        try {
+            const postDoc = await getDoc(postRef);
+            if (postDoc.exists()) {
+                lastDeletedPost = { id: postId, data: postDoc.data() };
+                await deleteDoc(postRef);
+                showNotification("تم حذف المنشور", "delete");
+                displayPosts();
+            }
+        } catch (error) {
+            showNotification("حدث خطأ أثناء حذف المنشور", "error");
         }
     }
 });
 
-// تسجيل الخروج
-logoutBtn.addEventListener('click', () => {
-    signOut(auth).then(() => {
-        localStorage.removeItem('username');
-        localStorage.removeItem('email');
-        window.location.href = '/login'; // إعادة توجيه المستخدم إلى صفحة تسجيل الدخول
-    }).catch((error) => {
-        console.error('حدث خطأ أثناء تسجيل الخروج:', error);
-    });
-});
-
-// التحقق من حالة المستخدم
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        const userEmail = user.email;
-        const userName = localStorage.getItem('username');
-        usernameDisplay.textContent = `مرحباً، ${userName || userEmail}`;
-        displayPosts();
-    } else {
-        window.location.href = '/login'; // إعادة توجيه المستخدم إلى صفحة تسجيل الدخول إذا لم يكن هناك مستخدم
-    }
-});
+// التحقق من حالة تسجيل الدخول عند تحميل الصفحة
+checkAuthState();
