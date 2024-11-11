@@ -89,10 +89,10 @@ function convertToLinks(text) {
 const displayPosts = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "posts"));
-        postList.innerHTML = ''; // Clear current content before displaying posts
+        postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
         const currentUserEmail = localStorage.getItem('email');
 
-        for (const doc of querySnapshot.docs) {
+        querySnapshot.forEach((doc) => {
             const data = doc.data();
             const timestamp = new Date(data.timestamp.seconds * 1000);
             let hours = timestamp.getHours();
@@ -108,15 +108,6 @@ const displayPosts = async () => {
             const arabicFormattedDate = formattedDate.replace(/\d/g, (d) => arabicDigits[d]);
             const formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${formattedTime}`;
 
-            // Retrieve the username based on the author’s email
-            let authorUsername = 'مستخدم';
-            if (data.authorEmail) {
-                const userDoc = await getDoc(doc(db, "users", data.authorEmail));
-                if (userDoc.exists()) {
-                    authorUsername = userDoc.data().username || 'مستخدم';
-                }
-            }
-
             const postItem = document.createElement('li');
             postItem.classList.add('post-item');
             postItem.innerHTML = `
@@ -130,11 +121,11 @@ const displayPosts = async () => {
                         : `<video src="${data.fileUrl}" controls class="post-media" style="max-width: 100%; height: auto;"></video>`
                     : ''
                 }
-                <p class="post-author">من قِبل: ${authorUsername}</p>
+                <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
                 <p class="post-time">${formattedDateTime}</p>
             `;
             postList.appendChild(postItem);
-        }
+        });
     } catch (error) {
         showNotification("حدث خطأ أثناء تحميل المنشورات", "error");
     }
