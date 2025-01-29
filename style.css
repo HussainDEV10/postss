@@ -2,7 +2,6 @@
 
 body {
     font-family: 'Rubik', sans-serif;
-    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
     overflow-x: hidden; /* تعطيل التمرير الأفقي */
@@ -11,6 +10,9 @@ body {
     height: 100vh; /* ضبط ارتفاع الصفحة بشكل كامل */
     box-sizing: border-box;
     padding: 5vh 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background 0.3s, color 0.3s;
 }
 
 /* الشريط العلوي */
@@ -204,14 +206,13 @@ a:hover {
         }
 
 .post-item {
-    background-color: var(--post-bg-color, white); /* لون الخلفية الافتراضي هو الأبيض */
-    background-color: white;
             margin-bottom: 10px;
-            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
+            background-color: var(--post-bg);
+            padding: 15px;
             }
 
 
@@ -413,4 +414,15 @@ a:hover {
     z-index: 9;
     }
 
-    
+
+:root {
+    --bg-color: white;
+    --text-color: black;
+    --post-bg: #f9f9f9;
+}
+
+.dark-mode {
+    --bg-color: #121212;
+    --text-color: white;
+    --post-bg: #1e1e1e;
+}
