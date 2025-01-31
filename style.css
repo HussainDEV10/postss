@@ -454,6 +454,24 @@ body.dark-mode .publish-btn {
     color: #fff;
 }
 
+body.dark-mode .bottom-bar {
+    background-color: #1e1e1e;
+}
+
+body.dark-mode .color-option {
+    border: 2px solid #555;
+}
+
+body.dark-mode .notification {
+    background-color: #333;
+    color: #fff;
+}
+
+body.dark-mode .undo-btn {
+    background-color: #444;
+    color: #fff;
+}
+
 .theme-toggle {
     background: none;
     border: none;
