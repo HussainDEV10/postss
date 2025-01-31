@@ -66,58 +66,6 @@ a:hover {
     }
 
 
-body.dark-mode {
-    background-color: #121212;
-    color: #ffffff;
-}
-
-body.dark-mode .post-item {
-    background-color: #1e1e1e;
-    border-color: #333;
-}
-
-body.dark-mode .post-title,
-body.dark-mode .post-description,
-body.dark-mode .post-author,
-body.dark-mode .post-time {
-    color: #ffffff;
-}
-
-body.dark-mode .add-post-btn {
-    background-color: #333;
-    color: #fff;
-}
-
-body.dark-mode .post-form {
-    background-color: #1e1e1e;
-    color: #ffffff;
-}
-
-body.dark-mode input,
-body.dark-mode textarea {
-    background-color: #333;
-    color: #ffffff;
-    border-color: #555;
-}
-
-body.dark-mode .close-btn,
-body.dark-mode .publish-btn {
-    background-color: #444;
-    color: #fff;
-}
-
-.theme-toggle {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-
-    
 .container {
     position: relative;
     width: 100%;
@@ -465,3 +413,77 @@ body.dark-mode .publish-btn {
     padding: 0 20px;
     z-index: 9;
     }
+
+/* إضافة انتقال سلس لجميع العناصر */
+body {
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.post-item,
+.add-post-btn,
+.post-form,
+input,
+textarea,
+.close-btn,
+.publish-btn,
+.bottom-bar,
+.notification,
+.undo-btn {
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+}
+
+/* أنماط الوضع الليلي */
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+body.dark-mode .post-item {
+    background-color: #1e1e1e;
+    border-color: #333;
+}
+
+body.dark-mode .post-title,
+body.dark-mode .post-description,
+body.dark-mode .post-author,
+body.dark-mode .post-time {
+    color: #ffffff;
+}
+
+body.dark-mode .add-post-btn {
+    background-color: #333;
+    color: #fff;
+}
+
+body.dark-mode .post-form {
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+body.dark-mode input,
+body.dark-mode textarea {
+    background-color: #333;
+    color: #ffffff;
+    border-color: #555;
+}
+
+body.dark-mode .close-btn,
+body.dark-mode .publish-btn {
+    background-color: #444;
+    color: #fff;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+}
