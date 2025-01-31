@@ -86,23 +86,6 @@ function convertToLinks(text) {
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
-
-const toggleThemeBtn = document.getElementById('toggleTheme');
-
-toggleThemeBtn.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-    }
-});
-
-
 const displayPosts = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "posts"));
@@ -241,3 +224,4 @@ document.addEventListener('click', async (event) => {
 
 // التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 checkAuthState();
+    
