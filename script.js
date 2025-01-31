@@ -81,6 +81,33 @@ const undoDelete = async () => {
     }
 };
 
+
+
+// إضافة هذا الكود في بداية ملف script.js
+const themeToggle = document.getElementById('theme-toggle');
+
+// التحقق من الإعدادات المحفوظة
+if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    themeToggle.textContent = '☀️';
+} else {
+    themeToggle.textContent = '🌙';
+}
+
+// تبديل الوضع الليلي/النهاري
+themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    if (document.body.classList.contains('dark-mode')) {
+        localStorage.setItem('theme', 'dark');
+        themeToggle.textContent = '☀️';
+    } else {
+        localStorage.setItem('theme', 'light');
+        themeToggle.textContent = '🌙';
+    }
+});
+
+
+
 function convertToLinks(text) {
     const urlPattern = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
