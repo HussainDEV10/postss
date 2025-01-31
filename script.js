@@ -14,8 +14,6 @@ const firebaseConfig = {
 };
 
 
-
-// إضافة هذا الكود في بداية ملف script.js
 // إضافة هذا الكود في بداية ملف script.js
 const themeToggle = document.getElementById('theme-toggle');
 
@@ -37,12 +35,6 @@ themeToggle.addEventListener('click', () => {
         localStorage.setItem('theme', 'light');
         themeToggle.textContent = '🌙';
     }
-
-    // إضافة تأثير اهتزاز للزر
-    themeToggle.style.transform = 'scale(1.2)';
-    setTimeout(() => {
-        themeToggle.style.transform = 'scale(1)';
-    }, 300);
 });
 
 
