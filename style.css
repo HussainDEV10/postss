@@ -64,8 +64,7 @@ a:hover {
     padding: 10px 20px; /* حواف متساوية على جميع الجهات */
     bottom: 20px;
     }
-
-
+    
 .container {
     position: relative;
     width: 100%;
@@ -414,24 +413,6 @@ a:hover {
     z-index: 9;
     }
 
-/* إضافة انتقال سلس لجميع العناصر */
-body {
-    transition: background-color 0.5s ease, color 0.5s ease;
-}
-
-.post-item,
-.add-post-btn,
-.post-form,
-input,
-textarea,
-.close-btn,
-.publish-btn,
-.bottom-bar,
-.notification,
-.undo-btn {
-    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
-}
-
 /* أنماط الوضع الليلي */
 body.dark-mode {
     background-color: #121212;
@@ -481,9 +462,4 @@ body.dark-mode .publish-btn {
     position: absolute;
     top: 10px;
     right: 10px;
-    transition: transform 0.3s ease;
-}
-
-.theme-toggle:hover {
-    transform: scale(1.1);
-}
+    }
