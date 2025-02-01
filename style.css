@@ -19,7 +19,7 @@ header {
     top: 0;
     left: 0;
     width: 100%;
-    background-color: #f4f4f4; /* لون الخلفية */
+    background-color: #c2c0c0; /* لون الخلفية */
     z-index: 100;
     padding: 15px 20px; /* حواف متساوية على جميع الجهات */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* ظل الشريط */
