@@ -2,38 +2,38 @@
 
 /* المتغيرات للوضع الفاتح */
 :root {
-    --background-color: #f9f9f9;
-    --text-color: #333333;
-    --header-bg-color: #ffffff;
+    --background-color: #f4f4f4;
+    --text-color: #000000;
+    --header-bg-color: #f4f4f4;
     --header-shadow-color: rgba(0, 0, 0, 0.1);
     --post-bg-color: #ffffff;
     --post-shadow-color: rgba(0, 0, 0, 0.1);
     --input-bg-color: #ffffff;
-    --input-border-color: #e0e0e0;
-    --placeholder-color: #999999;
-    --button-bg-color: #007bff;
-    --button-text-color: #ffffff;
-    --notification-bg-color: #ffffff;
-    --notification-text-color: #333333;
-    --bottom-bar-bg-color: #ffffff;
+    --input-border-color: #ccc;
+    --placeholder-color: #888;
+    --button-bg-color: black;
+    --button-text-color: white;
+    --notification-bg-color: #e0e0e0;
+    --notification-text-color: #000000;
+    --bottom-bar-bg-color: black;
 }
 
 /* المتغيرات للوضع الداكن */
 .dark-theme {
-    --background-color: #121212;
-    --text-color: #e0e0e0;
-    --header-bg-color: #1e1e1e;
+    --background-color: #1a1a1a;
+    --text-color: #ffffff;
+    --header-bg-color: #1a1a1a;
     --header-shadow-color: rgba(255, 255, 255, 0.1);
     --post-bg-color: #2a2a2a;
     --post-shadow-color: rgba(255, 255, 255, 0.1);
     --input-bg-color: #2a2a2a;
-    --input-border-color: #444444;
-    --placeholder-color: #bbbbbb;
-    --button-bg-color: #007bff;
-    --button-text-color: #ffffff;
-    --notification-bg-color: #2a2a2a;
-    --notification-text-color: #e0e0e0;
-    --bottom-bar-bg-color: #1e1e1e;
+    --input-border-color: #555;
+    --placeholder-color: #bbb;
+    --button-bg-color: #444;
+    --button-text-color: white;
+    --notification-bg-color: #444;
+    --notification-text-color: #ffffff;
+    --bottom-bar-bg-color: #333;
 }
 
 body {
@@ -42,14 +42,13 @@ body {
     color: var(--text-color);
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow-x: hidden; /* منع التمرير الأفقي */
+    overflow-y: auto;   /* السماح بالتمرير العمودي */
     width: 100%;
     height: 100vh;
     box-sizing: border-box;
     padding: 5vh 0;
     transition: background-color 0.3s, color 0.3s;
-    line-height: 1.6;
 }
 
 /* الشريط العلوي */
@@ -69,30 +68,26 @@ header {
 }
 
 a {
-    color: #007bff;
-    text-decoration: none;
+    color: blue;
+    text-decoration: underline;
 }
 
 a:hover {
-    color: #0056b3;
+    color: darkblue;
     text-decoration: underline;
 }
 
 /* زر تسجيل الخروج */
 .logout-btn {
-    color: #ff4d4d;
+    color: red;
     padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.logout-btn:hover {
-    background-color: rgba(255, 77, 77, 0.1);
+    bottom: 20px;
 }
 
 .logout-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.90);
 }
 
 /* عرض اسم المستخدم */
@@ -101,10 +96,11 @@ a:hover {
     font-weight: 500;
     text-align: right;
     max-width: 50%;
-    overflow: hidden;
+    overflow: fixed;
     text-overflow: ellipsis;
     white-space: nowrap;
     padding: 10px 20px;
+    bottom: 20px;
 }
 
 .container {
@@ -117,35 +113,27 @@ a:hover {
 
 .add-post-btn {
     position: fixed;
+    margin-right: auto;
     bottom: 25px;
     left: 50%;
     transform: translateX(-50%);
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
     background-color: var(--button-bg-color);
     color: var(--button-text-color);
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 32px;
+    font-size: 30px;
     cursor: pointer;
     z-index: 10;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    border: none;
-    outline: none;
-}
-
-.add-post-btn:hover {
-    background-color: #0056b3;
-    transform: translateX(-50%) scale(1.1);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
 }
 
 .add-post-btn:active {
-    transform: translateX(-50%) scale(0.95);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transform: scale(0.90);
 }
 
 .overlay {
@@ -161,6 +149,11 @@ a:hover {
     z-index: 5;
 }
 
+.post-form input[type="file"] {
+    display: block;
+    margin-bottom: 10px;
+}
+
 .overlay.show {
     display: flex;
 }
@@ -173,11 +166,10 @@ a:hover {
     background-color: var(--post-bg-color);
     padding: 20px;
     border-radius: 8px;
-    width: 90%;
+    width: 82%;
     max-width: 400px;
     text-align: left;
     position: relative;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .close-btn {
@@ -185,15 +177,10 @@ a:hover {
     top: 10px;
     right: 10px;
     background-color: transparent;
-    color: #ff4d4d;
+    color: red;
     font-size: 24px;
     border: none;
     cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.close-btn:hover {
-    color: #cc0000;
 }
 
 .close-btn:active {
@@ -203,13 +190,11 @@ a:hover {
 .post-form h2 {
     margin-top: 0;
     color: var(--text-color);
-    font-size: 24px;
-    margin-bottom: 20px;
 }
 
 .post-form input,
 .post-form textarea {
-    width: calc(100% - 20px);
+    width: calc(105% - 20px);
     margin-bottom: 10px;
     padding: 12px;
     border: 1px solid var(--input-border-color);
@@ -218,13 +203,6 @@ a:hover {
     box-sizing: border-box;
     background-color: var(--input-bg-color);
     color: var(--text-color);
-    transition: border-color 0.3s ease;
-}
-
-.post-form input:focus,
-.post-form textarea:focus {
-    border-color: #007bff;
-    outline: none;
 }
 
 .post-form input::placeholder,
@@ -245,22 +223,22 @@ a:hover {
     border-radius: 4px;
     cursor: pointer;
     margin-top: 10px;
-    transition: background-color 0.3s ease;
-}
-
-.publish-btn:hover {
-    background-color: #0056b3;
 }
 
 .publish-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.90);
+}
+
+.publish-btn span {
+    margin-left: 10px;
+    font-size: 20px;
 }
 
 .post-list {
     margin-top: 10px;
     list-style: none;
     padding: 0;
-    margin-bottom: 10px;
+    margin-bottom: 10;
 }
 
 .post-item {
@@ -271,12 +249,6 @@ a:hover {
     box-shadow: 0 2px 4px var(--post-shadow-color);
     position: relative;
     overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.post-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .post-item:first-child {
@@ -291,8 +263,6 @@ a:hover {
     margin: 0;
     overflow-wrap: break-word;
     color: var(--text-color);
-    font-size: 20px;
-    font-weight: 500;
 }
 
 .post-description {
@@ -300,15 +270,12 @@ a:hover {
     text-align: right;
     margin-bottom: 10px;
     color: var(--text-color);
-    font-size: 16px;
 }
 
 .post-media {
     max-width: 100%;
     height: auto;
     display: block;
-    border-radius: 8px;
-    margin-top: 10px;
 }
 
 .post-author {
@@ -323,8 +290,14 @@ a:hover {
     color: var(--text-color);
     text-align: left;
     position: absolute;
-    bottom: 10px;
+    bottom: -2px;
     left: 15px;
+}
+
+.post-item h3 {
+    word-break: break-word;
+    text-align: right;
+    color: var(--text-color);
 }
 
 .delete-btn {
@@ -335,15 +308,20 @@ a:hover {
     border: none;
     cursor: pointer;
     padding: 0;
-    transition: transform 0.3s ease;
 }
 
-.delete-btn:hover {
-    color: #cc0000;
+.delete-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
 }
 
 .delete-btn:active {
     transform: scale(0.90);
+}
+
+.delete-btn:hover {
+    color: #cc0000;
 }
 
 .settings-btn {
@@ -353,7 +331,7 @@ a:hover {
     width: 60px;
     height: 60px;
     background-color: transparent;
-    color: var(--text-color);
+    color: white;
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -362,10 +340,6 @@ a:hover {
     cursor: pointer;
     transition: transform 0.3s ease;
     z-index: 10;
-}
-
-.settings-btn:hover {
-    background-color: rgba(0, 0, 0, 0.1);
 }
 
 .settings-btn:active {
@@ -379,10 +353,6 @@ a:hover {
     display: none;
     flex-direction: column;
     align-items: center;
-    background-color: var(--post-bg-color);
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px var(--post-shadow-color);
 }
 
 .color-option {
@@ -391,11 +361,6 @@ a:hover {
     border-radius: 50%;
     margin: 5px;
     cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.color-option:hover {
-    transform: scale(1.1);
 }
 
 .notification {
@@ -414,12 +379,13 @@ a:hover {
     width: auto;
     max-width: 500px;
     text-align: center;
-    opacity: 1;
+    opacity: 300;
     transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    touch-action: none;
 }
 
 .notification.show {
-    opacity: 1;
+    opacity: 300;
     transform: translateX(-50%) translateY(0);
 }
 
@@ -476,6 +442,4 @@ a:hover {
     align-items: center;
     padding: 0 20px;
     z-index: 9;
-    background-color: var(--bottom-bar-bg-color);
-    box-shadow: 0 -2px 4px var(--header-shadow-color);
-    }
+        }
