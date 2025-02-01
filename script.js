@@ -13,6 +13,38 @@ const firebaseConfig = {
     measurementId: "G-ZJ6M2D8T3M"
 };
 
+
+
+
+// تحديد زر التبديل
+const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+// التحقق من الإعدادات المحفوظة في localStorage
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    document.body.classList.add(savedTheme);
+    if (savedTheme === 'dark-theme') {
+        themeToggleBtn.textContent = '🌞'; // تغيير الأيقونة للوضع الداكن
+    } else {
+        themeToggleBtn.textContent = '🌓'; // تغيير الأيقونة للوضع الفاتح
+    }
+}
+
+// وظيفة التبديل بين الوضع الداكن والفاتح
+themeToggleBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark-theme');
+    if (document.body.classList.contains('dark-theme')) {
+        localStorage.setItem('theme', 'dark-theme');
+        themeToggleBtn.textContent = '🌞'; // تغيير الأيقونة للوضع الداكن
+    } else {
+        localStorage.setItem('theme', 'light-theme');
+        themeToggleBtn.textContent = '🌓'; // تغيير الأيقونة للوضع الفاتح
+    }
+});
+
+
+
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
