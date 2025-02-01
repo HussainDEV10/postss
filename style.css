@@ -4,25 +4,25 @@
 :root {
     --background-color: #f4f4f4;
     --text-color: #000000;
-    --header-bg-color: #f4f4f4;
+    --header-bg-color: #ff7e5f; /* تغيير لون الشريط العلوي ليكون لونه جذاب */
     --header-shadow-color: rgba(0, 0, 0, 0.1);
     --post-bg-color: #ffffff;
     --post-shadow-color: rgba(0, 0, 0, 0.1);
     --input-bg-color: #ffffff;
     --input-border-color: #ccc;
     --placeholder-color: #888;
-    --button-bg-color: black;
+    --button-bg-color: #ff7e5f; /* نفس اللون المستخدم في الشريط العلوي */
     --button-text-color: white;
-    --notification-bg-color: #e0e0e0;
+    --notification-bg-color: #fdd835; /* لون إشعارات أكثر حيوية */
     --notification-text-color: #000000;
-    --bottom-bar-bg-color: black;
+    --bottom-bar-bg-color: #ff7e5f; /* نفس اللون المستخدم في الشريط العلوي */
 }
 
 /* المتغيرات للوضع الداكن */
 .dark-theme {
     --background-color: #1a1a1a;
     --text-color: #ffffff;
-    --header-bg-color: #1a1a1a;
+    --header-bg-color: #ff3e00; /* لون أحمر جذاب في الوضع الداكن */
     --header-shadow-color: rgba(255, 255, 255, 0.1);
     --post-bg-color: #2a2a2a;
     --post-shadow-color: rgba(255, 255, 255, 0.1);
@@ -31,8 +31,8 @@
     --placeholder-color: #bbb;
     --button-bg-color: #444;
     --button-text-color: white;
-    --notification-bg-color: #444;
-    --notification-text-color: #ffffff;
+    --notification-bg-color: #ffeb3b; /* إشعارات بلون أصفر في الوضع الداكن */
+    --notification-text-color: #000000;
     --bottom-bar-bg-color: #333;
 }
 
@@ -385,63 +385,43 @@ a:hover {
 }
 
 .notification.show {
-    opacity: 300;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
+    opacity: 1;
 }
 
 .notification.hide {
+    transform: translateY(100px);
     opacity: 0;
-    transform: translateX(-50%) translateY(100%);
 }
 
-.notification .underline {
-    height: 2px;
-    width: 100%;
-    background-color: darkgray;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    animation: underlineAnimation 5s linear forwards;
-}
-
-.notification span {
-    display: block;
-    margin-bottom: 10px;
-    color: var(--notification-text-color);
-}
-
-.notification .undo-btn {
-    background-color: transparent;
-    color: var(--notification-text-color);
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    text-decoration: underline;
-    font-family: 'Rubik', sans-serif;
-}
-
-@keyframes underlineAnimation {
-    from {
-        width: 100%;
-    }
-    to {
-        width: 0;
-    }
-}
-
+/* شريط الأسفل */
 .bottom-bar {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 70px;
+    background-color: var(--bottom-bar-bg-color);
+    padding: 15px 0;
+    box-shadow: 0 -2px 4px var(--header-shadow-color);
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0 20px;
-    z-index: 9;
-    background-color: var(--bottom-bar-bg-color);
-    color: white;
+}
+
+.bottom-bar button {
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 0 10px;
+}
+
+.bottom-bar button:active {
+    transform: scale(0.90);
+}
+
+.bottom-bar button:hover {
+    background-color: var(--button-bg-color);
     }
