@@ -4,25 +4,25 @@
 :root {
     --background-color: #f4f4f4;
     --text-color: #000000;
-    --header-bg-color: #ff7e5f; /* تغيير لون الشريط العلوي ليكون لونه جذاب */
+    --header-bg-color: #f4f4f4;
     --header-shadow-color: rgba(0, 0, 0, 0.1);
     --post-bg-color: #ffffff;
     --post-shadow-color: rgba(0, 0, 0, 0.1);
     --input-bg-color: #ffffff;
     --input-border-color: #ccc;
     --placeholder-color: #888;
-    --button-bg-color: #ff7e5f; /* نفس اللون المستخدم في الشريط العلوي */
+    --button-bg-color: black;
     --button-text-color: white;
-    --notification-bg-color: #fdd835; /* لون إشعارات أكثر حيوية */
+    --notification-bg-color: #e0e0e0;
     --notification-text-color: #000000;
-    --bottom-bar-bg-color: #ff7e5f; /* نفس اللون المستخدم في الشريط العلوي */
+    --bottom-bar-bg-color: black;
 }
 
 /* المتغيرات للوضع الداكن */
 .dark-theme {
     --background-color: #1a1a1a;
     --text-color: #ffffff;
-    --header-bg-color: #ff3e00; /* لون أحمر جذاب في الوضع الداكن */
+    --header-bg-color: #1a1a1a;
     --header-shadow-color: rgba(255, 255, 255, 0.1);
     --post-bg-color: #2a2a2a;
     --post-shadow-color: rgba(255, 255, 255, 0.1);
@@ -31,8 +31,8 @@
     --placeholder-color: #bbb;
     --button-bg-color: #444;
     --button-text-color: white;
-    --notification-bg-color: #ffeb3b; /* إشعارات بلون أصفر في الوضع الداكن */
-    --notification-text-color: #000000;
+    --notification-bg-color: #444;
+    --notification-text-color: #ffffff;
     --bottom-bar-bg-color: #333;
 }
 
@@ -42,8 +42,8 @@ body {
     color: var(--text-color);
     margin: 0;
     padding: 0;
-    overflow-x: hidden; /* منع التمرير الأفقي */
-    overflow-y: auto;   /* السماح بالتمرير العمودي */
+    overflow-x: hidden;
+    overflow-y: auto;
     width: 100%;
     height: 100vh;
     box-sizing: border-box;
@@ -385,43 +385,94 @@ a:hover {
 }
 
 .notification.show {
-    transform: translateY(0);
-    opacity: 1;
+    opacity: 300;
+    transform: translateX(-50%) translateY(0);
 }
 
 .notification.hide {
-    transform: translateY(100px);
     opacity: 0;
+    transform: translateX(-50%) translateY(100%);
 }
 
-/* شريط الأسفل */
+.notification .underline {
+    height: 2px;
+    width: 100%;
+    background-color: darkgray;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    animation: underlineAnimation 5s linear forwards;
+}
+
+.notification span {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--notification-text-color);
+}
+
+.notification .undo-btn {
+    background-color: transparent;
+    color: var(--notification-text-color);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.notification .undo-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes underlineAnimation {
+    0% {
+        width: 0;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
 .bottom-bar {
     position: fixed;
     bottom: 0;
-    left: 0;
     width: 100%;
     background-color: var(--bottom-bar-bg-color);
-    padding: 15px 0;
-    box-shadow: 0 -2px 4px var(--header-shadow-color);
+    padding: 15px;
+    box-sizing: border-box;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+}
+
+.bottom-bar .left {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.bottom-bar .right {
+    display: flex;
+    justify-content: flex-end;
     align-items: center;
 }
 
 .bottom-bar button {
-    background-color: var(--button-bg-color);
-    color: var(--button-text-color);
+    background-color: transparent;
+    color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
     cursor: pointer;
-    margin: 0 10px;
+    font-size: 18px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.bottom-bar button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .bottom-bar button:active {
     transform: scale(0.90);
-}
-
-.bottom-bar button:hover {
-    background-color: var(--button-bg-color);
     }
