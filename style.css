@@ -1,39 +1,44 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap');
 
-/* المتغيرات للوضع الفاتح */
+
+/* المتغيرات للوضع الفاتح (النهار) */
 :root {
-    --background-color: #f4f4f4;
-    --text-color: #000000;
-    --header-bg-color: #f4f4f4;
-    --header-shadow-color: rgba(0, 0, 0, 0.1);
-    --post-bg-color: #ffffff;
-    --post-shadow-color: rgba(0, 0, 0, 0.1);
-    --input-bg-color: #ffffff;
-    --input-border-color: #ccc;
-    --placeholder-color: #888;
-    --button-bg-color: black;
-    --button-text-color: white;
-    --notification-bg-color: #e0e0e0;
-    --notification-text-color: #000000;
-    --bottom-bar-bg-color: black;
+    --background-color: #f0f4f8; /* لون خلفية ناعم */
+    --text-color: #2c3e50; /* لون نص داكن */
+    --header-bg-color: #ffffff; /* لون خلفية الهيدر */
+    --header-shadow-color: rgba(0, 0, 0, 0.1); /* ظل الهيدر */
+    --post-bg-color: #ffffff; /* لون خلفية البوستات */
+    --post-shadow-color: rgba(0, 0, 0, 0.1); /* ظل البوستات */
+    --input-bg-color: #ffffff; /* لون خلفية الحقول */
+    --input-border-color: #d1d8e0; /* لون حدود الحقول */
+    --placeholder-color: #a0aec0; /* لون النص المؤقت */
+    --button-bg-color: #4fd1c5; /* لون خلفية الأزرار */
+    --button-text-color: #ffffff; /* لون نص الأزرار */
+    --notification-bg-color: #4fd1c5; /* لون خلفية الإشعارات */
+    --notification-text-color: #ffffff; /* لون نص الإشعارات */
+    --bottom-bar-bg-color: #ffffff; /* لون الشريط السفلي */
+    --gradient-color-1: #6ee7b7; /* لون التدرج 1 */
+    --gradient-color-2: #3b82f6; /* لون التدرج 2 */
 }
 
-/* المتغيرات للوضع الداكن */
+/* المتغيرات للوضع الداكن (الليل) */
 .dark-theme {
-    --background-color: #1a1a1a;
-    --text-color: #ffffff;
-    --header-bg-color: #1a1a1a;
-    --header-shadow-color: rgba(255, 255, 255, 0.1);
-    --post-bg-color: #2a2a2a;
-    --post-shadow-color: rgba(255, 255, 255, 0.1);
-    --input-bg-color: #2a2a2a;
-    --input-border-color: #555;
-    --placeholder-color: #bbb;
-    --button-bg-color: #444;
-    --button-text-color: white;
-    --notification-bg-color: #444;
-    --notification-text-color: #ffffff;
-    --bottom-bar-bg-color: #333;
+    --background-color: #1a1a1a; /* لون خلفية داكن */
+    --text-color: #e2e8f0; /* لون نص فاتح */
+    --header-bg-color: #2d3748; /* لون خلفية الهيدر */
+    --header-shadow-color: rgba(255, 255, 255, 0.1); /* ظل الهيدر */
+    --post-bg-color: #2d3748; /* لون خلفية البوستات */
+    --post-shadow-color: rgba(255, 255, 255, 0.1); /* ظل البوستات */
+    --input-bg-color: #2d3748; /* لون خلفية الحقول */
+    --input-border-color: #4a5568; /* لون حدود الحقول */
+    --placeholder-color: #a0aec0; /* لون النص المؤقت */
+    --button-bg-color: #805ad5; /* لون خلفية الأزرار */
+    --button-text-color: #ffffff; /* لون نص الأزرار */
+    --notification-bg-color: #805ad5; /* لون خلفية الإشعارات */
+    --notification-text-color: #ffffff; /* لون نص الإشعارات */
+    --bottom-bar-bg-color: #2d3748; /* لون الشريط السفلي */
+    --gradient-color-1: #9f7aea; /* لون التدرج 1 */
+    --gradient-color-2: #ed64a6; /* لون التدرج 2 */
 }
 
 body {
