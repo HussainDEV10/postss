@@ -11,8 +11,8 @@
         <div class="logout-btn" id="logoutBtn">تسجيل الخروج</div>
         
         <div id="header">
-    <button id="userProfileIcon" class="profile-icon">👤</button>
-</div>
+            <button id="userProfileIcon" class="profile-icon">👤</button>
+        </div>
         
         <div class="username-display" id="usernameDisplay">أسم المستخدم</div>
         
@@ -34,6 +34,16 @@
             <div class="color-option" data-color="#ffffff" style="background-color: #ffffff;"></div>
         </div>
     </div>
+    
+    <!-- نافذة منبثقة لعرض التفاصيل -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span id="closeProfileModalBtn" class="close-btn">&times;</span>
+            <h2 id="profileUsername">أسم المستخدم</h2>
+            <p id="postCount">عدد المنشورات: 0</p>
+        </div>
+    </div>
+
     <div class="overlay" id="overlay">
         <div class="post-form">
             <button class="close-btn" id="closeBtn">&times;</button>
@@ -48,5 +58,4 @@
     <div id="notificationContainer"></div>
     <script src="script.js" type="module"></script>
 </body>
-                                                               </html>
-                                                               
+                                                                                                  </html>
