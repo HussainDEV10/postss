@@ -13,31 +13,6 @@ const firebaseConfig = {
     measurementId: "G-ZJ6M2D8T3M"
 };
 
-
-// إضافة هذا الكود في بداية ملف script.js
-const themeToggle = document.getElementById('theme-toggle');
-
-// التحقق من الإعدادات المحفوظة
-if (localStorage.getItem('theme') === 'dark') {
-    document.body.classList.add('dark-mode');
-    themeToggle.textContent = '☀️';
-} else {
-    themeToggle.textContent = '🌙';
-}
-
-// تبديل الوضع الليلي/النهاري
-themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-    if (document.body.classList.contains('dark-mode')) {
-        localStorage.setItem('theme', 'dark');
-        themeToggle.textContent = '☀️';
-    } else {
-        localStorage.setItem('theme', 'light');
-        themeToggle.textContent = '🌙';
-    }
-});
-
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -105,8 +80,6 @@ const undoDelete = async () => {
         lastDeletedPost = null;
     }
 };
-
-
 
 function convertToLinks(text) {
     const urlPattern = /(https?:\/\/[^\s]+)/g;
@@ -251,4 +224,4 @@ document.addEventListener('click', async (event) => {
 
 // التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 checkAuthState();
-    
+            
