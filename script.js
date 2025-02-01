@@ -13,8 +13,23 @@ const firebaseConfig = {
     measurementId: "G-ZJ6M2D8T3M"
 };
 
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const storage = getStorage(app);
 
-
+const usernameDisplay = document.getElementById('usernameDisplay');
+const postList = document.getElementById('postList');
+const overlay = document.getElementById('overlay');
+const addPostBtn = document.getElementById('addPostBtn');
+const closeBtn = document.getElementById('closeBtn');
+const publishBtn = document.getElementById('publishBtn');
+const postTitleInput = document.getElementById('postTitle');
+const postDescriptionInput = document.getElementById('postDescription');
+const postFileInput = document.getElementById('postFile');
+const notificationContainer = document.getElementById('notificationContainer');
+const logoutBtn = document.getElementById('logoutBtn');
+let lastDeletedPost = null;
 
 // تحديد زر التبديل
 const themeToggleBtn = document.getElementById('themeToggleBtn');
@@ -41,27 +56,6 @@ themeToggleBtn.addEventListener('click', () => {
         themeToggleBtn.textContent = '🌓'; // تغيير الأيقونة للوضع الفاتح
     }
 });
-
-
-
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const storage = getStorage(app);
-
-const usernameDisplay = document.getElementById('usernameDisplay');
-const postList = document.getElementById('postList');
-const overlay = document.getElementById('overlay');
-const addPostBtn = document.getElementById('addPostBtn');
-const closeBtn = document.getElementById('closeBtn');
-const publishBtn = document.getElementById('publishBtn');
-const postTitleInput = document.getElementById('postTitle');
-const postDescriptionInput = document.getElementById('postDescription');
-const postFileInput = document.getElementById('postFile');
-const notificationContainer = document.getElementById('notificationContainer');
-const logoutBtn = document.getElementById('logoutBtn');
-let lastDeletedPost = null;
 
 const showNotification = (message, type) => {
     const notification = document.createElement('div');
@@ -256,4 +250,3 @@ document.addEventListener('click', async (event) => {
 
 // التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 checkAuthState();
-            
