@@ -248,5 +248,52 @@ document.addEventListener('click', async (event) => {
     }
 });
 
-// التحقق من حالة تسجيل الدخول عند تحميل الصفحة
+// التحقق من حالة المصادقة وتحديث واجهة المستخدم بناءً عليها
 checkAuthState();
+
+// عرض اسم المستخدم وعدد المنشورات عند الضغط على أيقونة الحساب
+const profileIcon = document.getElementById('profileIcon');
+profileIcon.addEventListener('click', async () => {
+    const currentUserEmail = localStorage.getItem('email');
+    const username = localStorage.getItem('username');
+    
+    if (currentUserEmail) {
+        // احصل على عدد المنشورات التي نشرها المستخدم
+        const userPostsQuery = await getDocs(collection(db, "posts"));
+        const userPosts = userPostsQuery.docs.filter(doc => doc.data().authorEmail === currentUserEmail);
+        const postCount = userPosts.length;
+
+        // عرض اسم المستخدم وعدد منشوراته
+        const profileModal = document.getElementById('profileModal');
+        const profileContent = document.getElementById('profileContent');
+        profileContent.innerHTML = `
+            <h2>${username}</h2>
+            <p>عدد المنشورات: ${postCount}</p>
+        `;
+        profileModal.classList.add('show');
+    }
+});
+
+// إغلاق نافذة الملف الشخصي عند النقر على زر الإغلاق
+const closeProfileModalBtn = document.getElementById('closeProfileModalBtn');
+closeProfileModalBtn.addEventListener('click', () => {
+    const profileModal = document.getElementById('profileModal');
+    profileModal.classList.remove('show');
+});
+
+// زر العودة للصفحة الرئيسية
+const homeButton = document.getElementById('homeButton');
+homeButton.addEventListener('click', () => {
+    window.location.href = '/';
+});
+
+// تفعيل وضع الوضع المظلم/الفاتح عند التبديل بينهما
+const darkModeToggle = document.getElementById('darkModeToggle');
+darkModeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    if (document.body.classList.contains('dark')) {
+        localStorage.setItem('theme', 'dark');
+    } else {
+        localStorage.setItem('theme', 'light');
+    }
+});
