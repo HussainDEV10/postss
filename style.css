@@ -1,44 +1,39 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap');
 
-
-/* المتغيرات للوضع الفاتح (النهار) */
+/* الوضع الفاتح */
 :root {
-    --background-color: #f0f4f8; /* لون خلفية ناعم */
-    --text-color: #2c3e50; /* لون نص داكن */
-    --header-bg-color: #ffffff; /* لون خلفية الهيدر */
-    --header-shadow-color: rgba(0, 0, 0, 0.1); /* ظل الهيدر */
-    --post-bg-color: #ffffff; /* لون خلفية البوستات */
-    --post-shadow-color: rgba(0, 0, 0, 0.1); /* ظل البوستات */
-    --input-bg-color: #ffffff; /* لون خلفية الحقول */
-    --input-border-color: #d1d8e0; /* لون حدود الحقول */
-    --placeholder-color: #a0aec0; /* لون النص المؤقت */
-    --button-bg-color: #4fd1c5; /* لون خلفية الأزرار */
-    --button-text-color: #ffffff; /* لون نص الأزرار */
-    --notification-bg-color: #4fd1c5; /* لون خلفية الإشعارات */
-    --notification-text-color: #ffffff; /* لون نص الإشعارات */
-    --bottom-bar-bg-color: #ffffff; /* لون الشريط السفلي */
-    --gradient-color-1: #6ee7b7; /* لون التدرج 1 */
-    --gradient-color-2: #3b82f6; /* لون التدرج 2 */
+    --background-color: #f9f9fb;
+    --text-color: #1a1a1a;
+    --header-bg-color: linear-gradient(90deg, #6a11cb, #2575fc);
+    --post-bg-color: #ffffff;
+    --post-shadow-color: rgba(0, 0, 0, 0.15);
+    --input-bg-color: #ffffff;
+    --input-border-color: #d1d1d1;
+    --placeholder-color: #999;
+    --button-bg-color: #2575fc;
+    --button-text-color: #ffffff;
+    --notification-bg-color: #e0eaff;
+    --notification-text-color: #000000;
+    --bottom-bar-bg-color: #6a11cb;
+    --accent-color: #2575fc;
 }
 
-/* المتغيرات للوضع الداكن (الليل) */
+/* الوضع الداكن */
 .dark-theme {
-    --background-color: #1a1a1a; /* لون خلفية داكن */
-    --text-color: #e2e8f0; /* لون نص فاتح */
-    --header-bg-color: #2d3748; /* لون خلفية الهيدر */
-    --header-shadow-color: rgba(255, 255, 255, 0.1); /* ظل الهيدر */
-    --post-bg-color: #2d3748; /* لون خلفية البوستات */
-    --post-shadow-color: rgba(255, 255, 255, 0.1); /* ظل البوستات */
-    --input-bg-color: #2d3748; /* لون خلفية الحقول */
-    --input-border-color: #4a5568; /* لون حدود الحقول */
-    --placeholder-color: #a0aec0; /* لون النص المؤقت */
-    --button-bg-color: #805ad5; /* لون خلفية الأزرار */
-    --button-text-color: #ffffff; /* لون نص الأزرار */
-    --notification-bg-color: #805ad5; /* لون خلفية الإشعارات */
-    --notification-text-color: #ffffff; /* لون نص الإشعارات */
-    --bottom-bar-bg-color: #2d3748; /* لون الشريط السفلي */
-    --gradient-color-1: #9f7aea; /* لون التدرج 1 */
-    --gradient-color-2: #ed64a6; /* لون التدرج 2 */
+    --background-color: #121212;
+    --text-color: #f5f5f5;
+    --header-bg-color: linear-gradient(90deg, #000428, #004e92);
+    --post-bg-color: #1e1e1e;
+    --post-shadow-color: rgba(255, 255, 255, 0.1);
+    --input-bg-color: #2a2a2a;
+    --input-border-color: #444;
+    --placeholder-color: #bbb;
+    --button-bg-color: #004e92;
+    --button-text-color: #ffffff;
+    --notification-bg-color: #333;
+    --notification-text-color: #ffffff;
+    --bottom-bar-bg-color: #000428;
+    --accent-color: #004e92;
 }
 
 body {
@@ -47,13 +42,11 @@ body {
     color: var(--text-color);
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     box-sizing: border-box;
-    padding: 5vh 0;
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.5s ease, color 0.5s ease;
+    padding-top: 70px; /* لتجنب تداخل المحتوى مع الهيدر */
 }
 
 /* الشريط العلوي */
@@ -62,423 +55,134 @@ header {
     top: 0;
     left: 0;
     width: 100%;
-    background-color: var(--header-bg-color);
-    z-index: 100;
+    background: var(--header-bg-color);
+    z-index: 1000;
     padding: 15px 20px;
-    box-shadow: 0 2px 4px var(--header-shadow-color);
+    box-shadow: 0 4px 8px var(--post-shadow-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-sizing: border-box;
+    transition: background 0.5s ease;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
 }
 
+/* الروابط */
 a {
-    color: blue;
-    text-decoration: underline;
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease, transform 0.3s ease;
 }
 
 a:hover {
     color: darkblue;
-    text-decoration: underline;
+    transform: scale(1.1);
 }
 
 /* زر تسجيل الخروج */
 .logout-btn {
-    color: red;
+    background: var(--button-bg-color);
+    color: var(--button-text-color);
     padding: 10px 20px;
-    border-radius: 4px;
+    border: none;
+    border-radius: 25px;
     cursor: pointer;
-    bottom: 20px;
+    transition: background 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.logout-btn:hover {
+    background: #ff4b5c;
+    transform: scale(1.05);
 }
 
 .logout-btn:active {
-    transform: scale(0.90);
+    transform: scale(0.95);
 }
 
 /* عرض اسم المستخدم */
 .username-display {
     color: var(--text-color);
-    font-weight: 500;
-    text-align: right;
+    font-weight: 600;
+    font-size: 1.1em;
     max-width: 50%;
-    overflow: fixed;
+    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    padding: 10px 20px;
-    bottom: 20px;
+    transition: color 0.3s ease;
 }
 
-.container {
-    position: relative;
-    width: 100%;
-    max-width: 500px;
-    margin-top: 80px;
-    padding: 0 20px;
-}
-
-.add-post-btn {
-    position: fixed;
-    margin-right: auto;
-    bottom: 25px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 60px;
-    background-color: var(--button-bg-color);
-    color: var(--button-text-color);
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 30px;
-    cursor: pointer;
-    z-index: 10;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease;
-}
-
-.add-post-btn:active {
-    transform: scale(0.90);
-}
-
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 5;
-}
-
-.post-form input[type="file"] {
-    display: block;
-    margin-bottom: 10px;
-}
-
-.overlay.show {
-    display: flex;
-}
-
-.overlay.show~.add-post-btn {
-    filter: blur(4px);
-}
-
-.post-form {
-    background-color: var(--post-bg-color);
+/* تنسيق البوست */
+.post {
+    background: var(--post-bg-color);
+    margin: 20px;
     padding: 20px;
-    border-radius: 8px;
-    width: 82%;
-    max-width: 400px;
-    text-align: left;
-    position: relative;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px var(--post-shadow-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: transparent;
-    color: red;
-    font-size: 24px;
-    border: none;
-    cursor: pointer;
+.post:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px var(--post-shadow-color);
 }
 
-.close-btn:active {
-    transform: scale(0.90);
-}
-
-.post-form h2 {
-    margin-top: 0;
-    color: var(--text-color);
-}
-
-.post-form input,
-.post-form textarea {
-    width: calc(105% - 20px);
-    margin-bottom: 10px;
-    padding: 12px;
+/* مدخلات النصوص */
+input, textarea {
+    background: var(--input-bg-color);
     border: 1px solid var(--input-border-color);
-    border-radius: 4px;
-    font-size: 16px;
+    padding: 12px 15px;
+    border-radius: 10px;
+    width: 100%;
     box-sizing: border-box;
-    background-color: var(--input-bg-color);
-    color: var(--text-color);
+    transition: border-color 0.3s ease;
+    outline: none;
 }
 
-.post-form input::placeholder,
-.post-form textarea::placeholder {
-    font-family: 'Rubik', sans-serif;
-    font-size: 16px;
+input::placeholder, textarea::placeholder {
     color: var(--placeholder-color);
 }
 
-.publish-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--button-bg-color);
-    color: var(--button-text-color);
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
+input:focus, textarea:focus {
+    border-color: var(--accent-color);
 }
 
-.publish-btn:active {
-    transform: scale(0.90);
-}
-
-.publish-btn span {
-    margin-left: 10px;
-    font-size: 20px;
-}
-
-.post-list {
-    margin-top: 10px;
-    list-style: none;
-    padding: 0;
-    margin-bottom: 10;
-}
-
-.post-item {
-    background-color: var(--post-bg-color);
-    margin-bottom: 10px;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px var(--post-shadow-color);
-    position: relative;
-    overflow: hidden;
-}
-
-.post-item:first-child {
-    margin-top: 5vh;
-}
-
-.post-item:last-child {
-    margin-bottom: 5vh;
-}
-
-.post-title {
-    margin: 0;
-    overflow-wrap: break-word;
-    color: var(--text-color);
-}
-
-.post-description {
-    direction: rtl;
-    text-align: right;
-    margin-bottom: 10px;
-    color: var(--text-color);
-}
-
-.post-media {
-    max-width: 100%;
-    height: auto;
-    display: block;
-}
-
-.post-author {
-    font-size: 14px;
-    color: var(--text-color);
-    text-align: right;
-    margin-top: 10px;
-}
-
-.post-time {
-    font-size: 12px;
-    color: var(--text-color);
-    text-align: left;
-    position: absolute;
-    bottom: -2px;
-    left: 15px;
-}
-
-.post-item h3 {
-    word-break: break-word;
-    text-align: right;
-    color: var(--text-color);
-}
-
-.delete-btn {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-}
-
-.delete-icon {
-    width: 32px;
-    height: 32px;
-    object-fit: cover;
-}
-
-.delete-btn:active {
-    transform: scale(0.90);
-}
-
-.delete-btn:hover {
-    color: #cc0000;
-}
-
-.settings-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 60px;
-    height: 60px;
-    background-color: transparent;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 30px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    z-index: 10;
-}
-
-.settings-btn:active {
-    transform: scale(0.90);
-}
-
-.color-options {
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-}
-
-.color-option {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin: 5px;
-    cursor: pointer;
-}
-
+/* إشعارات */
 .notification {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: var(--notification-bg-color);
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    z-index: 20;
-    width: auto;
-    max-width: 500px;
-    text-align: center;
-    opacity: 300;
-    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
-    touch-action: none;
-}
-
-.notification.show {
-    opacity: 300;
-    transform: translateX(-50%) translateY(0);
-}
-
-.notification.hide {
+    background: var(--notification-bg-color);
+    color: var(--notification-text-color);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.5s ease, transform 0.5s ease;
     opacity: 0;
-    transform: translateX(-50%) translateY(100%);
+    transform: translateY(-20px);
+    animation: slideDown 0.5s forwards;
 }
 
-.notification .underline {
-    height: 2px;
-    width: 100%;
-    background-color: darkgray;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    animation: underlineAnimation 5s linear forwards;
-}
-
-.notification span {
-    display: block;
-    margin-bottom: 10px;
-    color: var(--notification-text-color);
-}
-
-.notification .undo-btn {
-    background-color: transparent;
-    color: var(--notification-text-color);
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.notification .undo-btn:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
-@keyframes underlineAnimation {
-    0% {
-        width: 0;
-    }
-    100% {
-        width: 100%;
-    }
-}
-
+/* شريط التنقل السفلي */
 .bottom-bar {
     position: fixed;
     bottom: 0;
     width: 100%;
-    background-color: var(--bottom-bar-bg-color);
-    padding: 15px;
-    box-sizing: border-box;
+    background: var(--bottom-bar-bg-color);
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 100;
+    justify-content: space-around;
+    padding: 10px 0;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.2);
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
 }
 
-.bottom-bar .left {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-}
-
-.bottom-bar .right {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
-
-.bottom-bar button {
-    background-color: transparent;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    padding: 5px 10px;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-    z-index: 3000;
-}
-
-.bottom-bar button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
-.bottom-bar button:active {
-    transform: scale(0.90);
+/* تأثير الإشعارات */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
     }
