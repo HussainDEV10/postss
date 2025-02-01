@@ -491,3 +491,11 @@ a:hover {
     border-radius: 5px;
     cursor: pointer;
     }
+
+.modal {
+    display: none;
+}
+
+.modal.show {
+    display: block;
+}
