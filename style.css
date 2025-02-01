@@ -42,8 +42,8 @@ body {
     color: var(--text-color);
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow-x: hidden; /* منع التمرير الأفقي */
+    overflow-y: auto;   /* السماح بالتمرير العمودي */
     width: 100%;
     height: 100vh;
     box-sizing: border-box;
@@ -358,72 +358,90 @@ a:hover {
 .color-option {
     width: 40px;
     height: 40px;
-    border-radius:50%;
+    border-radius: 50%;
     margin: 5px;
     cursor: pointer;
-    transition: transform 0.3s ease;
 }
 
-.color-option:hover {
-    transform: scale(1.2);
-}
-
-.color-option.light {
-    background-color: #f4f4f4;
-}
-
-.color-option.dark {
-    background-color: #333;
-}
-
-/* الزر لإظهار خيارات الألوان */
-.settings-btn:hover + .color-options {
-    display: flex;
-}
-
-/* تنسيق التنبيهات */
 .notification {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     background-color: var(--notification-bg-color);
-    color: var(--notification-text-color);
-    padding: 15px;
-    margin: 10px 0;
+    padding: 15px 20px;
     border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 20;
+    width: auto;
+    max-width: 500px;
+    text-align: center;
+    opacity: 300;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    touch-action: none;
+}
+
+.notification.show {
+    opacity: 300;
+    transform: translateX(-50%) translateY(0);
+}
+
+.notification.hide {
+    opacity: 0;
+    transform: translateX(-50%) translateY(100%);
+}
+
+.notification .underline {
+    height: 2px;
+    width: 100%;
+    background-color: darkgray;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    animation: underlineAnimation 5s linear forwards;
 }
 
 .notification span {
-    font-weight: 500;
-}
-
-.notification .close-btn {
-    background-color: transparent;
-    border: none;
+    display: block;
+    margin-bottom: 10px;
     color: var(--notification-text-color);
-    font-size: 18px;
+}
+
+.notification .undo-btn {
+    background-color: transparent;
+    color: var(--notification-text-color);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
     cursor: pointer;
+    font-size: 14px;
+    text-decoration: underline;
+    font-family: 'Rubik', sans-serif;
 }
 
-.notification .close-btn:active {
-    transform: scale(0.90);
+@keyframes underlineAnimation {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0;
+    }
 }
 
-.notification .close-btn:hover {
-    color: red;
-}
-
-/* شريط الأدوات السفلي */
 .bottom-bar {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    background-color: var(--bottom-bar-bg-color);
-    color: white;
-    padding: 10px;
+    height: 70px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 18px;
+    padding: 0 20px;
+    z-index: 9;
+    background-color: var(--bottom-bar-bg-color);
+    color: white;
     }
