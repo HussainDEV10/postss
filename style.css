@@ -1,16 +1,54 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap');
 
+/* المتغيرات للوضع الفاتح */
+:root {
+    --background-color: #f4f4f4;
+    --text-color: #000000;
+    --header-bg-color: #f4f4f4;
+    --header-shadow-color: rgba(0, 0, 0, 0.1);
+    --post-bg-color: #ffffff;
+    --post-shadow-color: rgba(0, 0, 0, 0.1);
+    --input-bg-color: #ffffff;
+    --input-border-color: #ccc;
+    --placeholder-color: #888;
+    --button-bg-color: black;
+    --button-text-color: white;
+    --notification-bg-color: #e0e0e0;
+    --notification-text-color: #000000;
+    --bottom-bar-bg-color: black;
+}
+
+/* المتغيرات للوضع الداكن */
+.dark-theme {
+    --background-color: #1a1a1a;
+    --text-color: #ffffff;
+    --header-bg-color: #1a1a1a;
+    --header-shadow-color: rgba(255, 255, 255, 0.1);
+    --post-bg-color: #2a2a2a;
+    --post-shadow-color: rgba(255, 255, 255, 0.1);
+    --input-bg-color: #2a2a2a;
+    --input-border-color: #555;
+    --placeholder-color: #bbb;
+    --button-bg-color: #444;
+    --button-text-color: white;
+    --notification-bg-color: #444;
+    --notification-text-color: #ffffff;
+    --bottom-bar-bg-color: #333;
+}
+
 body {
     font-family: 'Rubik', sans-serif;
-    background-color: #f4f4f4;
+    background-color: var(--background-color);
+    color: var(--text-color);
     margin: 0;
     padding: 0;
-    overflow-x: hidden; /* تعطيل التمرير الأفقي */
-    overflow-y: auto; /* السماح بالتمرير العمودي */
-    width: 100%; /* ضمان عرض الجسم هو 100% */
-    height: 100vh; /* ضبط ارتفاع الصفحة بشكل كامل */
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 100%;
+    height: 100vh;
     box-sizing: border-box;
     padding: 5vh 0;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 /* الشريط العلوي */
@@ -19,14 +57,14 @@ header {
     top: 0;
     left: 0;
     width: 100%;
-    background-color: #c2c0c0; /* لون الخلفية */
+    background-color: var(--header-bg-color);
     z-index: 100;
-    padding: 15px 20px; /* حواف متساوية على جميع الجهات */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* ظل الشريط */
+    padding: 15px 20px;
+    box-shadow: 0 2px 4px var(--header-shadow-color);
     display: flex;
-    justify-content: space-between; /* توزيع العناصر على الأطراف */
+    justify-content: space-between;
     align-items: center;
-    box-sizing: border-box; /* حساب الحواف ضمن العرض */
+    box-sizing: border-box;
 }
 
 a {
@@ -37,8 +75,8 @@ a {
 a:hover {
     color: darkblue;
     text-decoration: underline;
-    
 }
+
 /* زر تسجيل الخروج */
 .logout-btn {
     color: red;
@@ -54,23 +92,23 @@ a:hover {
 
 /* عرض اسم المستخدم */
 .username-display {
-    color: black;
+    color: var(--text-color);
     font-weight: 500;
-    text-align: right; /* النص يتجه لليمين */
-    max-width: 50%; /* الحد الأقصى لعرض اسم المستخدم */
-    overflow: hidden; /* إخفاء الزائد من النص */
-    text-overflow: ellipsis; /* إظهار علامات الحذف */
-    white-space: no active /* منع انكسار النص */
-    padding: 10px 20px; /* حواف متساوية على جميع الجهات */
+    text-align: right;
+    max-width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 10px 20px;
     bottom: 20px;
-    }
-    
+}
+
 .container {
     position: relative;
     width: 100%;
     max-width: 500px;
-    margin-top: 80px; /* مساحة إضافية تحت الشريط العلوي */
-    padding: 0 20px; /* إضافة حواف جانبية لتوسيع عرض المنشورات */
+    margin-top: 80px;
+    padding: 0 20px;
 }
 
 .add-post-btn {
@@ -81,8 +119,8 @@ a:hover {
     transform: translateX(-50%);
     width: 60px;
     height: 60px;
-    background-color: black;
-    color: white;
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -90,7 +128,7 @@ a:hover {
     font-size: 30px;
     cursor: pointer;
     z-index: 10;
-    box-shadow: 0 4px 8px #2E2E2E;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease;
 }
 
@@ -98,171 +136,171 @@ a:hover {
     transform: scale(0.90);
 }
 
-         .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 5;
-        }
-
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 5;
+}
 
 .post-form input[type="file"] {
     display: block;
     margin-bottom: 10px;
 }
 
-        .overlay.show {
-            display: flex;
-        }
+.overlay.show {
+    display: flex;
+}
 
-        .overlay.show~.add-post-btn {
-            filter: blur(4px);
-        }
+.overlay.show~.add-post-btn {
+    filter: blur(4px);
+}
 
-        .post-form {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 82%;
-            max-width: 400px;
-            text-align: left;
-            position: relative;
-        }
+.post-form {
+    background-color: var(--post-bg-color);
+    padding: 20px;
+    border-radius: 8px;
+    width: 82%;
+    max-width: 400px;
+    text-align: left;
+    position: relative;
+}
 
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: transparent;
-            color: red;
-            font-size: 24px;
-            border: none;
-            cursor: pointer;
-        }
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: transparent;
+    color: red;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+}
 
 .close-btn:active {
     transform: scale(0.90);
 }
 
-        .post-form h2 {
-            margin-top: 0;
-        }
+.post-form h2 {
+    margin-top: 0;
+    color: var(--text-color);
+}
 
-/* تعيين حجم الحقول وتنسيق النصوص داخل الـplaceholder */
 .post-form input,
 .post-form textarea {
-    width: calc(105% - 20px); /* ضبط العرض لضمان ملاءمة الحقول بشكل صحيح */
+    width: calc(105% - 20px);
     margin-bottom: 10px;
-    padding: 12px; /* زيادة الحشو لتحسين المظهر */
-    border: 1px solid #ccc;
+    padding: 12px;
+    border: 1px solid var(--input-border-color);
     border-radius: 4px;
-    font-size: 16px; /* حجم الخط لنص الحقل */
-    box-sizing: border-box; /* ضمان أن العرض يشمل الحشو والحدود */
+    font-size: 16px;
+    box-sizing: border-box;
+    background-color: var(--input-bg-color);
+    color: var(--text-color);
 }
 
 .post-form input::placeholder,
 .post-form textarea::placeholder {
-    font-family: 'Rubik', sans-serif; /* تعيين الخط إلى Rubik */
-    font-size: 16px; /* حجم الخط للـplaceholder */
-    color: #888; /* لون النص داخل الـplaceholder */
+    font-family: 'Rubik', sans-serif;
+    font-size: 16px;
+    color: var(--placeholder-color);
 }
 
-        .publish-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: black;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
+.publish-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
 
 .publish-btn:active {
     transform: scale(0.90);
 }
 
-        .publish-btn span {
-            margin-left: 10px;
-            font-size: 20px;
-        }
+.publish-btn span {
+    margin-left: 10px;
+    font-size: 20px;
+}
 
-
-        .post-list {
-            margin-top: 10px;
-            list-style: none;
-            padding: 0;
-            margin-bottom: 10;
-        }
+.post-list {
+    margin-top: 10px;
+    list-style: none;
+    padding: 0;
+    margin-bottom: 10;
+}
 
 .post-item {
-    background-color: var(--post-bg-color, white); /* لون الخلفية الافتراضي هو الأبيض */
-    background-color: white;
-            margin-bottom: 10px;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-            }
-
+    background-color: var(--post-bg-color);
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--post-shadow-color);
+    position: relative;
+    overflow: hidden;
+}
 
 .post-item:first-child {
-    margin-top: 5vh; /* فراغ بين المنشور الأول والشاشة العليا */
+    margin-top: 5vh;
 }
 
 .post-item:last-child {
-    margin-bottom: 5vh; /* فراغ بين المنشور الأخير والشاشة السفلى */
+    margin-bottom: 5vh;
 }
 
-        .post-title {
-            margin: 0;
-            overflow-wrap: break-word;
-        }
+.post-title {
+    margin: 0;
+    overflow-wrap: break-word;
+    color: var(--text-color);
+}
 
-        .post-description {
-            direction: rtl;
-            text-align: right;
-            margin-bottom: 10px;
-        }
+.post-description {
+    direction: rtl;
+    text-align: right;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
 
 .post-media {
-    max-width: 100%; /* عرض الصورة بحد أقصى 100% */
-    height: auto; /* ارتفاع تلقائي للحفاظ على النسبة */
-    display: block; /* عرض الصورة ككتلة */
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
-        .post-author {
-            font-size: 14px;
-            color: #555;
-            text-align: right;
-            margin-top: 10px;
-        }
+.post-author {
+    font-size: 14px;
+    color: var(--text-color);
+    text-align: right;
+    margin-top: 10px;
+}
 
-        .post-time {
-            font-size: 12px;
-            color: #888;
-            text-align: left;
-            position: absolute;
-            bottom: -2px;
-            left: 15px;
-        }
+.post-time {
+    font-size: 12px;
+    color: var(--text-color);
+    text-align: left;
+    position: absolute;
+    bottom: -2px;
+    left: 15px;
+}
 
-        .post-item h3 {
-            word-break: break-word;
-            text-align: right;
-        }
-        
-        
-        .delete-btn {
+.post-item h3 {
+    word-break: break-word;
+    text-align: right;
+    color: var(--text-color);
+}
+
+.delete-btn {
     position: absolute;
     top: 10px;
     left: 10px;
@@ -273,22 +311,20 @@ a:hover {
 }
 
 .delete-icon {
-    width: 32px;  /* يمكنك تعديل هذا الرقم للتحكم في حجم الصورة */
+    width: 32px;
     height: 32px;
     object-fit: cover;
 }
-
 
 .delete-btn:active {
     transform: scale(0.90);
 }
 
-        .delete-btn:hover {
-            color: #cc0000;
-        }
-        
-        
-        .settings-btn {
+.delete-btn:hover {
+    color: #cc0000;
+}
+
+.settings-btn {
     position: fixed;
     top: 20px;
     right: 20px;
@@ -327,13 +363,12 @@ a:hover {
     cursor: pointer;
 }
 
-        /* تعديل الأنماط الخاصة بالإشعارات */
-        .notification {
+.notification {
     position: fixed;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #e0e0e0;
+    background-color: var(--notification-bg-color);
     padding: 15px 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -346,7 +381,7 @@ a:hover {
     text-align: center;
     opacity: 300;
     transition: transform 0.5s ease-out, opacity 0.5s ease-out;
-    touch-action: none; /* لتعطيل الإعداد الافتراضي لسحب العناصر */
+    touch-action: none;
 }
 
 .notification.show {
@@ -359,59 +394,53 @@ a:hover {
     transform: translateX(-50%) translateY(100%);
 }
 
-        .notification .underline {
-            height: 2px;
-            width: 100%;
-            background-color: darkgray;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            animation: underlineAnimation 5s linear forwards;
-        }
+.notification .underline {
+    height: 2px;
+    width: 100%;
+    background-color: darkgray;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    animation: underlineAnimation 5s linear forwards;
+}
 
-        .notification span {
-            display: block;
-            margin-bottom: 10px;
-        }
+.notification span {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--notification-text-color);
+}
 
-        .notification .undo-btn {
+.notification .undo-btn {
     background-color: transparent;
-    color: black;
+    color: var(--notification-text-color);
     border: none;
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
     text-decoration: underline;
-    font-family: 'Rubik', sans-serif; /* إضافة خط Rubik هنا */
+    font-family: 'Rubik', sans-serif;
 }
-        @keyframes underlineAnimation {
-            from {
-                width: 100%;
-            }
-            to {
-                width: 0;
-            }
-        }
 
-.notification {
-    display: flex;
-    justify-content: space-between;
-    align-items
-        
-        .bottom-bar {
+@keyframes underlineAnimation {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0;
+    }
+}
+
+.bottom-bar {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 70px; /* يمكنك تعديل الارتفاع حسب الحاجة */
-    background-color: black;
+    height: 70px;
+    background-color: var(--bottom-bar-bg-color);
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 0 20px;
     z-index: 9;
     }
-
-
-    
