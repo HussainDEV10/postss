@@ -31,6 +31,23 @@ const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
 
+
+        // إضافة تفاعل لأيقونة الملف الشخصي
+        const profileIcon = document.getElementById('profileIcon');
+        const profileModal = document.getElementById('profileModal');
+
+        profileIcon.addEventListener('click', () => {
+            profileModal.style.display = profileModal.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // إغلاق النموذج عند النقر خارج المنطقة
+        window.addEventListener('click', (event) => {
+            if (event.target !== profileIcon && event.target !== profileModal) {
+                profileModal.style.display = 'none';
+            }
+        });
+
+
 // تحديد زر التبديل
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 
