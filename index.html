@@ -7,24 +7,30 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- أيقونة الملف الشخصي -->
+    <div class="profile-icon" id="profileIcon">👤</div>
+    <!-- النموذج الذي يظهر عند النقر على الأيقونة -->
+    <div class="profile-modal" id="profileModal">
+        <p>Postary Coming Soon</p>
+    </div>
+
+    <!-- الهيدر -->
     <header>
         <div class="logout-btn" id="logoutBtn">تسجيل الخروج</div>
-        
-        <div id="header">
-            <button id="userProfileIcon" class="profile-icon">👤</button>
-        </div>
-        
         <div class="username-display" id="usernameDisplay">أسم المستخدم</div>
-        
-        <div class="theme-toggle-btn" id="themeToggleBtn">🌓</div> <!-- زر التبديل -->
-        
+        <div class="theme-toggle-btn" id="themeToggleBtn">🌓</div> <!-- زر التبديل بين الوضع الليلي والنهاري -->
     </header>
 
+    <!-- المحتوى الرئيسي -->
     <div class="container">
+        <!-- قائمة المنشورات -->
         <ul class="post-list" id="postList"></ul>
+        <!-- زر إضافة منشور -->
         <div class="add-post-btn" id="addPostBtn">+</div>
     </div>
 
+    <!-- القائمة السفلية (ألوان الخلفية) -->
     <div class="bottom-bar">
         <div class="color-options" id="colorOptions">
             <div class="color-option" data-color="#ff0000" style="background-color: #ff0000;"></div>
@@ -34,28 +40,22 @@
             <div class="color-option" data-color="#ffffff" style="background-color: #ffffff;"></div>
         </div>
     </div>
-    
-    <!-- نافذة منبثقة لعرض التفاصيل -->
-    <div id="profileModal" class="modal">
-        <div class="modal-content">
-            <span id="closeProfileModalBtn" class="close-btn">&times;</span>
-            <h2 id="profileUsername">أسم المستخدم</h2>
-            <p id="postCount">عدد المنشورات: 0</p>
-        </div>
-    </div>
 
+    <!-- نافذة إضافة المنشور -->
     <div class="overlay" id="overlay">
         <div class="post-form">
             <button class="close-btn" id="closeBtn">&times;</button>
             <h2>أضف منشور</h2>
-            <input type="text" id="postTitle" placeholder="العنوان">
-            <textarea id="postDescription" placeholder="الوصف"></textarea>
+            <input type="text" id="postTitle" placeholder="عنوان المنشور">
+            <textarea id="postDescription" placeholder="وصف المنشور"></textarea>
             <input type="file" id="postFile" accept="image/*,video/*">
-            <button class="publish-btn" id="publishBtn">نشر<span>+</span></button>
+            <button class="publish-btn" id="publishBtn">نشر</button>
         </div>
     </div>
 
+    <!-- الإشعارات -->
     <div id="notificationContainer"></div>
+
     <script src="script.js" type="module"></script>
 </body>
-                                                                                                  </html>
+</html>
