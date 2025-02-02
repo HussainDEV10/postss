@@ -1,22 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap');
 
-
-body {
-    font-family: 'Rubik', sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden; /* منع التمرير الأفقي */
-    overflow-y: auto;   /* السماح بالتمرير العمودي */
-    width: 100%;
-    height: 100vh;
-    box-sizing: border-box;
-    padding: 5vh 0;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-
 /* المتغيرات للوضع الفاتح */
 :root {
     --background-color: #f4f4f4;
@@ -53,6 +36,20 @@ body {
     --bottom-bar-bg-color: #333;
 }
 
+body {
+    font-family: 'Rubik', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* منع التمرير الأفقي */
+    overflow-y: auto;   /* السماح بالتمرير العمودي */
+    width: 100%;
+    height: 100vh;
+    box-sizing: border-box;
+    padding: 5vh 0;
+    transition: background-color 0.3s, color 0.3s;
+}
 
 /* الشريط العلوي */
 header {
@@ -99,7 +96,7 @@ a:hover {
     font-weight: 500;
     text-align: right;
     max-width: 50%;
-    overflow: fixed;
+    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     padding: 10px 20px;
@@ -110,13 +107,12 @@ a:hover {
     position: relative;
     width: 100%;
     max-width: 500px;
-    margin-top: 80px;
+    margin: 80px auto 0; /* تأكد من أن الهوامش ثابتة */
     padding: 0 20px;
 }
 
 .add-post-btn {
     position: fixed;
-    margin-right: auto;
     bottom: 25px;
     left: 50%;
     transform: translateX(-50%);
@@ -197,7 +193,7 @@ a:hover {
 
 .post-form input,
 .post-form textarea {
-    width: calc(105% - 20px);
+    width: calc(100% - 20px);
     margin-bottom: 10px;
     padding: 12px;
     border: 1px solid var(--input-border-color);
@@ -241,7 +237,7 @@ a:hover {
     margin-top: 10px;
     list-style: none;
     padding: 0;
-    margin-bottom: 10;
+    margin-bottom: 10px;
 }
 
 .post-item {
@@ -382,13 +378,13 @@ a:hover {
     width: auto;
     max-width: 500px;
     text-align: center;
-    opacity: 300;
+    opacity: 1;
     transition: transform 0.5s ease-out, opacity 0.5s ease-out;
     touch-action: none;
 }
 
 .notification.show {
-    opacity: 300;
+    opacity: 1;
     transform: translateX(-50%) translateY(0);
 }
 
@@ -445,57 +441,5 @@ a:hover {
     align-items: center;
     padding: 0 20px;
     z-index: 9;
-        }
-
-
-/* تنسيق الشريط العلوي */
-#header {
-    padding: 10px;
-    text-align: center;
-    color: white;
-}
-
-.profile-icon {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-/* تنسيق النافذة المنبثقة */
-.profile-popup {
-    position: absolute;
-    top: 50px;
-    right: 20px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: none;
-    padding: 10px;
-    z-index: 1000;
-}
-
-.profile-popup.show {
-    display: block;
-}
-
-#userInfo p {
-    margin: 5px 0;
-}
-
-#logoutBtn {
-    background-color: #ff6f61;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 5px;
-    cursor: pointer;
+    background-color: var(--bottom-bar-bg-color);
     }
-
-.modal {
-    display: none;
-}
-
-.modal.show {
-    display: block;
-}
