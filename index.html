@@ -8,15 +8,30 @@
 </head>
 <body>
     <header>
-        <div class="logout-btn" id="logoutBtn">تسجيل الخروج</div>
-        <div class="username-display" id="usernameDisplay">أسم المستخدم</div>
-        <div class="theme-toggle-btn" id="themeToggleBtn">🌓</div> <!-- زر التبديل -->
-        <div class="profile-icon" id="profileIcon">👤</div> <!-- أيقونة الملف الشخصي -->
-    </header>
+    <div class="logout-btn" id="logoutBtn">تسجيل الخروج</div>
+    <div class="username-display" id="usernameDisplay">أسم المستخدم</div>
+    <div class="profile-icon" onclick="toggleProfile()">👤
+        <div id="profile-info" class="hidden">
+            <p id="profileUsername">أسم المستخدم</p>
+            <p id="postCount">عدد المنشورات: 0</p>
+        </div>
+    </div>
+    <div class="theme-toggle-btn" id="themeToggleBtn">🌓</div>
+</header>
 
     <div class="container">
         <ul class="post-list" id="postList"></ul>
         <div class="add-post-btn" id="addPostBtn">+</div>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="color-options" id="colorOptions">
+            <div class="color-option" data-color="#ff0000" style="background-color: #ff0000;"></div>
+            <div class="color-option" data-color="#ffff00" style="background-color: #ffff00;"></div>
+            <div class="color-option" data-color="#00ff00" style="background-color: #00ff00;"></div>
+            <div class="color-option" data-color="#0000ff" style="background-color: #0000ff;"></div>
+            <div class="color-option" data-color="#ffffff" style="background-color: #ffffff;"></div>
+        </div>
     </div>
 
     <div class="overlay" id="overlay">
@@ -30,16 +45,8 @@
         </div>
     </div>
 
-    <div class="profile-modal" id="profileModal">
-        <div class="profile-content">
-            <button class="close-btn" id="closeProfileModal">&times;</button>
-            <h3>الملف الشخصي</h3>
-            <p>اسم المستخدم: حسين</p>
-            <p>العمر: 1000</p>
-        </div>
-    </div>
-
     <div id="notificationContainer"></div>
     <script src="script.js" type="module"></script>
 </body>
-                </html>
+                                                                                                  </html>
+                                                                                                  
