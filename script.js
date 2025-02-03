@@ -30,22 +30,49 @@ const postFileInput = document.getElementById('postFile');
 const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
-const profileIcon = document.getElementById('profileIcon');
-const profileModal = document.getElementById('profileModal');
-
-
-document.getElementById('profileIcon').addEventListener('click', function() {
-    document.getElementById('profileModal').classList.add('show');
-});
-
-document.getElementById('closeProfileModal').addEventListener('click', function() {
-    document.getElementById('profileModal').classList.remove('show');
-});
-
-
 
 // تحديد زر التبديل
 const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+// أيقونة الحساب
+const profileIcon = document.querySelector(".profile-icon");
+const profileInfo = document.getElementById("profile-info");
+const profileUsername = document.getElementById("profileUsername");
+const postCount = document.getElementById("postCount");
+
+// وظيفة تبديل عرض معلومات الحساب عند النقر على الأيقونة
+profileIcon.addEventListener("click", () => {
+    profileInfo.classList.toggle("hidden");
+});
+
+// تحديث معلومات الحساب بعد تسجيل الدخول
+const updateProfileInfo = async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists()) {
+            profileUsername.textContent = userDoc.data().username || "مستخدم";
+        }
+
+        // حساب عدد المنشورات الخاصة بالمستخدم
+        const querySnapshot = await getDocs(collection(db, "posts"));
+        const userPosts = querySnapshot.docs.filter(doc => doc.data().authorEmail === currentUser.email);
+        postCount.textContent = `عدد المنشورات: ${userPosts.length}`;
+    }
+};
+
+// تحديث عدد المنشورات عند إضافة منشور جديد
+publishBtn.addEventListener("click", async () => {
+    await addPost();
+    updateProfileInfo();
+});
+
+// التأكد من تحديث البيانات عند تسجيل الدخول
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        updateProfileInfo();
+    }
+});
 
 // التحقق من الإعدادات المحفوظة في localStorage
 const savedTheme = localStorage.getItem('theme');
@@ -261,52 +288,6 @@ document.addEventListener('click', async (event) => {
     }
 });
 
-// التحقق من حالة المصادقة وتحديث واجهة المستخدم بناءً عليها
+// التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 checkAuthState();
-
-// عرض اسم المستخدم وعدد المنشورات عند الضغط على أيقونة الحساب
-const profileIcon = document.getElementById('profileIcon');
-profileIcon.addEventListener('click', async () => {
-    const currentUserEmail = localStorage.getItem('email');
-    const username = localStorage.getItem('username');
-    
-    if (currentUserEmail) {
-        // احصل على عدد المنشورات التي نشرها المستخدم
-        const userPostsQuery = await getDocs(collection(db, "posts"));
-        const userPosts = userPostsQuery.docs.filter(doc => doc.data().authorEmail === currentUserEmail);
-        const postCount = userPosts.length;
-
-        // عرض اسم المستخدم وعدد منشوراته
-        const profileModal = document.getElementById('profileModal');
-        const profileContent = document.getElementById('profileContent');
-        profileContent.innerHTML = `
-            <h2>${username}</h2>
-            <p>عدد المنشورات: ${postCount}</p>
-        `;
-        profileModal.classList.add('show');
-    }
-});
-
-// إغلاق نافذة الملف الشخصي عند النقر على زر الإغلاق
-const closeProfileModalBtn = document.getElementById('closeProfileModalBtn');
-closeProfileModalBtn.addEventListener('click', () => {
-    const profileModal = document.getElementById('profileModal');
-    profileModal.classList.remove('show');
-});
-
-// زر العودة للصفحة الرئيسية
-const homeButton = document.getElementById('homeButton');
-homeButton.addEventListener('click', () => {
-    window.location.href = '/';
-});
-
-// تفعيل وضع الوضع المظلم/الفاتح عند التبديل بينهما
-const darkModeToggle = document.getElementById('darkModeToggle');
-darkModeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark');
-    if (document.body.classList.contains('dark')) {
-        localStorage.setItem('theme', 'dark');
-    } else {
-        localStorage.setItem('theme', 'light');
-    }
-});
+        
