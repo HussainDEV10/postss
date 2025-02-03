@@ -34,16 +34,14 @@ const profileIcon = document.getElementById('profileIcon');
 const profileModal = document.getElementById('profileModal');
 
 
-profileIcon.addEventListener('click', () => {
-profileModal.style.display = profileModal.style.display === 'block' ? 'none' : 'block';
-        });
+document.getElementById('profileIcon').addEventListener('click', function() {
+    document.getElementById('profileModal').classList.add('show');
+});
 
-        // إغلاق النموذج عند النقر خارج المنطقة
-window.addEventListener('click', (event) => {
-    if (event.target !== profileIcon && event.target !== profileModal) {
-        profileModal.style.display = 'none';
-          }
-        });
+document.getElementById('closeProfileModal').addEventListener('click', function() {
+    document.getElementById('profileModal').classList.remove('show');
+});
+
 
 
 // تحديد زر التبديل
