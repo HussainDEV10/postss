@@ -476,7 +476,7 @@ a:hover {
 #profile-info {
     position: absolute;
     top: 50px;
-    right: 0;
+    right: 10px;
     background: var(--post-bg-color);
     color: var(--text-color);
     padding: 12px;
@@ -491,7 +491,6 @@ a:hover {
 
 .profile-icon:hover #profile-info {
     display: block;
-    margin-right: 5px;
 }
 
 #profile-info p {
