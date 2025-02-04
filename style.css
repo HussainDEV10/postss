@@ -449,7 +449,7 @@ a:hover {
     position: relative;
     font-size: 24px;
     cursor: pointer;
-    margin-right: 0;
+    margin-right: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -460,7 +460,6 @@ a:hover {
     color: var(--button-text-color);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s ease-in-out, background 0.3s ease-in-out;
-    right: 30px;
 }
 
 .profile-icon:hover {
@@ -508,3 +507,4 @@ a:hover {
     border-style: solid;
     border-color: transparent transparent var(--post-bg-color) transparent;
     }
+    
