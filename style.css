@@ -491,6 +491,7 @@ a:hover {
 
 .profile-icon:hover #profile-info {
     display: block;
+    margin-right: 5px;
 }
 
 #profile-info p {
