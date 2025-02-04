@@ -1,40 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap');
 
 /* المتغيرات للوضع الفاتح */
-:root {
-    --background-color: #f4f4f4;
-    --text-color: #000000;
-    --header-bg-color: #f4f4f4;
-    --header-shadow-color: rgba(0, 0, 0, 0.1);
-    --post-bg-color: #ffffff;
-    --post-shadow-color: rgba(0, 0, 0, 0.1);
-    --input-bg-color: #ffffff;
-    --input-border-color: #ccc;
-    --placeholder-color: #888;
-    --button-bg-color: black;
-    --button-text-color: white;
-    --notification-bg-color: #e0e0e0;
-    --notification-text-color: #000000;
-    --bottom-bar-bg-color: black;
-}
 
-/* المتغيرات للوضع الداكن */
-.dark-theme {
-    --background-color: #1a1a1a;
-    --text-color: #ffffff;
-    --header-bg-color: #1a1a1a;
-    --header-shadow-color: rgba(255, 255, 255, 0.1);
-    --post-bg-color: #2a2a2a;
-    --post-shadow-color: rgba(255, 255, 255, 0.1);
-    --input-bg-color: #2a2a2a;
-    --input-border-color: #555;
-    --placeholder-color: #bbb;
-    --button-bg-color: #444;
-    --button-text-color: white;
-    --notification-bg-color: #444;
-    --notification-text-color: #ffffff;
-    --bottom-bar-bg-color: #333;
-}
 
 body {
     font-family: 'Rubik', sans-serif;
