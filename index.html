@@ -7,45 +7,48 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-    <div class="logout-btn" id="logoutBtn">تسجيل الخروج</div>
+
+<header>
     <div class="username-display" id="usernameDisplay">أسم المستخدم</div>
     <div class="profile-icon" onclick="toggleProfile()">👤
         <div id="profile-info" class="hidden">
             <p id="profileUsername">أسم المستخدم</p>
             <p id="postCount">عدد المنشورات: 0</p>
+            <button id="logoutBtn">تسجيل الخروج</button>
         </div>
     </div>
     <div class="theme-toggle-btn" id="themeToggleBtn">🌓</div>
 </header>
 
-    <div class="container">
-        <ul class="post-list" id="postList"></ul>
-        <div class="add-post-btn" id="addPostBtn">+</div>
-    </div>
+<div class="container">
+    <ul class="post-list" id="postList"></ul>
+    <div class="add-post-btn" id="addPostBtn">+</div>
+</div>
 
-    <div class="bottom-bar">
-        <div class="color-options" id="colorOptions">
-            <div class="color-option" data-color="#ff0000" style="background-color: #ff0000;"></div>
-            <div class="color-option" data-color="#ffff00" style="background-color: #ffff00;"></div>
-            <div class="color-option" data-color="#00ff00" style="background-color: #00ff00;"></div>
-            <div class="color-option" data-color="#0000ff" style="background-color: #0000ff;"></div>
-            <div class="color-option" data-color="#ffffff" style="background-color: #ffffff;"></div>
-        </div>
+<div class="bottom-bar">
+    <div class="color-options" id="colorOptions">
+        <div class="color-option" data-color="#ff0000" style="background-color: #ff0000;"></div>
+        <div class="color-option" data-color="#ffff00" style="background-color: #ffff00;"></div>
+        <div class="color-option" data-color="#00ff00" style="background-color: #00ff00;"></div>
+        <div class="color-option" data-color="#0000ff" style="background-color: #0000ff;"></div>
+        <div class="color-option" data-color="#ffffff" style="background-color: #ffffff;"></div>
     </div>
+</div>
 
-    <div class="overlay" id="overlay">
-        <div class="post-form">
-            <button class="close-btn" id="closeBtn">&times;</button>
-            <h2>أضف منشور</h2>
-            <input type="text" id="postTitle" placeholder="العنوان">
-            <textarea id="postDescription" placeholder="الوصف"></textarea>
-            <input type="file" id="postFile" accept="image/*,video/*">
-            <button class="publish-btn" id="publishBtn">نشر<span>+</span></button>
-        </div>
+<div class="overlay" id="overlay">
+    <div class="post-form">
+        <button class="close-btn" id="closeBtn">&times;</button>
+        <h2>أضف منشور</h2>
+        <input type="text" id="postTitle" placeholder="العنوان">
+        <textarea id="postDescription" placeholder="الوصف"></textarea>
+        <input type="file" id="postFile" accept="image/*,video/*">
+        <button class="publish-btn" id="publishBtn">نشر<span>+</span></button>
     </div>
+</div>
 
-    <div id="notificationContainer"></div>
-    <script src="script.js" type="module"></script>
+<div id="notificationContainer"></div>
+
+<script src="script.js" type="module"></script>
+
 </body>
-                </html>
+</html>
