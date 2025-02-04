@@ -93,7 +93,7 @@ themeToggleBtn.addEventListener('click', () => {
         themeToggleBtn.textContent = '🌞'; // تغيير الأيقونة للوضع الداكن
     } else {
         localStorage.setItem('theme', 'light-theme');
-        themeToggleBtn.textContent = '🌓'; // تغيير الأيقونة للوضع الفاتح
+        themeToggleBtn.textContent = '🌙'; // تغيير الأيقونة للوضع الفاتح
     }
 });
 
