@@ -514,16 +514,22 @@ a:hover {
     border-color: transparent transparent var(--post-bg-color) transparent;
     }
     
-
-#searchInput {
-    width: 90%;
-    max-width: 300px;
-    padding: 8px;
-    margin: 10px auto;
-    display: block;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    outline: none;
-    text-align: center;
-    font-size: 16px;
+    
+    #searchBar {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
 }
+
+#postList {
+  margin-top: 20px;
+}
+
+.post {
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+    }
