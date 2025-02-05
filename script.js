@@ -54,23 +54,8 @@ const updateProfileInfo = async () => {
             profileUsername.textContent = userDoc.data().username || "مستخدم";
         }
         
+
         
-        function searchPosts() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const posts = document.querySelectorAll('.post-item');
-
-    posts.forEach(post => {
-        const title = post.querySelector('.post-title').textContent.toLowerCase();
-        const description = post.querySelector('.post-description').textContent.toLowerCase();
-
-        if (title.includes(searchTerm) || description.includes(searchTerm)) {
-            post.style.display = "block"; // عرض المنشور المطابق
-        } else {
-            post.style.display = "none"; // إخفاء المنشورات غير المطابقة
-        }
-    });
-}
-
         // حساب عدد المنشورات الخاصة بالمستخدم
         const querySnapshot = await getDocs(collection(db, "posts"));
         const userPosts = querySnapshot.docs.filter(doc => doc.data().authorEmail === currentUser.email);
@@ -107,12 +92,29 @@ themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     if (document.body.classList.contains('dark-theme')) {
         localStorage.setItem('theme', 'dark-theme');
-        themeToggleBtn.textContent = '🌞'; // تغيير الأيقونة للوضع الداكن
+        themeToggleBtn.textContent = '🌑'; // تغيير الأيقونة للوضع الداكن
     } else {
         localStorage.setItem('theme', 'light-theme');
-        themeToggleBtn.textContent = '🌓'; // تغيير الأيقونة للوضع الفاتح
+        themeToggleBtn.textContent = '🌙'; // تغيير الأيقونة للوضع الفاتح
     }
 });
+
+
+function searchPosts() {
+            let query = document.getElementById("searchInput").value.toLowerCase();
+            let posts = document.querySelectorAll(".post");
+            posts.forEach(post => {
+                let text = post.textContent.toLowerCase();
+                post.style.display = text.includes(query) ? "block" : "none";
+            });
+        }
+
+        function showNotification(message) {
+            let notification = document.getElementById("notification");
+            notification.textContent = message;
+            notification.style.display = "block";
+            setTimeout(() => notification.style.display = "none", 2000);
+        }
 
 const showNotification = (message, type) => {
     const notification = document.createElement('div');
