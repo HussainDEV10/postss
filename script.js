@@ -53,6 +53,23 @@ const updateProfileInfo = async () => {
         if (userDoc.exists()) {
             profileUsername.textContent = userDoc.data().username || "مستخدم";
         }
+        
+        
+        function searchPosts() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const posts = document.querySelectorAll('.post-item');
+
+    posts.forEach(post => {
+        const title = post.querySelector('.post-title').textContent.toLowerCase();
+        const description = post.querySelector('.post-description').textContent.toLowerCase();
+
+        if (title.includes(searchTerm) || description.includes(searchTerm)) {
+            post.style.display = "block"; // عرض المنشور المطابق
+        } else {
+            post.style.display = "none"; // إخفاء المنشورات غير المطابقة
+        }
+    });
+}
 
         // حساب عدد المنشورات الخاصة بالمستخدم
         const querySnapshot = await getDocs(collection(db, "posts"));
