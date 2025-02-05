@@ -514,3 +514,16 @@ a:hover {
     border-color: transparent transparent var(--post-bg-color) transparent;
     }
     
+
+#searchInput {
+    width: 90%;
+    max-width: 300px;
+    padding: 8px;
+    margin: 10px auto;
+    display: block;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    outline: none;
+    text-align: center;
+    font-size: 16px;
+}
