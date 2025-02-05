@@ -97,44 +97,6 @@ themeToggleBtn.addEventListener('click', () => {
     }
 });
 
-
-
-const searchBar = document.getElementById('searchBar');
-const postList = document.getElementById('postList');
-
-// دالة لتصفية المنشورات حسب الحرف
-function filterPosts(letter) {
-  const filteredPosts = posts.filter(post => 
-    post.title.startsWith(letter) || post.description.startsWith(letter)
-  );
-
-  displayPosts(filteredPosts);
-}
-
-// دالة لعرض المنشورات
-function displayPosts(postsToDisplay) {
-  postList.innerHTML = '';
-  postsToDisplay.forEach(post => {
-    const postElement = document.createElement('div');
-    postElement.classList.add('post');
-    postElement.innerHTML = `<h3>${post.title}</h3><p>${post.description}</p>`;
-    postList.appendChild(postElement);
-  });
-}
-
-// حدث عند كتابة حرف في شريط البحث
-searchBar.addEventListener('input', (e) => {
-  const letter = e.target.value.toLowerCase();
-  if (letter.length === 1) {
-    filterPosts(letter);
-  } else {
-    postList.innerHTML = ''; // إذا كانت الإدخال أكثر من حرف نعرض كل المنشورات
-  }
-});
-
-
-
-
 const showNotification = (message, type) => {
     const notification = document.createElement('div');
     notification.classList.add('notification');
@@ -329,4 +291,4 @@ document.addEventListener('click', async (event) => {
 // التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 checkAuthState();
 
-                
+                            
