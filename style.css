@@ -109,9 +109,10 @@ a:hover {
 .container {
     position: relative;
     width: 100%;
-    max-width: 500px;
-    margin-top: 80px;
-    padding: 0 20px;
+    max-width: 500px; /* تحديد عرض أقصى */
+    margin-top: 80px; /* مساحة إضافية تحت الشريط العلوي */
+    padding: 0 20px; /* إضافة حواف جانبية لتوسيع عرض المنشورات */
+    box-sizing: border-box;
 }
 
 .add-post-btn {
