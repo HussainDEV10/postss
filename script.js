@@ -53,9 +53,7 @@ const updateProfileInfo = async () => {
         if (userDoc.exists()) {
             profileUsername.textContent = userDoc.data().username || "مستخدم";
         }
-        
 
-        
         // حساب عدد المنشورات الخاصة بالمستخدم
         const querySnapshot = await getDocs(collection(db, "posts"));
         const userPosts = querySnapshot.docs.filter(doc => doc.data().authorEmail === currentUser.email);
@@ -92,29 +90,50 @@ themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     if (document.body.classList.contains('dark-theme')) {
         localStorage.setItem('theme', 'dark-theme');
-        themeToggleBtn.textContent = '🌑'; // تغيير الأيقونة للوضع الداكن
+        themeToggleBtn.textContent = '🌞'; // تغيير الأيقونة للوضع الداكن
     } else {
         localStorage.setItem('theme', 'light-theme');
-        themeToggleBtn.textContent = '🌙'; // تغيير الأيقونة للوضع الفاتح
+        themeToggleBtn.textContent = '🌓'; // تغيير الأيقونة للوضع الفاتح
     }
 });
 
 
-function searchPosts() {
-            let query = document.getElementById("searchInput").value.toLowerCase();
-            let posts = document.querySelectorAll(".post");
-            posts.forEach(post => {
-                let text = post.textContent.toLowerCase();
-                post.style.display = text.includes(query) ? "block" : "none";
-            });
-        }
 
-        function showNotification(message) {
-            let notification = document.getElementById("notification");
-            notification.textContent = message;
-            notification.style.display = "block";
-            setTimeout(() => notification.style.display = "none", 2000);
-        }
+const searchBar = document.getElementById('searchBar');
+const postList = document.getElementById('postList');
+
+// دالة لتصفية المنشورات حسب الحرف
+function filterPosts(letter) {
+  const filteredPosts = posts.filter(post => 
+    post.title.startsWith(letter) || post.description.startsWith(letter)
+  );
+
+  displayPosts(filteredPosts);
+}
+
+// دالة لعرض المنشورات
+function displayPosts(postsToDisplay) {
+  postList.innerHTML = '';
+  postsToDisplay.forEach(post => {
+    const postElement = document.createElement('div');
+    postElement.classList.add('post');
+    postElement.innerHTML = `<h3>${post.title}</h3><p>${post.description}</p>`;
+    postList.appendChild(postElement);
+  });
+}
+
+// حدث عند كتابة حرف في شريط البحث
+searchBar.addEventListener('input', (e) => {
+  const letter = e.target.value.toLowerCase();
+  if (letter.length === 1) {
+    filterPosts(letter);
+  } else {
+    postList.innerHTML = ''; // إذا كانت الإدخال أكثر من حرف نعرض كل المنشورات
+  }
+});
+
+
+
 
 const showNotification = (message, type) => {
     const notification = document.createElement('div');
@@ -310,3 +329,4 @@ document.addEventListener('click', async (event) => {
 // التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 checkAuthState();
 
+                
