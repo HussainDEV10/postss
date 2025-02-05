@@ -514,15 +514,3 @@ a:hover {
     border-color: transparent transparent var(--post-bg-color) transparent;
     }
     
-    
-    #searchBar {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 20px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-#postList {
-  margin-top: 20px;
-}
