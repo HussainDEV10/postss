@@ -515,4 +515,5 @@ a:hover {
     width: 32px;
     height: 32px;
     z-index: 200;
+    float: right;
 }
