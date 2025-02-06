@@ -514,3 +514,8 @@ a:hover {
     border-color: transparent transparent var(--post-bg-color) transparent;
     }
     
+.profile-icon img {
+    width: 32px;
+    height: 32px
+    fill: #fff;
+}
