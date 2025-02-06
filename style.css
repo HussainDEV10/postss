@@ -466,8 +466,6 @@ a:hover {
 
 .profile-icon:hover {
     transform: scale(1.1);
-    background: var(--text-color);
-    color: var(--background-color);
 }
 
 .profile-icon:active {
