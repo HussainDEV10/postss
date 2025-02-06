@@ -516,6 +516,7 @@ a:hover {
     
 .profile-icon img {
     width: 32px;
-    height: 32px
+    height: 32px;
     fill: #fff;
+    z-index: 200;
 }
