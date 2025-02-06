@@ -461,7 +461,7 @@ a:hover {
     justify-content: center;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 0;
     background: var(--button-bg-color);
     color: var(--button-text-color);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
