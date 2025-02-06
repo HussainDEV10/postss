@@ -79,9 +79,9 @@ const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     document.body.classList.add(savedTheme);
     if (savedTheme === 'dark-theme') {
-        themeToggleBtn.textContent = '🌑'; // تغيير الأيقونة للوضع الداكن
+        themeToggleBtn.textContent = '🌙'; // تغيير الأيقونة للوضع الداكن
     } else {
-        themeToggleBtn.textContent = '🌙'; // تغيير الأيقونة للوضع الفاتح
+        themeToggleBtn.textContent = '🌑'; // تغيير الأيقونة للوضع الفاتح
     }
 }
 
@@ -90,10 +90,10 @@ themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     if (document.body.classList.contains('dark-theme')) {
         localStorage.setItem('theme', 'dark-theme');
-        themeToggleBtn.textContent = '🌑'; // تغيير الأيقونة للوضع الداكن
+        themeToggleBtn.textContent = '🌙'; // تغيير الأيقونة للوضع الداكن
     } else {
         localStorage.setItem('theme', 'light-theme');
-        themeToggleBtn.textContent = '🌙'; // تغيير الأيقونة للوضع الفاتح
+        themeToggleBtn.textContent = '🌑'; // تغيير الأيقونة للوضع الفاتح
     }
 });
 
