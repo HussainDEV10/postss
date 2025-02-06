@@ -256,6 +256,7 @@ a:hover {
     box-shadow: 0 2px 4px var(--post-shadow-color);
     position: relative;
     overflow: hidden;
+    width: 100%
 }
 
 .post-item:first-child {
