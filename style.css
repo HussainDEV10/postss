@@ -115,27 +115,31 @@ a:hover {
     box-sizing: border-box;
 }
 
+
 .add-post-btn {
     position: fixed;
-    margin-right: auto;
     bottom: 25px;
     left: 50%;
     transform: translateX(-50%);
     width: 60px;
     height: 60px;
-    background-color: var(--button-bg-color);
-    color: var(--button-text-color);
+    background-color: transparent;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 30px;
     cursor: pointer;
     z-index: 10;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease;
+    
     background-image: url('square-plus.svg');
+    background-size: contain;  /* أو جرّب cover */
+    background-repeat: no-repeat;
+    background-position: center;
 }
+
+
 
 .add-post-btn:active {
     transform: scale(0.90);
