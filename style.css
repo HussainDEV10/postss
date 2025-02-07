@@ -112,6 +112,7 @@ a:hover {
     max-width: 500px; /* تحديد عرض أقصى */
     margin-top: 80px; /* مساحة إضافية تحت الشريط العلوي */
     padding: 0 20px; /* إضافة حواف جانبية لتوسيع عرض المنشورات */
+    box-sizing: border-box;
 }
 
 
