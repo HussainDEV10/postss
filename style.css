@@ -319,6 +319,11 @@ a:hover {
     border: none;
     cursor: pointer;
     padding: 0;
+    background-image: url('h');
+    background-size: contain;  /* أو جرّب cover */
+    background-repeat: no-repeat;
+    background-position: center;
+    
 }
 
 .delete-icon {
