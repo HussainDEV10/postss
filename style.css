@@ -65,7 +65,7 @@ header {
     padding: 15px 20px;
     box-shadow: 0 2px 4px var(--header-shadow-color);
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     box-sizing: border-box;
     direction: rtl;
