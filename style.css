@@ -68,7 +68,6 @@ header {
     justify-content: space-between;
     align-items: center;
     box-sizing: border-box;
-    direction: rtl;
 }
 
 a {
