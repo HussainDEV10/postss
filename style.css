@@ -260,6 +260,9 @@ a:hover {
     box-shadow: 0 2px 4px var(--post-shadow-color);
     position: relative;
     overflow: hidden;
+    width: 100%;
+    max-width: 600px;
+    margin: 10px;
 }
 
 .post-item:first-child {
