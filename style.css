@@ -504,20 +504,37 @@ a:hover {
     display: block;
 }
 
-#profile-info p {
-    margin: 5px 0;
-    font-weight: 500;
+
+/* تعديل موقع النافذة المنبثقة لتكون على يمين الأيقونة */
+#profile-info {
+    position: absolute;
+    top: 50%;
+    left: 110%; /* وضع النافذة على يمين الأيقونة مع بعض الهامش */
+    transform: translateY(-50%);
+    background: var(--post-bg-color);
+    color: var(--text-color);
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px var(--post-shadow-color);
+    display: none;
+    width: 180px;
+    text-align: center;
+    z-index: 100;
+    font-size: 14px;
 }
 
+/* تعديل مؤشر السهم ليشير إلى الأيقونة من جهة اليسار */
 #profile-info::before {
     content: "";
     position: absolute;
-    top: -10px;
-    right: 15px;
+    top: 50%;
+    left: -10px; /* إظهار السهم على يسار النافذة */
+    transform: translateY(-50%);
     border-width: 5px;
     border-style: solid;
-    border-color: transparent transparent var(--post-bg-color) transparent;
+    border-color: transparent var(--post-bg-color) transparent transparent;
     }
+    
     
 .profile-icon img {
     width: 32px;
