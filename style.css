@@ -510,7 +510,7 @@ a:hover {
     position: absolute;
     top: -10%;
     left: 110%; /* وضع النافذة على يمين الأيقونة مع بعض الهامش */
-    transform: translateY(-50%);
+    transform: translateY(10%);
     background: var(--post-bg-color);
     color: var(--text-color);
     padding: 12px;
