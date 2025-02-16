@@ -508,7 +508,7 @@ a:hover {
 /* تعديل موقع النافذة المنبثقة لتكون على يمين الأيقونة */
 #profile-info {
     position: absolute;
-    top: 50%;
+    top: -10%;
     left: 110%; /* وضع النافذة على يمين الأيقونة مع بعض الهامش */
     transform: translateY(-50%);
     background: var(--post-bg-color);
