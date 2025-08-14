@@ -111,6 +111,34 @@ function convertToLinks(text) {
 }
 
 const displayPosts = async () => {
+
+
+// إضافة ألوان الوسوم الجديدة
+const tagColors = {
+    "أخبار": "#FFB6C1",
+    "ترفيه": "#FFD700",
+    "رياضة": "#87CEFA",
+    "تقنية": "#98FB98",
+    "فن": "#FFA07A",
+    "موسيقى": "#EE82EE",
+    "طعام": "#FFE4B5",
+    "سفر": "#AFEEEE",
+    "تصميم": "#F0E68C",
+    "ألعاب": "#F5DEB3",
+    "تعليم": "#B0E0E6",
+    "صحة": "#90EE90",
+    "موضة": "#FFB347",
+    "كوميديا": "#FFD1DC",
+    "حياة": "#FFEFD5",
+    "قصص": "#E6E6FA",
+    "فيديو": "#B0C4DE",
+    "صور": "#FFFACD",
+    "علم": "#C1FFC1",
+    "مناسبات": "#FFDAB9"
+};
+
+// عرض المنشورات مع الوسوم
+const displayPosts = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "posts"));
         postList.innerHTML = '';
@@ -132,9 +160,16 @@ const displayPosts = async () => {
             const arabicFormattedDate = formattedDate.replace(/\d/g, d => arabicDigits[d]);
             const formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${formattedTime}`;
 
+            // الوسوم
             const firstTag = data.tags && data.tags.length > 0 ? data.tags[0] : '';
             const remainingTags = data.tags && data.tags.length > 1 ? data.tags.slice(1) : [];
-            const tagElement = firstTag ? `<span class="post-tag" style="background-color:${tagColors[firstTag] || '#ccc'}">${firstTag}${remainingTags.length ? ' ...' : ''}</span>` : '';
+            let tagHTML = '';
+            if (firstTag) {
+                tagHTML = `<span class="post-tag" style="background-color:${tagColors[firstTag] || '#ccc'}">${firstTag}</span>`;
+                if (remainingTags.length > 0) {
+                    tagHTML += ` <span class="more-tags" style="cursor:pointer; color:#555">...</span>`;
+                }
+            }
 
             const postItem = document.createElement('li');
             postItem.classList.add('post-item');
@@ -144,15 +179,40 @@ const displayPosts = async () => {
                 <p class="post-description">${convertToLinks(data.description)}</p>
                 ${data.fileUrl ? (data.fileType === 'image' ? `<img src="${data.fileUrl}" class="post-media"/>` : `<video src="${data.fileUrl}" controls class="post-media"></video>`) : ''}
                 <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
-                <p class="post-time">${formattedDateTime} ${tagElement}</p>
+                <p class="post-time">${formattedDateTime} ${tagHTML}</p>
             `;
             postList.appendChild(postItem);
+
+            // حدث النقر على الثلاث نقاط لعرض جميع الوسوم
+            const moreTagsSpan = postItem.querySelector(".more-tags");
+            if (moreTagsSpan) {
+                moreTagsSpan.addEventListener("click", () => {
+                    const tagsList = remainingTags.map(tag => `<span class="post-tag" style="background-color:${tagColors[tag] || '#ccc'}; margin-left:2px">${tag}</span>`).join('');
+                    const popup = document.createElement("div");
+                    popup.classList.add("tags-popup");
+                    popup.style.position = "absolute";
+                    popup.style.background = "#fff";
+                    popup.style.border = "1px solid #ccc";
+                    popup.style.padding = "5px";
+                    popup.style.borderRadius = "5px";
+                    popup.style.zIndex = "999";
+                    popup.innerHTML = tagsList;
+                    moreTagsSpan.parentElement.appendChild(popup);
+
+                    document.addEventListener("click", function removePopup(e) {
+                        if (!popup.contains(e.target) && e.target !== moreTagsSpan) {
+                            popup.remove();
+                            document.removeEventListener("click", removePopup);
+                        }
+                    });
+                });
+            }
         });
     } catch (error) {
         showNotification("حدث خطأ أثناء تحميل المنشورات", "error");
     }
 };
-
+    
 addPostBtn.addEventListener('click', () => overlay.classList.add('show'));
 closeBtn.addEventListener('click', () => overlay.classList.remove('show'));
 
