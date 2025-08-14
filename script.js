@@ -244,40 +244,58 @@ document.addEventListener('click', async (event) => {
     // اللايك
     if (event.target.closest('.like-btn')) {
         const likeBtn = event.target.closest('.like-btn');
+        const countSpan = likeBtn.querySelector('span');
+        let count = parseInt(countSpan.textContent);
+        countSpan.textContent = count + 1; // تحديث فوري في الواجهة
+
         const postId = likeBtn.getAttribute('data-id');
         const postRef = doc(db, "posts", postId);
-        const postDoc = await getDoc(postRef);
-        if (postDoc.exists()) {
-            const data = postDoc.data();
-            const likes = data.likes || [];
-            const dislikes = data.dislikes || [];
 
-            if (!likes.includes(currentUserEmail)) {
-                likes.push(currentUserEmail);
-                const newDislikes = dislikes.filter(email => email !== currentUserEmail);
-                await updateDoc(postRef, { likes, dislikes: newDislikes });
-                displayPosts();
+        try {
+            const postDoc = await getDoc(postRef);
+            if (postDoc.exists()) {
+                const data = postDoc.data();
+                const likes = data.likes || [];
+                const dislikes = data.dislikes || [];
+
+                if (!likes.includes(currentUserEmail)) {
+                    likes.push(currentUserEmail);
+                    const newDislikes = dislikes.filter(email => email !== currentUserEmail);
+                    await updateDoc(postRef, { likes, dislikes: newDislikes });
+                }
             }
+        } catch (error) {
+            countSpan.textContent = count; // إرجاع الرقم إذا فشل الحفظ
+            console.error(error);
         }
     }
 
     // الديسلايك
     if (event.target.closest('.dislike-btn')) {
         const dislikeBtn = event.target.closest('.dislike-btn');
+        const countSpan = dislikeBtn.querySelector('span');
+        let count = parseInt(countSpan.textContent);
+        countSpan.textContent = count + 1; // تحديث فوري في الواجهة
+
         const postId = dislikeBtn.getAttribute('data-id');
         const postRef = doc(db, "posts", postId);
-        const postDoc = await getDoc(postRef);
-        if (postDoc.exists()) {
-            const data = postDoc.data();
-            const likes = data.likes || [];
-            const dislikes = data.dislikes || [];
 
-            if (!dislikes.includes(currentUserEmail)) {
-                dislikes.push(currentUserEmail);
-                const newLikes = likes.filter(email => email !== currentUserEmail);
-                await updateDoc(postRef, { likes: newLikes, dislikes });
-                displayPosts();
+        try {
+            const postDoc = await getDoc(postRef);
+            if (postDoc.exists()) {
+                const data = postDoc.data();
+                const likes = data.likes || [];
+                const dislikes = data.dislikes || [];
+
+                if (!dislikes.includes(currentUserEmail)) {
+                    dislikes.push(currentUserEmail);
+                    const newLikes = likes.filter(email => email !== currentUserEmail);
+                    await updateDoc(postRef, { likes: newLikes, dislikes });
+                }
             }
+        } catch (error) {
+            countSpan.textContent = count; // إرجاع الرقم إذا فشل الحفظ
+            console.error(error);
         }
     }
 });
