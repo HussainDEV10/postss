@@ -3,13 +3,22 @@ import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimest
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
-const firebaseConfig = { /* بيانات Firebase كما هي */ };
+const firebaseConfig = {
+    apiKey: "AIzaSyBwIhzy0_RBqhMBlvJxbs5_760jP-Yv2fw",
+    authDomain: "facebookweb-2030.firebaseapp.com",
+    projectId: "facebookweb-2030",
+    storageBucket: "facebookweb-2030.appspot.com",
+    messagingSenderId: "912333220741",
+    appId: "1:912333220741:web:1c7425f4248b7465b45c67",
+    measurementId: "G-ZJ6M2D8T3M"
+};
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// عناصر DOM
+const usernameDisplay = document.getElementById('usernameDisplay');
 const postList = document.getElementById('postList');
 const overlay = document.getElementById('overlay');
 const addPostBtn = document.getElementById('addPostBtn');
@@ -18,81 +27,147 @@ const publishBtn = document.getElementById('publishBtn');
 const postTitleInput = document.getElementById('postTitle');
 const postDescriptionInput = document.getElementById('postDescription');
 const postFileInput = document.getElementById('postFile');
-const postTagsInput = document.getElementById('postTags');
+const postTagsInput = document.getElementById('postTags'); // حقل الوسوم الجديد
 const notificationContainer = document.getElementById('notificationContainer');
-
+const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
-let tagColors = {}; 
-const colorPalette = [
-    "#e6194b","#3cb44b","#ffe119","#0082c8","#f58231","#911eb4","#46f0f0","#f032e6",
-    "#d2f53c","#fabebe","#008080","#e6beff","#aa6e28","#fffac8","#800000","#aaffc3",
-    "#808000","#ffd8b1","#000080","#808080","#FFFFFF","#000000","#ff9999","#99ff99",
-    "#9999ff","#ffcc99","#66ff66","#ff66ff","#66ffff","#ff6666","#9966ff","#66ffcc",
-    "#ffcc66","#ff9966","#6699ff","#cc66ff","#66ccff","#ccff66","#ff66cc","#cc6666",
-    "#66cc66","#6666cc","#cc66cc","#66cccc","#cccc66","#ff6666","#66ff66","#6666ff","#ffccff","#ccffcc"
-];
+
+const themeToggleBtn = document.getElementById('themeToggleBtn');
+const profileIcon = document.querySelector(".profile-icon");
+const profileInfo = document.getElementById("profile-info");
+const profileUsername = document.getElementById("profileUsername");
+const postCount = document.getElementById("postCount");
+
+profileIcon.addEventListener("click", () => {
+    profileInfo.classList.toggle("hidden");
+});
+
+const tagColors = { "رياضة": "#ff0000", "فن": "#00ff00", "طب": "#0000ff", "ألعاب": "#ff9900" };
+
+const updateProfileInfo = async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists()) profileUsername.textContent = userDoc.data().username || "مستخدم";
+
+        const querySnapshot = await getDocs(collection(db, "posts"));
+        const userPosts = querySnapshot.docs.filter(doc => doc.data().authorEmail === currentUser.email);
+        postCount.textContent = `عدد المنشورات: ${userPosts.length}`;
+    }
+};
+
+publishBtn.addEventListener("click", async () => {
+    await addPost();
+    updateProfileInfo();
+});
+
+onAuthStateChanged(auth, (user) => { if (user) updateProfileInfo(); });
+
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    document.body.classList.add(savedTheme);
+    themeToggleBtn.textContent = savedTheme === 'dark-theme' ? '🌙' : '🌑';
+}
+
+themeToggleBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark-theme');
+    if (document.body.classList.contains('dark-theme')) {
+        localStorage.setItem('theme', 'dark-theme');
+        themeToggleBtn.textContent = '🌙';
+    } else {
+        localStorage.setItem('theme', 'light-theme');
+        themeToggleBtn.textContent = '🌑';
+    }
+});
+
+const showNotification = (message, type) => {
+    const notification = document.createElement('div');
+    notification.classList.add('notification');
+    notification.innerHTML = `
+        <span>${message}</span>
+        ${type === 'delete' ? '<button class="undo-btn" id="undoBtn">إسترجاع</button>' : ''}
+        <div class="underline"></div>
+    `;
+    notificationContainer.innerHTML = '';
+    notificationContainer.appendChild(notification);
+    setTimeout(() => notification.classList.add('show'), 10);
+    setTimeout(() => notification.classList.add('hide'), 5000);
+    setTimeout(() => notification.remove(), 5500);
+    if (type === 'delete') document.getElementById('undoBtn').addEventListener('click', undoDelete);
+};
+
+const undoDelete = async () => {
+    if (lastDeletedPost) {
+        await setDoc(doc(db, "posts", lastDeletedPost.id), lastDeletedPost.data);
+        showNotification('تم إسترجاع المنشور', 'restore');
+        displayPosts();
+        lastDeletedPost = null;
+    }
+};
 
 function convertToLinks(text) {
     const urlPattern = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
-const displayPosts = async (filterTag = null) => {
+const displayPosts = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "posts"));
         postList.innerHTML = '';
         const currentUserEmail = localStorage.getItem('email');
 
-        querySnapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            if (filterTag && !data.tags?.some(t => t.name === filterTag)) return;
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const timestamp = new Date(data.timestamp.seconds * 1000);
+            let hours = timestamp.getHours();
+            const minutes = timestamp.getMinutes().toString().padStart(2, '0');
+            const period = hours >= 12 ? 'م' : 'ص';
+            hours = hours % 12 || 12;
+            const formattedTime = `${hours.toString().padStart(2,'0')}:${minutes} ${period}`;
+            const day = timestamp.getDate().toString().padStart(2,'0');
+            const month = (timestamp.getMonth()+1).toString().padStart(2,'0');
+            const year = timestamp.getFullYear();
+            const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
+            const formattedDate = `${day}/${month}/${year}`;
+            const arabicFormattedDate = formattedDate.replace(/\d/g, d => arabicDigits[d]);
+            const formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${formattedTime}`;
 
-            const timestamp = new Date(data.timestamp?.seconds * 1000 || Date.now());
-            const formattedDateTime = `${timestamp.getDate().toString().padStart(2,'0')}/${(timestamp.getMonth()+1).toString().padStart(2,'0')}/${timestamp.getFullYear()} ${timestamp.getHours().toString().padStart(2,'0')}:${timestamp.getMinutes().toString().padStart(2,'0')}`;
+            const firstTag = data.tags && data.tags.length > 0 ? data.tags[0] : '';
+            const remainingTags = data.tags && data.tags.length > 1 ? data.tags.slice(1) : [];
+            const tagElement = firstTag ? `<span class="post-tag" style="background-color:${tagColors[firstTag] || '#ccc'}">${firstTag}${remainingTags.length ? ' ...' : ''}</span>` : '';
 
             const postItem = document.createElement('li');
             postItem.classList.add('post-item');
-
-            let tagsHTML = '';
-            if (data.tags?.length) {
-                tagsHTML = `<div class="post-tags">` + data.tags.map(t => `<span class="tag" style="background-color:${t.color}" data-tag="${t.name}">${t.name}</span>`).join('') + `</div>`;
-            }
-
             postItem.innerHTML = `
-                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${docSnap.id}"></button>` : ''}
+                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}"></button>` : ''}
                 <h3 class="post-title">${data.title}</h3>
                 <p class="post-description">${convertToLinks(data.description)}</p>
                 ${data.fileUrl ? (data.fileType === 'image' ? `<img src="${data.fileUrl}" class="post-media"/>` : `<video src="${data.fileUrl}" controls class="post-media"></video>`) : ''}
                 <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
-                <p class="post-time">${formattedDateTime}</p>
-                ${tagsHTML}
+                <p class="post-time">${formattedDateTime} ${tagElement}</p>
             `;
             postList.appendChild(postItem);
         });
-
-        document.querySelectorAll('.tag').forEach(tagEl => {
-            tagEl.addEventListener('click', () => {
-                const tagName = tagEl.dataset.tag;
-                displayPosts(tagName);
-            });
-        });
-
     } catch (error) {
-        console.error(error);
+        showNotification("حدث خطأ أثناء تحميل المنشورات", "error");
     }
 };
 
-publishBtn.addEventListener('click', async () => {
+addPostBtn.addEventListener('click', () => overlay.classList.add('show'));
+closeBtn.addEventListener('click', () => overlay.classList.remove('show'));
+
+const addPost = async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
     const author = localStorage.getItem('username');
     const authorEmail = localStorage.getItem('email');
     const file = postFileInput.files[0];
-    let tags = postTagsInput.value.split(',').map(t => t.trim()).filter(t => t.length);
+    let tags = postTagsInput.value.trim().split('#').map(tag => tag.trim()).filter(tag => tag);
 
     if (title && description && author && authorEmail) {
         let fileUrl = '';
         let fileType = '';
+
         if (file) {
             const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
             await uploadBytes(storageRef, file);
@@ -100,40 +175,62 @@ publishBtn.addEventListener('click', async () => {
             fileType = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('video/') ? 'video' : '');
         }
 
-        const tagsWithColors = tags.map(t => {
-            if (!tagColors[t]) tagColors[t] = colorPalette[Math.floor(Math.random() * colorPalette.length)];
-            return { name: t, color: tagColors[t] };
-        });
-
         await addDoc(collection(db, "posts"), {
-            title,
-            description,
-            author,
-            authorEmail,
-            fileUrl,
-            fileType,
-            tags: tagsWithColors,
-            timestamp: serverTimestamp()
+            title, description, author, authorEmail,
+            fileUrl, fileType, tags, timestamp: serverTimestamp()
         });
 
+        showNotification("تم نشر المنشور بنجاح", "success");
         overlay.classList.remove('show');
         postTitleInput.value = '';
         postDescriptionInput.value = '';
         postFileInput.value = '';
         postTagsInput.value = '';
         displayPosts();
-    }
-});
-
-addPostBtn.addEventListener('click', () => overlay.classList.add('show'));
-closeBtn.addEventListener('click', () => overlay.classList.remove('show'));
-
-onAuthStateChanged(auth, user => {
-    if (user) {
-        localStorage.setItem('email', user.email);
-        localStorage.setItem('username', user.displayName || "مستخدم");
-        displayPosts();
     } else {
-        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+        showNotification("يرجى ملء جميع الحقول", "error");
+    }
+};
+
+logoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    localStorage.removeItem('email');
+    localStorage.removeItem('username');
+    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+});
+
+const checkAuthState = () => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            localStorage.setItem('email', user.email);
+            getDoc(doc(db, "users", user.uid)).then((doc) => {
+                if (doc.exists()) {
+                    const userData = doc.data();
+                    localStorage.setItem('username', userData.username);
+                    usernameDisplay.textContent = userData.username || "مستخدم";
+                }
+            });
+            displayPosts();
+        } else window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
+    });
+};
+
+document.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('delete-btn')) {
+        const postId = event.target.getAttribute('data-id');
+        const postRef = doc(db, "posts", postId);
+        try {
+            const postDoc = await getDoc(postRef);
+            if (postDoc.exists()) {
+                lastDeletedPost = { id: postId, data: postDoc.data() };
+                await deleteDoc(postRef);
+                showNotification("تم حذف المنشور", "delete");
+                displayPosts();
+            }
+        } catch (error) {
+            showNotification("حدث خطأ أثناء حذف المنشور", "error");
+        }
     }
 });
+
+checkAuthState();
