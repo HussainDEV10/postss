@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
@@ -31,21 +31,17 @@ const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
 
-// تحديد زر التبديل
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 
-// أيقونة الحساب
 const profileIcon = document.querySelector(".profile-icon");
 const profileInfo = document.getElementById("profile-info");
 const profileUsername = document.getElementById("profileUsername");
 const postCount = document.getElementById("postCount");
 
-// وظيفة تبديل عرض معلومات الحساب عند النقر على الأيقونة
 profileIcon.addEventListener("click", () => {
     profileInfo.classList.toggle("hidden");
 });
 
-// تحديث معلومات الحساب بعد تسجيل الدخول
 const updateProfileInfo = async () => {
     const currentUser = auth.currentUser;
     if (currentUser) {
@@ -53,47 +49,37 @@ const updateProfileInfo = async () => {
         if (userDoc.exists()) {
             profileUsername.textContent = userDoc.data().username || "مستخدم";
         }
-
-        // حساب عدد المنشورات الخاصة بالمستخدم
         const querySnapshot = await getDocs(collection(db, "posts"));
         const userPosts = querySnapshot.docs.filter(doc => doc.data().authorEmail === currentUser.email);
         postCount.textContent = `عدد المنشورات: ${userPosts.length}`;
     }
 };
 
-// تحديث عدد المنشورات عند إضافة منشور جديد
 publishBtn.addEventListener("click", async () => {
     await addPost();
     updateProfileInfo();
 });
 
-// التأكد من تحديث البيانات عند تسجيل الدخول
 onAuthStateChanged(auth, (user) => {
     if (user) {
         updateProfileInfo();
     }
 });
 
-// التحقق من الإعدادات المحفوظة في localStorage
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     document.body.classList.add(savedTheme);
-    if (savedTheme === 'dark-theme') {
-        themeToggleBtn.textContent = '🌙'; // تغيير الأيقونة للوضع الداكن
-    } else {
-        themeToggleBtn.textContent = '🌑'; // تغيير الأيقونة للوضع الفاتح
-    }
+    themeToggleBtn.textContent = savedTheme === 'dark-theme' ? '🌙' : '🌑';
 }
 
-// وظيفة التبديل بين الوضع الداكن والفاتح
 themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     if (document.body.classList.contains('dark-theme')) {
         localStorage.setItem('theme', 'dark-theme');
-        themeToggleBtn.textContent = '🌙'; // تغيير الأيقونة للوضع الداكن
+        themeToggleBtn.textContent = '🌙';
     } else {
         localStorage.setItem('theme', 'light-theme');
-        themeToggleBtn.textContent = '🌑'; // تغيير الأيقونة للوضع الفاتح
+        themeToggleBtn.textContent = '🌑';
     }
 });
 
@@ -105,30 +91,8 @@ const showNotification = (message, type) => {
         ${type === 'delete' ? '<button class="undo-btn" id="undoBtn">إسترجاع</button>' : ''}
         <div class="underline"></div>
     `;
-    notificationContainer.innerHTML = ''; // مسح الإشعارات السابقة
+    notificationContainer.innerHTML = '';
     notificationContainer.appendChild(notification);
-
-    notification.addEventListener('touchstart', (event) => {
-        startX = event.touches[0].clientX;
-    });
-
-    notification.addEventListener('touchmove', (event) => {
-        const touch = event.touches[0];
-        const diffX = touch.clientX - startX;
-        notification.style.transform = `translate(${diffX}px, 0)`;
-    });
-
-    notification.addEventListener('touchend', () => {
-        const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
-        if (Math.abs(finalPosition) > 10) {
-            notification.classList.add('hide');
-            notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
-            setTimeout(() => notification.remove(), 300);
-        } else {
-            notification.style.transform = `translateX(0)`;
-        }
-    });
-
     setTimeout(() => notification.classList.add('show'), 10);
     setTimeout(() => notification.classList.add('hide'), 5000);
     setTimeout(() => notification.remove(), 5500);
@@ -152,14 +116,15 @@ function convertToLinks(text) {
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
+// ===================== تحديث displayPosts لإضافة زر الإعجاب =====================
 const displayPosts = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "posts"));
-        postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+        postList.innerHTML = '';
         const currentUserEmail = localStorage.getItem('email');
 
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
+        querySnapshot.forEach((docItem) => {
+            const data = docItem.data();
             const timestamp = new Date(data.timestamp.seconds * 1000);
             let hours = timestamp.getHours();
             const minutes = timestamp.getMinutes().toString().padStart(2, '0');
@@ -176,8 +141,10 @@ const displayPosts = async () => {
 
             const postItem = document.createElement('li');
             postItem.classList.add('post-item');
+
+            // محتوى المنشور
             postItem.innerHTML = `
-                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}"></button>` : ''}
+                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${docItem.id}"></button>` : ''}
                 <h3 class="post-title">${data.title}</h3>
                 <p class="post-description">${convertToLinks(data.description)}</p>
                 ${
@@ -190,6 +157,27 @@ const displayPosts = async () => {
                 <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
                 <p class="post-time">${formattedDateTime}</p>
             `;
+
+            // إنشاء زر الإعجاب أسفل يمين المنشور
+            const likeBtn = document.createElement('button');
+            likeBtn.textContent = `👍 ${data.likes || 0}`;
+            likeBtn.classList.add('like-btn');
+            likeBtn.style.position = 'absolute';
+            likeBtn.style.bottom = '10px';
+            likeBtn.style.right = '10px';
+            likeBtn.style.background = 'transparent';
+            likeBtn.style.border = 'none';
+            likeBtn.style.cursor = 'pointer';
+            likeBtn.style.fontSize = '16px';
+            likeBtn.style.color = 'var(--text-color)';
+            
+            likeBtn.addEventListener('click', async () => {
+                const postRef = doc(db, "posts", docItem.id);
+                await updateDoc(postRef, { likes: increment(1) });
+                displayPosts(); // تحديث المنشورات لعرض العدد الجديد
+            });
+
+            postItem.appendChild(likeBtn);
             postList.appendChild(postItem);
         });
     } catch (error) {
@@ -197,13 +185,8 @@ const displayPosts = async () => {
     }
 };
 
-addPostBtn.addEventListener('click', () => {
-    overlay.classList.add('show');
-});
-
-closeBtn.addEventListener('click', () => {
-    overlay.classList.remove('show');
-});
+addPostBtn.addEventListener('click', () => overlay.classList.add('show'));
+closeBtn.addEventListener('click', () => overlay.classList.remove('show'));
 
 publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
@@ -230,6 +213,7 @@ publishBtn.addEventListener('click', async () => {
             authorEmail,
             fileUrl,
             fileType,
+            likes: 0,
             timestamp: serverTimestamp()
         });
 
@@ -248,7 +232,7 @@ logoutBtn.addEventListener('click', async () => {
     await signOut(auth);
     localStorage.removeItem('email');
     localStorage.removeItem('username');
-    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
+    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
 });
 
 const checkAuthState = () => {
@@ -264,7 +248,7 @@ const checkAuthState = () => {
             });
             displayPosts();
         } else {
-            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
+            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
         }
     });
 };
@@ -288,7 +272,4 @@ document.addEventListener('click', async (event) => {
     }
 });
 
-// التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 checkAuthState();
-
-        
