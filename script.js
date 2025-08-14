@@ -31,7 +31,7 @@ const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
 
-// تحديد زر التبديل
+// زر تبديل الوضع
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 
 // أيقونة الحساب
@@ -60,13 +60,12 @@ const updateProfileInfo = async () => {
     }
 };
 
-// تبديل الوضع الفاتح/الداكن
+// تبديل الوضع الداكن/الفاتح
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     document.body.classList.add(savedTheme);
     themeToggleBtn.textContent = savedTheme === 'dark-theme' ? '🌙' : '🌑';
 }
-
 themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     if (document.body.classList.contains('dark-theme')) {
@@ -141,8 +140,8 @@ const displayPosts = async () => {
                 <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
                 <p class="post-time">${formattedDateTime}</p>
                 <div class="post-actions">
-                    <button class="like-btn" data-id="${doc.id}">👍 <span>${data.likes || 0}</span></button>
-                    <button class="dislike-btn" data-id="${doc.id}">👎 <span>${data.dislikes || 0}</span></button>
+                    <button class="like-btn" data-id="${doc.id}">👍 <span>${data.likes?.length || 0}</span></button>
+                    <button class="dislike-btn" data-id="${doc.id}">👎 <span>${data.dislikes?.length || 0}</span></button>
                 </div>
             `;
             postList.appendChild(postItem);
@@ -177,9 +176,8 @@ publishBtn.addEventListener('click', async () => {
             authorEmail,
             fileUrl,
             fileType,
-            likes: 0,
-            dislikes: 0,
-            userReactions: {},
+            likes: [],
+            dislikes: [],
             timestamp: serverTimestamp()
         });
         showNotification("تم نشر المنشور بنجاح", "success");
@@ -244,8 +242,9 @@ document.addEventListener('click', async (event) => {
     }
 
     // اللايك
-    if (event.target.classList.contains('like-btn')) {
-        const postId = event.target.getAttribute('data-id');
+    if (event.target.closest('.like-btn')) {
+        const likeBtn = event.target.closest('.like-btn');
+        const postId = likeBtn.getAttribute('data-id');
         const postRef = doc(db, "posts", postId);
         const postDoc = await getDoc(postRef);
         if (postDoc.exists()) {
@@ -255,7 +254,6 @@ document.addEventListener('click', async (event) => {
 
             if (!likes.includes(currentUserEmail)) {
                 likes.push(currentUserEmail);
-                // إزالة من ديسلايك إذا موجود
                 const newDislikes = dislikes.filter(email => email !== currentUserEmail);
                 await updateDoc(postRef, { likes, dislikes: newDislikes });
                 displayPosts();
@@ -264,8 +262,9 @@ document.addEventListener('click', async (event) => {
     }
 
     // الديسلايك
-    if (event.target.classList.contains('dislike-btn')) {
-        const postId = event.target.getAttribute('data-id');
+    if (event.target.closest('.dislike-btn')) {
+        const dislikeBtn = event.target.closest('.dislike-btn');
+        const postId = dislikeBtn.getAttribute('data-id');
         const postRef = doc(db, "posts", postId);
         const postDoc = await getDoc(postRef);
         if (postDoc.exists()) {
@@ -275,7 +274,6 @@ document.addEventListener('click', async (event) => {
 
             if (!dislikes.includes(currentUserEmail)) {
                 dislikes.push(currentUserEmail);
-                // إزالة من اللايك إذا موجود
                 const newLikes = likes.filter(email => email !== currentUserEmail);
                 await updateDoc(postRef, { likes: newLikes, dislikes });
                 displayPosts();
