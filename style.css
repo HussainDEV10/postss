@@ -548,3 +548,28 @@ a:hover {
     align-items: center;
     justify-content: left;
 }
+
+.like-btn, .dislike-btn {
+    position: absolute;
+    bottom: 10px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+    user-select: none;
+    transition: transform 0.2s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.like-btn { right: 80px; background-color: #4caf50; color: white; }
+.dislike-btn { right: 10px; background-color: #f44336; color: white; }
+
+.like-btn.animate, .dislike-btn.animate {
+    transform: scale(1.2);
+}
+
+/* عداد */
+.like-count, .dislike-count {
+    margin-left: 5px;
+    font-weight: bold;
+}
