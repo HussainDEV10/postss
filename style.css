@@ -549,27 +549,65 @@ a:hover {
     justify-content: left;
 }
 
+/* حاوية الأزرار أسفل المنشور */
+.post-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+/* زر اللايك والديسلايك */
 .like-btn, .dislike-btn {
-    position: absolute;
-    bottom: 10px;
+    background-color: #f0f0f0;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
     cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 4px;
-    user-select: none;
-    transition: transform 0.2s;
-    display: inline-flex;
-    align-items: center;
-}
-
-.like-btn { right: 80px; background-color: #4caf50; color: white; }
-.dislike-btn { right: 10px; background-color: #f44336; color: white; }
-
-.like-btn.animate, .dislike-btn.animate {
-    transform: scale(1.2);
-}
-
-/* عداد */
-.like-count, .dislike-count {
-    margin-left: 5px;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
 }
+
+/* أيقونة داخل الزر */
+.like-btn i, .dislike-btn i {
+    font-style: normal;
+}
+
+/* عند مرور الماوس على الزر */
+.like-btn:hover {
+    background-color: #e0f7fa;
+    color: #00796b;
+    transform: scale(1.1);
+}
+
+.dislike-btn:hover {
+    background-color: #ffebee;
+    color: #c62828;
+    transform: scale(1.1);
+}
+
+/* عند الضغط على الزر */
+.like-btn:active, .dislike-btn:active {
+    transform: scale(0.95);
+}
+
+/* إذا تم اختيار اللايك */
+.like-btn.active {
+    background-color: #00796b;
+    color: #fff;
+}
+
+/* إذا تم اختيار الديسلايك */
+.dislike-btn.active {
+    background-color: #c62828;
+    color: #fff;
+}
+
+/* عداد اللايك والديسلايك */
+.like-count, .dislike-count {
+    font-size: 0.9rem;
+    color: #555;
+        }
