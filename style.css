@@ -3,611 +3,549 @@
 /* المتغيرات للوضع الفاتح */
 
 :root {
-    --background-color: #f4f4f4;
-    --text-color: #000000;
-    --header-bg-color: #f4f4f4;
-    --header-shadow-color: rgba(0, 0, 0, 0.1);
-    --post-bg-color: #ffffff;
-    --post-shadow-color: rgba(0, 0, 0, 0.1);
-    --input-bg-color: #ffffff;
-    --input-border-color: #ccc;
-    --placeholder-color: #888;
-    --button-bg-color: black;
-    --button-text-color: white;
-    --notification-bg-color: #e0e0e0;
-    --notification-text-color: #000000;
-    --bottom-bar-bg-color: black;
+--background-color: #f4f4f4;
+--text-color: #000000;
+--header-bg-color: #f4f4f4;
+--header-shadow-color: rgba(0, 0, 0, 0.1);
+--post-bg-color: #ffffff;
+--post-shadow-color: rgba(0, 0, 0, 0.1);
+--input-bg-color: #ffffff;
+--input-border-color: #ccc;
+--placeholder-color: #888;
+--button-bg-color: black;
+--button-text-color: white;
+--notification-bg-color: #e0e0e0;
+--notification-text-color: #000000;
+--bottom-bar-bg-color: black;
 }
 
 /* المتغيرات للوضع الداكن */
 .dark-theme {
-    --background-color: #1a1a1a;
-    --text-color: #ffffff;
-    --header-bg-color: #1a1a1a;
-    --header-shadow-color: rgba(255, 255, 255, 0.1);
-    --post-bg-color: #2a2a2a;
-    --post-shadow-color: rgba(255, 255, 255, 0.1);
-    --input-bg-color: #2a2a2a;
-    --input-border-color: #555;
-    --placeholder-color: #bbb;
-    --button-bg-color: #444;
-    --button-text-color: white;
-    --notification-bg-color: #444;
-    --notification-text-color: #ffffff;
-    --bottom-bar-bg-color: #333;
+--background-color: #1a1a1a;
+--text-color: #ffffff;
+--header-bg-color: #1a1a1a;
+--header-shadow-color: rgba(255, 255, 255, 0.1);
+--post-bg-color: #2a2a2a;
+--post-shadow-color: rgba(255, 255, 255, 0.1);
+--input-bg-color: #2a2a2a;
+--input-border-color: #555;
+--placeholder-color: #bbb;
+--button-bg-color: #444;
+--button-text-color: white;
+--notification-bg-color: #444;
+--notification-text-color: #ffffff;
+--bottom-bar-bg-color: #333;
 }
-
 
 body {
-    background-color: var(--background-color);
-    color: var(--text-color);
-    font-family: 'Rubik', sans-serif;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden; /* منع التمرير الأفقي */
-    overflow-y: auto;   /* السماح بالتمرير العمودي */
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    padding: 5vh 0;
-    transition: background-color 0.3s, color 0.3s;
+background-color: var(--background-color);
+color: var(--text-color);
+font-family: 'Rubik', sans-serif;
+margin: 0;
+padding: 0;
+overflow-x: hidden; /* منع التمرير الأفقي /
+overflow-y: auto;   / السماح بالتمرير العمودي */
+width: 100%;
+height: 100%;
+box-sizing: border-box;
+padding: 5vh 0;
+transition: background-color 0.3s, color 0.3s;
 }
-
 
 /* الشريط العلوي */
 header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: var(--header-bg-color);
-    z-index: 100;
-    padding: 15px 20px;
-    box-shadow: 0 2px 4px var(--header-shadow-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-sizing: border-box;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+background-color: var(--header-bg-color);
+z-index: 100;
+padding: 15px 20px;
+box-shadow: 0 2px 4px var(--header-shadow-color);
+display: flex;
+justify-content: space-between;
+align-items: center;
+box-sizing: border-box;
 }
 
 a {
-    color: blue;
-    text-decoration: underline;
+color: blue;
+text-decoration: underline;
 }
 
 a:hover {
-    color: darkblue;
-    text-decoration: underline;
+color: darkblue;
+text-decoration: underline;
 }
 
 /* زر تسجيل الخروج */
 .logout-btn {
-    color: red;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    bottom: 20px;
+color: red;
+padding: 10px 20px;
+border-radius: 4px;
+cursor: pointer;
+bottom: 20px;
 }
 
 .logout-btn:active {
-    transform: scale(0.90);
+transform: scale(0.90);
 }
 
 /* عرض اسم المستخدم */
 .username-display {
-    color: var(--text-color);
-    font-weight: 500;
-    text-align: right;
-    max-width: 50%;
-    overflow: fixed;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding: 10px 20px;
-    bottom: 20px;
+color: var(--text-color);
+font-weight: 500;
+text-align: right;
+max-width: 50%;
+overflow: fixed;
+text-overflow: ellipsis;
+white-space: nowrap;
+padding: 10px 20px;
+bottom: 20px;
 }
 
 .container {
-    position: relative;
-    width: 100%;
-    max-width: 500px; /* تحديد عرض أقصى */
-    margin-top: 80px; /* مساحة إضافية تحت الشريط العلوي */
-    padding: 0 20px; /* إضافة حواف جانبية لتوسيع عرض المنشورات */
-    box-sizing: border-box;
+position: relative;
+width: 100%;
+max-width: 500px; /* تحديد عرض أقصى /
+margin-top: 80px; / مساحة إضافية تحت الشريط العلوي /
+padding: 0 20px; / إضافة حواف جانبية لتوسيع عرض المنشورات */
+box-sizing: border-box;
 }
-
 
 .add-post-btn {
-    position: fixed;
-    bottom: 25px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 60px;
-    background-color: #ffffff;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    z-index: 10;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease;
-    
-    background-image: url('square-plus.svg');
-    background-size: contain;  /* أو جرّب cover */
-    background-repeat: no-repeat;
-    background-position: center;
+position: fixed;
+bottom: 25px;
+left: 50%;
+transform: translateX(-50%);
+width: 60px;
+height: 60px;
+background-color: #ffffff;
+border-radius: 50%;
+display: flex;
+justify-content: center;
+align-items: center;
+cursor: pointer;
+z-index: 10;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+transition: transform 0.3s ease;
+
+background-image: url('square-plus.svg');  
+background-size: contain;  /* أو جرّب cover */  
+background-repeat: no-repeat;  
+background-position: center;
+
 }
 
-
-
 .add-post-btn:active {
-    transform: scale(0.90);
+transform: scale(0.90);
 }
 
 .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 5;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.5);
+display: none;
+justify-content: center;
+align-items: center;
+z-index: 5;
 }
 
 .post-form input[type="file"] {
-    display: block;
-    margin-bottom: 10px;
+display: block;
+margin-bottom: 10px;
 }
 
 .overlay.show {
-    display: flex;
+display: flex;
 }
 
 .overlay.show~.add-post-btn {
-    filter: blur(4px);
+filter: blur(4px);
 }
 
-
 .post-form {
-    background-color: var(--post-bg-color);
-    padding: 20px;
-    border-radius: 8px;
-    width: 82%;
-    max-width: 400px; /* تحديد عرض أقصى */
-    text-align: left;
-    position: relative;
-    box-sizing: border-box;
+background-color: var(--post-bg-color);
+padding: 20px;
+border-radius: 8px;
+width: 82%;
+max-width: 400px; /* تحديد عرض أقصى */
+text-align: left;
+position: relative;
+box-sizing: border-box;
 }
 
 .close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: transparent;
-    color: red;
-    font-size: 24px;
-    border: none;
-    cursor: pointer;
+position: absolute;
+top: 10px;
+right: 10px;
+background-color: transparent;
+color: red;
+font-size: 24px;
+border: none;
+cursor: pointer;
 }
 
 .close-btn:active {
-    transform: scale(0.90);
+transform: scale(0.90);
 }
 
 .post-form h2 {
-    margin-top: 0;
-    color: var(--text-color);
+margin-top: 0;
+color: var(--text-color);
 }
 
 .post-form input,
 .post-form textarea {
-    width: calc(105% - 20px);
-    margin-bottom: 10px;
-    padding: 12px;
-    border: 1px solid var(--input-border-color);
-    border-radius: 4px;
-    font-size: 16px;
-    box-sizing: border-box;
-    background-color: var(--input-bg-color);
-    color: var(--text-color);
+width: calc(105% - 20px);
+margin-bottom: 10px;
+padding: 12px;
+border: 1px solid var(--input-border-color);
+border-radius: 4px;
+font-size: 16px;
+box-sizing: border-box;
+background-color: var(--input-bg-color);
+color: var(--text-color);
 }
 
 .post-form input::placeholder,
 .post-form textarea::placeholder {
-    font-family: 'Rubik', sans-serif;
-    font-size: 16px;
-    color: var(--placeholder-color);
+font-family: 'Rubik', sans-serif;
+font-size: 16px;
+color: var(--placeholder-color);
 }
 
 .publish-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--button-bg-color);
-    color: var(--button-text-color);
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+background-color: var(--button-bg-color);
+color: var(--button-text-color);
+padding: 10px 20px;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+margin-top: 10px;
 }
 
 .publish-btn:active {
-    transform: scale(0.90);
+transform: scale(0.90);
 }
 
 .publish-btn span {
-    margin-left: 10px;
-    font-size: 20px;
+margin-left: 10px;
+font-size: 20px;
 }
 
 .post-list {
-    margin-top: 10px;
-    list-style: none;
-    padding: 0;
-    margin-bottom: 10;
+margin-top: 10px;
+list-style: none;
+padding: 0;
+margin-bottom: 10;
 }
 
 .post-item {
-    background-color: var(--post-bg-color);
-    margin-bottom: 10px;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px var(--post-shadow-color);
-    position: relative;
-    overflow: hidden;
+background-color: var(--post-bg-color);
+margin-bottom: 10px;
+padding: 15px;
+border-radius: 8px;
+box-shadow: 0 2px 4px var(--post-shadow-color);
+position: relative;
+overflow: hidden;
 }
 
 .post-item:first-child {
-    margin-top: 5vh;
+margin-top: 5vh;
 }
 
 .post-item:last-child {
-    margin-bottom: 5vh;
+margin-bottom: 5vh;
 }
 
 .post-title {
-    margin: 0;
-    overflow-wrap: break-word;
-    color: var(--text-color);
+margin: 0;
+overflow-wrap: break-word;
+color: var(--text-color);
 }
 
 .post-description {
-    direction: rtl;
-    text-align: right;
-    margin-bottom: 10px;
-    color: var(--text-color);
+direction: rtl;
+text-align: right;
+margin-bottom: 10px;
+color: var(--text-color);
 }
 
 .post-media {
-    max-width: 100%;
-    height: auto;
-    display: block;
+max-width: 100%;
+height: auto;
+display: block;
 }
 
 .post-author {
-    font-size: 14px;
-    color: var(--text-color);
-    text-align: right;
-    margin-top: 10px;
+font-size: 14px;
+color: var(--text-color);
+text-align: right;
+margin-top: 10px;
 }
 
 .post-time {
-    font-size: 12px;
-    color: var(--text-color);
-    text-align: left;
-    position: absolute;
-    bottom: -2px;
-    left: 15px;
+font-size: 12px;
+color: var(--text-color);
+text-align: left;
+position: absolute;
+bottom: -2px;
+left: 15px;
 }
 
 .post-item h3 {
-    word-break: break-word;
-    text-align: right;
-    color: var(--text-color);
+word-break: break-word;
+text-align: right;
+color: var(--text-color);
 }
 
 .delete-btn {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    background-image: url('trash.svg');
-    background-size: contain;  /* أو جرّب cover */
-    background-repeat: no-repeat;
-    background-position: center;
-    width: 32px;
-    height: 32px;
-    
+position: absolute;
+top: 10px;
+left: 10px;
+background: none;
+border: none;
+cursor: pointer;
+padding: 0;
+background-image: url('trash.svg');
+background-size: contain;  /* أو جرّب cover */
+background-repeat: no-repeat;
+background-position: center;
+width: 32px;
+height: 32px;
+
 }
 
 .delete-icon {
-    width: 32px;
-    height: 32px;
-    object-fit: cover;
+width: 32px;
+height: 32px;
+object-fit: cover;
 }
 
 .delete-btn:active {
-    transform: scale(0.90);
+transform: scale(0.90);
 }
 
 .delete-btn:hover {
-    color: #cc0000;
+color: #cc0000;
 }
 
 .settings-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 60px;
-    height: 60px;
-    background-color: transparent;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 30px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    z-index: 10;
+position: fixed;
+top: 20px;
+right: 20px;
+width: 60px;
+height: 60px;
+background-color: transparent;
+color: white;
+border-radius: 50%;
+display: flex;
+justify-content: center;
+align-items: center;
+font-size: 30px;
+cursor: pointer;
+transition: transform 0.3s ease;
+z-index: 10;
 }
 
 .settings-btn:active {
-    transform: scale(0.90);
+transform: scale(0.90);
 }
 
 .color-options {
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    display: none;
-    flex-direction: column;
-    align-items: center;
+position: fixed;
+top: 80px;
+right: 20px;
+display: none;
+flex-direction: column;
+align-items: center;
 }
 
 .color-option {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin: 5px;
-    cursor: pointer;
+width: 40px;
+height: 40px;
+border-radius: 50%;
+margin: 5px;
+cursor: pointer;
 }
 
 .notification {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: var(--notification-bg-color);
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    z-index: 20;
-    width: auto;
-    max-width: 500px;
-    text-align: center;
-    opacity: 300;
-    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
-    touch-action: none;
+position: fixed;
+bottom: 20px;
+left: 50%;
+transform: translateX(-50%);
+background-color: var(--notification-bg-color);
+padding: 15px 20px;
+border-radius: 8px;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+display: flex;
+justify-content: center;
+flex-direction: column;
+z-index: 20;
+width: auto;
+max-width: 500px;
+text-align: center;
+opacity: 300;
+transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+touch-action: none;
 }
 
 .notification.show {
-    opacity: 300;
-    transform: translateX(-50%) translateY(0);
+opacity: 300;
+transform: translateX(-50%) translateY(0);
 }
 
 .notification.hide {
-    opacity: 0;
-    transform: translateX(-50%) translateY(100%);
+opacity: 0;
+transform: translateX(-50%) translateY(100%);
 }
 
 .notification .underline {
-    height: 2px;
-    width: 100%;
-    background-color: darkgray;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    animation: underlineAnimation 5s linear forwards;
+height: 2px;
+width: 100%;
+background-color: darkgray;
+position: absolute;
+bottom: 0;
+left: 0;
+animation: underlineAnimation 5s linear forwards;
 }
 
 .notification span {
-    display: block;
-    margin-bottom: 10px;
-    color: var(--notification-text-color);
+display: block;
+margin-bottom: 10px;
+color: var(--notification-text-color);
 }
 
 .notification .undo-btn {
-    background-color: transparent;
-    color: var(--notification-text-color);
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    text-decoration: underline;
-    font-family: 'Rubik', sans-serif;
+background-color: transparent;
+color: var(--notification-text-color);
+border: none;
+padding: 5px 10px;
+border-radius: 4px;
+cursor: pointer;
+font-size: 14px;
+text-decoration: underline;
+font-family: 'Rubik', sans-serif;
 }
 
 @keyframes underlineAnimation {
-    from {
-        width: 100%;
-    }
-    to {
-        width: 0;
-    }
+from {
+width: 100%;
+}
+to {
+width: 0;
+}
 }
 
 .bottom-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 70px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0 20px;
-    z-index: 9;
-        }
-
+position: fixed;
+bottom: 0;
+left: 0;
+width: 100%;
+height: 70px;
+display: flex;
+justify-content: center;
+align-items: center;
+padding: 0 20px;
+z-index: 9;
+}
 
 .profile-icon {
-    position: relative;
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: right;
-    width: 40px;
-    height: 40px;
-    transition: transform 0.2s ease-in-out, background 0.3s ease-in-out;
+position: relative;
+font-size: 24px;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: right;
+width: 40px;
+height: 40px;
+transition: transform 0.2s ease-in-out, background 0.3s ease-in-out;
 }
 
 .profile-icon:hover {
-    transform: scale(1.1);
+transform: scale(1.1);
 }
 
 .profile-icon:active {
-    transform: scale(0.9);
+transform: scale(0.9);
 }
 
 /* تصميم القائمة المنبثقة للمعلومات */
 #profile-info {
-    position: absolute;
-    top: 50px;
-    right: 0;
-    background: var(--post-bg-color);
-    color: var(--text-color);
-    padding: 12px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px var(--post-shadow-color);
-    display: none;
-    width: 180px;
-    text-align: center;
-    z-index: 100;
-    font-size: 14px;
+position: absolute;
+top: 50px;
+right: 0;
+background: var(--post-bg-color);
+color: var(--text-color);
+padding: 12px;
+border-radius: 8px;
+box-shadow: 0 4px 8px var(--post-shadow-color);
+display: none;
+width: 180px;
+text-align: center;
+z-index: 100;
+font-size: 14px;
 }
 
 .profile-icon:hover #profile-info {
-    display: block;
+display: block;
 }
 
-
-/* تعديل موقع النافذة المنبثقة لتكون على يمين الأيقونة */
+/* تعديل موقع النافذة المنبثقة لتكون على يمين الأيقونة /
 #profile-info {
-    position: absolute;
-    top: -10%;
-    left: 110%; /* وضع النافذة على يمين الأيقونة مع بعض الهامش */
-    transform: translateY(10%);
-    background: var(--post-bg-color);
-    color: var(--text-color);
-    padding: 12px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px var(--post-shadow-color);
-    display: none;
-    width: 180px;
-    text-align: center;
-    z-index: 100;
-    font-size: 14px;
+position: absolute;
+top: -10%;
+left: 110%; / وضع النافذة على يمين الأيقونة مع بعض الهامش */
+transform: translateY(10%);
+background: var(--post-bg-color);
+color: var(--text-color);
+padding: 12px;
+border-radius: 8px;
+box-shadow: 0 4px 8px var(--post-shadow-color);
+display: none;
+width: 180px;
+text-align: center;
+z-index: 100;
+font-size: 14px;
 }
 
-/* تعديل مؤشر السهم ليشير إلى الأيقونة من جهة اليسار */
+/* تعديل مؤشر السهم ليشير إلى الأيقونة من جهة اليسار /
 #profile-info::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: -10px; /* إظهار السهم على يسار النافذة */
-    transform: translateY(-50%);
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent var(--post-bg-color) transparent transparent;
-    }
-    
-    
+content: "";
+position: absolute;
+top: 50%;
+left: -10px; / إظهار السهم على يسار النافذة */
+transform: translateY(-50%);
+border-width: 5px;
+border-style: solid;
+border-color: transparent var(--post-bg-color) transparent transparent;
+}
+
 .profile-icon img {
-    width: 32px;
-    height: 32px;
-    z-index: 200;
-    fill: red;
+width: 32px;
+height: 32px;
+z-index: 200;
+fill: red;
 }
 
 .theme-toggle-btn {
-    display: flex;
-    align-items: center;
-    justify-content: left;
+display: flex;
+align-items: center;
+justify-content: left;
 }
 
-/* حاوية الأزرار أسفل المنشور */
-.post-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 8px;
-}
-
-/* زر اللايك والديسلايك */
-.like-btn, .dislike-btn {
-    background-color: #f0f0f0;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-}
-
-/* أيقونة داخل الزر */
-.like-btn i, .dislike-btn i {
-    font-style: normal;
-}
-
-/* عند مرور الماوس على الزر */
-.like-btn:hover {
-    background-color: #e0f7fa;
-    color: #00796b;
-    transform: scale(1.1);
-}
-
-.dislike-btn:hover {
-    background-color: #ffebee;
-    color: #c62828;
-    transform: scale(1.1);
-}
-
-/* عند الضغط على الزر */
-.like-btn:active, .dislike-btn:active {
-    transform: scale(0.95);
-}
-
-/* إذا تم اختيار اللايك */
-.like-btn.active {
-    background-color: #00796b;
+.post-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
     color: #fff;
+    margin-left: 5px;
 }
-
-/* إذا تم اختيار الديسلايك */
-.dislike-btn.active {
-    background-color: #c62828;
-    color: #fff;
-}
-
-/* عداد اللايك والديسلايك */
-.like-count, .dislike-count {
-    font-size: 0.9rem;
-    color: #555;
-        }
