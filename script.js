@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
@@ -79,9 +79,9 @@ const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     document.body.classList.add(savedTheme);
     if (savedTheme === 'dark-theme') {
-        themeToggleBtn.textContent = '🌙'; 
+        themeToggleBtn.textContent = '🌙'; // تغيير الأيقونة للوضع الداكن
     } else {
-        themeToggleBtn.textContent = '🌑';
+        themeToggleBtn.textContent = '🌑'; // تغيير الأيقونة للوضع الفاتح
     }
 }
 
@@ -90,10 +90,10 @@ themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     if (document.body.classList.contains('dark-theme')) {
         localStorage.setItem('theme', 'dark-theme');
-        themeToggleBtn.textContent = '🌙'; 
+        themeToggleBtn.textContent = '🌙'; // تغيير الأيقونة للوضع الداكن
     } else {
         localStorage.setItem('theme', 'light-theme');
-        themeToggleBtn.textContent = '🌑';
+        themeToggleBtn.textContent = '🌑'; // تغيير الأيقونة للوضع الفاتح
     }
 });
 
@@ -105,7 +105,7 @@ const showNotification = (message, type) => {
         ${type === 'delete' ? '<button class="undo-btn" id="undoBtn">إسترجاع</button>' : ''}
         <div class="underline"></div>
     `;
-    notificationContainer.innerHTML = ''; 
+    notificationContainer.innerHTML = ''; // مسح الإشعارات السابقة
     notificationContainer.appendChild(notification);
 
     notification.addEventListener('touchstart', (event) => {
@@ -152,50 +152,49 @@ function convertToLinks(text) {
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
+// --- عرض المنشورات مع Like / Dislike ---
 const displayPosts = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "posts"));
-        postList.innerHTML = ''; 
+        postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
         const currentUserEmail = localStorage.getItem('email');
 
-        for (const docItem of querySnapshot.docs) {
-            const data = docItem.data();
-            const postId = docItem.id;
-            const timestamp = new Date(data.timestamp.seconds * 1000);
-            let hours = timestamp.getHours();
-            const minutes = timestamp.getMinutes().toString().padStart(2, '0');
-            const period = hours >= 12 ? 'م' : 'ص';
-            hours = hours % 12 || 12;
-            const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes} ${period}`;
-            const day = timestamp.getDate().toString().padStart(2, '0');
-            const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
-            const year = timestamp.getFullYear();
-            const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
-            const formattedDate = `${day}/${month}/${year}`;
-            const arabicFormattedDate = formattedDate.replace(/\d/g, (d) => arabicDigits[d]);
-            const formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${formattedTime}`;
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            let formattedDateTime = '';
 
-            // --- قراءة Like/Dislike ---
-            const likesDocRef = doc(db, "likes", postId);
-            const likesSnap = await getDoc(likesDocRef);
-            let likesCount = 0;
-            let dislikesCount = 0;
-            let userAction = null;
-            if (likesSnap.exists()) {
-                const likeData = likesSnap.data();
-                likesCount = likeData.likes || 0;
-                dislikesCount = likeData.dislikes || 0;
-                const usersMap = likeData.users || {};
-                if (usersMap[currentUserEmail]) userAction = usersMap[currentUserEmail];
+            if (data.timestamp && data.timestamp.seconds) {
+                const timestamp = new Date(data.timestamp.seconds * 1000);
+                let hours = timestamp.getHours();
+                const minutes = timestamp.getMinutes().toString().padStart(2, '0');
+                const period = hours >= 12 ? 'م' : 'ص';
+                hours = hours % 12 || 12;
+                const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes} ${period}`;
+                const day = timestamp.getDate().toString().padStart(2, '0');
+                const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
+                const year = timestamp.getFullYear();
+                const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
+                const formattedDate = `${day}/${month}/${year}`;
+                const arabicFormattedDate = formattedDate.replace(/\d/g, (d) => arabicDigits[d]);
+                formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${formattedTime}`;
+            } else {
+                formattedDateTime = 'غير محدد';
             }
+
+            const likesCount = data.likes ? data.likes.length : 0;
+            const dislikesCount = data.dislikes ? data.dislikes.length : 0;
+
+            const userLiked = data.likes?.includes(currentUserEmail);
+            const userDisliked = data.dislikes?.includes(currentUserEmail);
 
             const postItem = document.createElement('li');
             postItem.classList.add('post-item');
             postItem.innerHTML = `
-                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${postId}"></button>` : ''}
+                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${docSnap.id}"></button>` : ''}
                 <h3 class="post-title">${data.title}</h3>
                 <p class="post-description">${convertToLinks(data.description)}</p>
-                ${data.fileUrl 
+                ${
+                    data.fileUrl 
                     ? data.fileType === 'image' 
                         ? `<img src="${data.fileUrl}" alt="Media" class="post-media" style="max-width: 100%; height: auto;" />` 
                         : `<video src="${data.fileUrl}" controls class="post-media" style="max-width: 100%; height: auto;"></video>`
@@ -203,51 +202,58 @@ const displayPosts = async () => {
                 }
                 <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
                 <p class="post-time">${formattedDateTime}</p>
-                <div class="like-dislike-container">
-                    <button class="like-btn ${userAction==='like' ? 'active' : ''}" data-id="${postId}">👍 <span class="like-count">${likesCount}</span></button>
-                    <button class="dislike-btn ${userAction==='dislike' ? 'active' : ''}" data-id="${postId}">👎 <span class="dislike-count">${dislikesCount}</span></button>
+                <div class="post-actions">
+                    <button class="like-btn" data-id="${docSnap.id}" style="color:${userLiked ? 'blue':'black'}">👍 <span class="like-count">${likesCount}</span></button>
+                    <button class="dislike-btn" data-id="${docSnap.id}" style="color:${userDisliked ? 'red':'black'}">👎 <span class="dislike-count">${dislikesCount}</span></button>
                 </div>
             `;
             postList.appendChild(postItem);
+        });
 
-            // --- أحداث Like / Dislike ---
-            const likeBtn = postItem.querySelector('.like-btn');
-            const dislikeBtn = postItem.querySelector('.dislike-btn');
+        // إضافة مستمعات للأزرار
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const postId = btn.getAttribute('data-id');
+                const postRef = doc(db, "posts", postId);
+                const postDoc = await getDoc(postRef);
+                const data = postDoc.data();
+                const userEmail = localStorage.getItem('email');
 
-            likeBtn.addEventListener('click', async () => {
-                const currentUserEmail = localStorage.getItem('email');
-                const docRef = doc(db, "likes", postId);
-                const snap = await getDoc(docRef);
-                let data = snap.exists() ? snap.data() : { likes: 0, dislikes: 0, users: {} };
-
-                if (data.users[currentUserEmail] === 'like') return; 
-                if (data.users[currentUserEmail] === 'dislike') {
-                    data.dislikes--;
+                if (data.likes?.includes(userEmail)) {
+                    await updateDoc(postRef, { likes: arrayRemove(userEmail) });
+                } else {
+                    await updateDoc(postRef, { 
+                        likes: arrayUnion(userEmail),
+                        dislikes: arrayRemove(userEmail)
+                    });
                 }
-                data.likes = (data.likes || 0) + 1;
-                data.users[currentUserEmail] = 'like';
-                await setDoc(docRef, data);
                 displayPosts();
             });
+        });
 
-            dislikeBtn.addEventListener('click', async () => {
-                const currentUserEmail = localStorage.getItem('email');
-                const docRef = doc(db, "likes", postId);
-                const snap = await getDoc(docRef);
-                let data = snap.exists() ? snap.data() : { likes: 0, dislikes: 0, users: {} };
+        document.querySelectorAll('.dislike-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const postId = btn.getAttribute('data-id');
+                const postRef = doc(db, "posts", postId);
+                const postDoc = await getDoc(postRef);
+                const data = postDoc.data();
+                const userEmail = localStorage.getItem('email');
 
-                if (data.users[currentUserEmail] === 'dislike') return;
-                if (data.users[currentUserEmail] === 'like') {
-                    data.likes--;
+                if (data.dislikes?.includes(userEmail)) {
+                    await updateDoc(postRef, { dislikes: arrayRemove(userEmail) });
+                } else {
+                    await updateDoc(postRef, { 
+                        dislikes: arrayUnion(userEmail),
+                        likes: arrayRemove(userEmail)
+                    });
                 }
-                data.dislikes = (data.dislikes || 0) + 1;
-                data.users[currentUserEmail] = 'dislike';
-                await setDoc(docRef, data);
                 displayPosts();
             });
-        }
+        });
+
     } catch (error) {
         showNotification("حدث خطأ أثناء تحميل المنشورات", "error");
+        console.error(error);
     }
 };
 
@@ -284,6 +290,8 @@ publishBtn.addEventListener('click', async () => {
             authorEmail,
             fileUrl,
             fileType,
+            likes: [],
+            dislikes: [],
             timestamp: serverTimestamp()
         });
 
@@ -302,7 +310,7 @@ logoutBtn.addEventListener('click', async () => {
     await signOut(auth);
     localStorage.removeItem('email');
     localStorage.removeItem('username');
-    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; 
+    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
 });
 
 const checkAuthState = () => {
@@ -318,7 +326,7 @@ const checkAuthState = () => {
             });
             displayPosts();
         } else {
-            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; 
+            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
         }
     });
 };
@@ -342,4 +350,5 @@ document.addEventListener('click', async (event) => {
     }
 });
 
+// التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 checkAuthState();
