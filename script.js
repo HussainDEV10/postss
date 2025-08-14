@@ -110,9 +110,6 @@ function convertToLinks(text) {
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
-const displayPosts = async () => {
-
-
 // إضافة ألوان الوسوم الجديدة
 const tagColors = {
     "أخبار": "#FFB6C1",
