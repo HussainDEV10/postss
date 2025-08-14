@@ -284,6 +284,74 @@ document.addEventListener('click', async (event) => {
                     dislikeSpan.textContent = '0';
                 } else {
                     // وضع ديسلايك
+
+// التعامل مع like/dislike بشكل سريع وسلس
+document.addEventListener('click', async (event) => {
+    const currentUserEmail = localStorage.getItem('email');
+
+    // اللايك
+    if (event.target.closest('.like-btn')) {
+        const likeBtn = event.target.closest('.like-btn');
+        const dislikeBtn = likeBtn.parentElement.querySelector('.dislike-btn');
+        const likeSpan = likeBtn.querySelector('span');
+        const dislikeSpan = dislikeBtn.querySelector('span');
+
+        const postId = likeBtn.getAttribute('data-id');
+        const postRef = doc(db, "posts", postId);
+
+        try {
+            const postDoc = await getDoc(postRef);
+            if (postDoc.exists()) {
+                let data = postDoc.data();
+                let likes = data.likes || [];
+                let dislikes = data.dislikes || [];
+
+                if (likes.includes(currentUserEmail)) {
+                    // إلغاء اللايك
+                    likes = likes.filter(email => email !== currentUserEmail);
+                    likeSpan.textContent = '0';
+                } else {
+                    // وضع لايك
+                    likes.push(currentUserEmail);
+                    likeSpan.textContent = '1';
+
+                    // إزالة ديسلايك إذا موجود
+                    if (dislikes.includes(currentUserEmail)) {
+                        dislikes = dislikes.filter(email => email !== currentUserEmail);
+                        dislikeSpan.textContent = '0';
+                    }
+                }
+                // تحديث Firebase بدون إعادة عرض كل المنشورات
+                updateDoc(postRef, { likes, dislikes });
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    // الديسلايك
+    if (event.target.closest('.dislike-btn')) {
+        const dislikeBtn = event.target.closest('.dislike-btn');
+        const likeBtn = dislikeBtn.parentElement.querySelector('.like-btn');
+        const dislikeSpan = dislikeBtn.querySelector('span');
+        const likeSpan = likeBtn.querySelector('span');
+
+        const postId = dislikeBtn.getAttribute('data-id');
+        const postRef = doc(db, "posts", postId);
+
+        try {
+            const postDoc = await getDoc(postRef);
+            if (postDoc.exists()) {
+                let data = postDoc.data();
+                let likes = data.likes || [];
+                let dislikes = data.dislikes || [];
+
+                if (dislikes.includes(currentUserEmail)) {
+                    // إلغاء الديسلايك
+                    dislikes = dislikes.filter(email => email !== currentUserEmail);
+                    dislikeSpan.textContent = '0';
+                } else {
+                    // وضع ديسلايك
                     dislikes.push(currentUserEmail);
                     dislikeSpan.textContent = '1';
 
@@ -293,14 +361,15 @@ document.addEventListener('click', async (event) => {
                         likeSpan.textContent = '0';
                     }
                 }
-                await updateDoc(postRef, { likes, dislikes });
+                // تحديث Firebase بدون إعادة عرض كل المنشورات
+                updateDoc(postRef, { likes, dislikes });
             }
         } catch (error) {
             console.error(error);
         }
     }
 });
-
+                    
 // فتح نافذة إضافة منشور
 addPostBtn.addEventListener('click', () => {
     overlay.classList.add('show');
