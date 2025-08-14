@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
@@ -40,12 +40,12 @@ const profileInfo = document.getElementById("profile-info");
 const profileUsername = document.getElementById("profileUsername");
 const postCount = document.getElementById("postCount");
 
-// وظيفة تبديل عرض معلومات الحساب عند النقر على الأيقونة
+// عرض/إخفاء معلومات الحساب
 profileIcon.addEventListener("click", () => {
     profileInfo.classList.toggle("hidden");
 });
 
-// تحديث معلومات الحساب بعد تسجيل الدخول
+// تحديث معلومات الحساب
 const updateProfileInfo = async () => {
     const currentUser = auth.currentUser;
     if (currentUser) {
@@ -54,49 +54,31 @@ const updateProfileInfo = async () => {
             profileUsername.textContent = userDoc.data().username || "مستخدم";
         }
 
-        // حساب عدد المنشورات الخاصة بالمستخدم
         const querySnapshot = await getDocs(collection(db, "posts"));
         const userPosts = querySnapshot.docs.filter(doc => doc.data().authorEmail === currentUser.email);
         postCount.textContent = `عدد المنشورات: ${userPosts.length}`;
     }
 };
 
-// تحديث عدد المنشورات عند إضافة منشور جديد
-publishBtn.addEventListener("click", async () => {
-    await addPost();
-    updateProfileInfo();
-});
-
-// التأكد من تحديث البيانات عند تسجيل الدخول
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        updateProfileInfo();
-    }
-});
-
-// التحقق من الإعدادات المحفوظة في localStorage
+// تبديل الوضع الفاتح/الداكن
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     document.body.classList.add(savedTheme);
-    if (savedTheme === 'dark-theme') {
-        themeToggleBtn.textContent = '🌙'; // تغيير الأيقونة للوضع الداكن
-    } else {
-        themeToggleBtn.textContent = '🌑'; // تغيير الأيقونة للوضع الفاتح
-    }
+    themeToggleBtn.textContent = savedTheme === 'dark-theme' ? '🌙' : '🌑';
 }
 
-// وظيفة التبديل بين الوضع الداكن والفاتح
 themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     if (document.body.classList.contains('dark-theme')) {
         localStorage.setItem('theme', 'dark-theme');
-        themeToggleBtn.textContent = '🌙'; // تغيير الأيقونة للوضع الداكن
+        themeToggleBtn.textContent = '🌙';
     } else {
         localStorage.setItem('theme', 'light-theme');
-        themeToggleBtn.textContent = '🌑'; // تغيير الأيقونة للوضع الفاتح
+        themeToggleBtn.textContent = '🌑';
     }
 });
 
+// إشعارات
 const showNotification = (message, type) => {
     const notification = document.createElement('div');
     notification.classList.add('notification');
@@ -105,29 +87,8 @@ const showNotification = (message, type) => {
         ${type === 'delete' ? '<button class="undo-btn" id="undoBtn">إسترجاع</button>' : ''}
         <div class="underline"></div>
     `;
-    notificationContainer.innerHTML = ''; // مسح الإشعارات السابقة
+    notificationContainer.innerHTML = '';
     notificationContainer.appendChild(notification);
-
-    notification.addEventListener('touchstart', (event) => {
-        startX = event.touches[0].clientX;
-    });
-
-    notification.addEventListener('touchmove', (event) => {
-        const touch = event.touches[0];
-        const diffX = touch.clientX - startX;
-        notification.style.transform = `translate(${diffX}px, 0)`;
-    });
-
-    notification.addEventListener('touchend', () => {
-        const finalPosition = parseFloat(notification.style.transform.split('(')[1]);
-        if (Math.abs(finalPosition) > 10) {
-            notification.classList.add('hide');
-            notification.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
-            setTimeout(() => notification.remove(), 300);
-        } else {
-            notification.style.transform = `translateX(0)`;
-        }
-    });
 
     setTimeout(() => notification.classList.add('show'), 10);
     setTimeout(() => notification.classList.add('hide'), 5000);
@@ -152,137 +113,63 @@ function convertToLinks(text) {
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
-// --- عرض المنشورات مع Like / Dislike ---
+// عرض المنشورات مع like/dislike
 const displayPosts = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "posts"));
-        postList.innerHTML = ''; // مسح المحتوى الحالي قبل العرض
+        postList.innerHTML = '';
         const currentUserEmail = localStorage.getItem('email');
 
-        querySnapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            let formattedDateTime = '';
-
-            if (data.timestamp && data.timestamp.seconds) {
-                const timestamp = new Date(data.timestamp.seconds * 1000);
-                let hours = timestamp.getHours();
-                const minutes = timestamp.getMinutes().toString().padStart(2, '0');
-                const period = hours >= 12 ? 'م' : 'ص';
-                hours = hours % 12 || 12;
-                const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes} ${period}`;
-                const day = timestamp.getDate().toString().padStart(2, '0');
-                const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
-                const year = timestamp.getFullYear();
-                const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
-                const formattedDate = `${day}/${month}/${year}`;
-                const arabicFormattedDate = formattedDate.replace(/\d/g, (d) => arabicDigits[d]);
-                formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${formattedTime}`;
-            } else {
-                formattedDateTime = 'غير محدد';
-            }
-
-            const likesCount = data.likes ? data.likes.length : 0;
-            const dislikesCount = data.dislikes ? data.dislikes.length : 0;
-
-            const userLiked = data.likes?.includes(currentUserEmail);
-            const userDisliked = data.dislikes?.includes(currentUserEmail);
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const timestamp = new Date(data.timestamp.seconds * 1000);
+            const day = timestamp.getDate().toString().padStart(2,'0');
+            const month = (timestamp.getMonth()+1).toString().padStart(2,'0');
+            const year = timestamp.getFullYear();
+            const hours = timestamp.getHours().toString().padStart(2,'0');
+            const minutes = timestamp.getMinutes().toString().padStart(2,'0');
+            const seconds = timestamp.getSeconds().toString().padStart(2,'0');
+            const formattedDateTime = `<span dir="rtl">${day}/${month}/${year} ${hours}:${minutes}:${seconds}</span>`;
 
             const postItem = document.createElement('li');
             postItem.classList.add('post-item');
             postItem.innerHTML = `
-                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${docSnap.id}"></button>` : ''}
+                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}"></button>` : ''}
                 <h3 class="post-title">${data.title}</h3>
                 <p class="post-description">${convertToLinks(data.description)}</p>
-                ${
-                    data.fileUrl 
-                    ? data.fileType === 'image' 
-                        ? `<img src="${data.fileUrl}" alt="Media" class="post-media" style="max-width: 100%; height: auto;" />` 
-                        : `<video src="${data.fileUrl}" controls class="post-media" style="max-width: 100%; height: auto;"></video>`
-                    : ''
-                }
+                ${data.fileUrl ? (data.fileType === 'image' ? `<img src="${data.fileUrl}" class="post-media"/>` : `<video src="${data.fileUrl}" controls class="post-media"></video>`) : ''}
                 <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
                 <p class="post-time">${formattedDateTime}</p>
                 <div class="post-actions">
-                    <button class="like-btn" data-id="${docSnap.id}" style="color:${userLiked ? 'blue':'black'}">👍 <span class="like-count">${likesCount}</span></button>
-                    <button class="dislike-btn" data-id="${docSnap.id}" style="color:${userDisliked ? 'red':'black'}">👎 <span class="dislike-count">${dislikesCount}</span></button>
+                    <button class="like-btn" data-id="${doc.id}">👍 <span>${data.likes || 0}</span></button>
+                    <button class="dislike-btn" data-id="${doc.id}">👎 <span>${data.dislikes || 0}</span></button>
                 </div>
             `;
             postList.appendChild(postItem);
         });
-
-        // إضافة مستمعات للأزرار
-        document.querySelectorAll('.like-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const postId = btn.getAttribute('data-id');
-                const postRef = doc(db, "posts", postId);
-                const postDoc = await getDoc(postRef);
-                const data = postDoc.data();
-                const userEmail = localStorage.getItem('email');
-
-                if (data.likes?.includes(userEmail)) {
-                    await updateDoc(postRef, { likes: arrayRemove(userEmail) });
-                } else {
-                    await updateDoc(postRef, { 
-                        likes: arrayUnion(userEmail),
-                        dislikes: arrayRemove(userEmail)
-                    });
-                }
-                displayPosts();
-            });
-        });
-
-        document.querySelectorAll('.dislike-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const postId = btn.getAttribute('data-id');
-                const postRef = doc(db, "posts", postId);
-                const postDoc = await getDoc(postRef);
-                const data = postDoc.data();
-                const userEmail = localStorage.getItem('email');
-
-                if (data.dislikes?.includes(userEmail)) {
-                    await updateDoc(postRef, { dislikes: arrayRemove(userEmail) });
-                } else {
-                    await updateDoc(postRef, { 
-                        dislikes: arrayUnion(userEmail),
-                        likes: arrayRemove(userEmail)
-                    });
-                }
-                displayPosts();
-            });
-        });
-
     } catch (error) {
         showNotification("حدث خطأ أثناء تحميل المنشورات", "error");
         console.error(error);
     }
 };
 
-addPostBtn.addEventListener('click', () => {
-    overlay.classList.add('show');
-});
-
-closeBtn.addEventListener('click', () => {
-    overlay.classList.remove('show');
-});
-
+// إضافة منشور
 publishBtn.addEventListener('click', async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
     const author = localStorage.getItem('username');
     const authorEmail = localStorage.getItem('email');
     const file = postFileInput.files[0];
-    
+
     if (title && description && author && authorEmail) {
         let fileUrl = '';
         let fileType = '';
-
         if (file) {
             const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
             await uploadBytes(storageRef, file);
             fileUrl = await getDownloadURL(storageRef);
             fileType = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('video/') ? 'video' : '');
         }
-        
         await addDoc(collection(db, "posts"), {
             title,
             description,
@@ -290,11 +177,11 @@ publishBtn.addEventListener('click', async () => {
             authorEmail,
             fileUrl,
             fileType,
-            likes: [],
-            dislikes: [],
+            likes: 0,
+            dislikes: 0,
+            userReactions: {},
             timestamp: serverTimestamp()
         });
-
         showNotification("تم نشر المنشور بنجاح", "success");
         overlay.classList.remove('show');
         postTitleInput.value = '';
@@ -306,13 +193,15 @@ publishBtn.addEventListener('click', async () => {
     }
 });
 
+// تسجيل الخروج
 logoutBtn.addEventListener('click', async () => {
     await signOut(auth);
     localStorage.removeItem('email');
     localStorage.removeItem('username');
-    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
+    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
 });
 
+// حالة تسجيل الدخول
 const checkAuthState = () => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -326,12 +215,16 @@ const checkAuthState = () => {
             });
             displayPosts();
         } else {
-            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; // استبدل برابط صفحة تسجيل الدخول
+            window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
         }
     });
 };
 
+// التعامل مع حذف المنشورات وأزرار اللايك والديسلايك
 document.addEventListener('click', async (event) => {
+    const currentUserEmail = localStorage.getItem('email');
+
+    // حذف المنشور
     if (event.target.classList.contains('delete-btn')) {
         const postId = event.target.getAttribute('data-id');
         const postRef = doc(db, "posts", postId);
@@ -346,8 +239,59 @@ document.addEventListener('click', async (event) => {
             }
         } catch (error) {
             showNotification("حدث خطأ أثناء حذف المنشور", "error");
+            console.error(error);
         }
     }
+
+    // اللايك
+    if (event.target.classList.contains('like-btn')) {
+        const postId = event.target.getAttribute('data-id');
+        const postRef = doc(db, "posts", postId);
+        const postDoc = await getDoc(postRef);
+        if (postDoc.exists()) {
+            const data = postDoc.data();
+            const likes = data.likes || [];
+            const dislikes = data.dislikes || [];
+
+            if (!likes.includes(currentUserEmail)) {
+                likes.push(currentUserEmail);
+                // إزالة من ديسلايك إذا موجود
+                const newDislikes = dislikes.filter(email => email !== currentUserEmail);
+                await updateDoc(postRef, { likes, dislikes: newDislikes });
+                displayPosts();
+            }
+        }
+    }
+
+    // الديسلايك
+    if (event.target.classList.contains('dislike-btn')) {
+        const postId = event.target.getAttribute('data-id');
+        const postRef = doc(db, "posts", postId);
+        const postDoc = await getDoc(postRef);
+        if (postDoc.exists()) {
+            const data = postDoc.data();
+            const likes = data.likes || [];
+            const dislikes = data.dislikes || [];
+
+            if (!dislikes.includes(currentUserEmail)) {
+                dislikes.push(currentUserEmail);
+                // إزالة من اللايك إذا موجود
+                const newLikes = likes.filter(email => email !== currentUserEmail);
+                await updateDoc(postRef, { likes: newLikes, dislikes });
+                displayPosts();
+            }
+        }
+    }
+});
+
+// فتح نافذة إضافة منشور
+addPostBtn.addEventListener('click', () => {
+    overlay.classList.add('show');
+});
+
+// إغلاق نافذة إضافة منشور
+closeBtn.addEventListener('click', () => {
+    overlay.classList.remove('show');
 });
 
 // التحقق من حالة تسجيل الدخول عند تحميل الصفحة
