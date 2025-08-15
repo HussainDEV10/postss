@@ -485,6 +485,7 @@ right: 0;
 background: var(--post-bg-color);
 color: var(--text-color);
 padding: 12px;
+background-image: url('user.svg');
 border-radius: 8px;
 box-shadow: 0 4px 8px var(--post-shadow-color);
 display: none;
@@ -502,7 +503,7 @@ display: block;
 #profile-info {
 position: absolute;
 top: -10%;
-left: 110%; / وضع النافذة على يمين الأيقونة مع بعض الهامش */
+left: 110%;
 transform: translateY(10%);
 background: var(--post-bg-color);
 color: var(--text-color);
@@ -521,7 +522,7 @@ font-size: 14px;
 content: "";
 position: absolute;
 top: 50%;
-left: -10px; / إظهار السهم على يسار النافذة */
+left: -10px;
 transform: translateY(-50%);
 border-width: 5px;
 border-style: solid;
