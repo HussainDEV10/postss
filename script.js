@@ -29,7 +29,6 @@ const postDescriptionInput = document.getElementById('postDescription');
 const postFileInput = document.getElementById('postFile');
 const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
-let lastDeletedPost = null;
 
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const profileIcon = document.querySelector(".profile-icon");
@@ -37,18 +36,21 @@ const profileInfo = document.getElementById("profile-info");
 const profileUsername = document.getElementById("profileUsername");
 const postCount = document.getElementById("postCount");
 
-// وظيفة عرض/إخفاء معلومات الحساب
+let lastDeletedPost = null;
+let editingPostId = null;
+
+// toggle عرض معلومات الحساب
 profileIcon.addEventListener("click", () => {
     profileInfo.classList.toggle("hidden");
 });
 
-// تحديث معلومات الحساب وعدد المنشورات
 const updateProfileInfo = async () => {
     const currentUser = auth.currentUser;
     if (currentUser) {
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-        if (userDoc.exists()) profileUsername.textContent = userDoc.data().username || "مستخدم";
-
+        if (userDoc.exists()) {
+            profileUsername.textContent = userDoc.data().username || "مستخدم";
+        }
         const querySnapshot = await getDocs(collection(db, "posts"));
         const userPosts = querySnapshot.docs.filter(doc => doc.data().authorEmail === currentUser.email);
         postCount.textContent = `عدد المنشورات: ${userPosts.length}`;
@@ -56,18 +58,20 @@ const updateProfileInfo = async () => {
 };
 
 publishBtn.addEventListener("click", async () => {
-    await addPost();
+    await addOrUpdatePost();
     updateProfileInfo();
 });
 
-// التحقق من حالة theme
+onAuthStateChanged(auth, (user) => {
+    if (user) updateProfileInfo();
+});
+
+// theme toggle
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     document.body.classList.add(savedTheme);
     themeToggleBtn.textContent = savedTheme === 'dark-theme' ? '🌙' : '🌑';
 }
-
-// تبديل theme
 themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     if (document.body.classList.contains('dark-theme')) {
@@ -113,7 +117,6 @@ function convertToLinks(text) {
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
-// عرض المنشورات
 const displayPosts = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "posts"));
@@ -122,7 +125,7 @@ const displayPosts = async () => {
 
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            const timestamp = new Date(data.timestamp?.seconds ? data.timestamp.seconds * 1000 : Date.now());
+            const timestamp = new Date(data.timestamp.seconds * 1000);
             let hours = timestamp.getHours();
             const minutes = timestamp.getMinutes().toString().padStart(2, '0');
             const period = hours >= 12 ? 'م' : 'ص';
@@ -138,19 +141,16 @@ const displayPosts = async () => {
 
             const postItem = document.createElement('li');
             postItem.classList.add('post-item');
-            const isAuthor = currentUserEmail === data.authorEmail;
             postItem.innerHTML = `
-                ${isAuthor ? `
-                    <button class="delete-btn" data-id="${doc.id}"></button>
-                    <button class="edit-btn" data-id="${doc.id}">✎</button>
-                ` : ''}
+                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}"></button>
+                <button class="edit-btn" data-id="${doc.id}">✎</button>` : ''}
                 <h3 class="post-title">${data.title}</h3>
                 <p class="post-description">${convertToLinks(data.description)}</p>
                 ${
-                    data.fileUrl
-                    ? data.fileType === 'image'
-                        ? `<img src="${data.fileUrl}" class="post-media"/>`
-                        : `<video src="${data.fileUrl}" class="post-media" controls></video>`
+                    data.fileUrl 
+                    ? data.fileType === 'image' 
+                        ? `<img src="${data.fileUrl}" alt="Media" class="post-media" style="max-width: 100%; height: auto;" />` 
+                        : `<video src="${data.fileUrl}" controls class="post-media" style="max-width: 100%; height: auto;"></video>`
                     : ''
                 }
                 <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
@@ -163,7 +163,7 @@ const displayPosts = async () => {
     }
 };
 
-// فتح form لإضافة منشور جديد
+// فتح form جديد
 addPostBtn.addEventListener('click', () => {
     overlay.classList.add('show');
     document.querySelector('.post-form h2').textContent = "أضف منشور";
@@ -173,27 +173,85 @@ addPostBtn.addEventListener('click', () => {
     postDescriptionInput.value = '';
     postFileInput.value = '';
     postFileInput.style.display = '';
-    publishBtn.onclick = null; // إعادة تعيين الحدث إذا كان سابقًا تعديل
+    editingPostId = null;
 });
 
-// إغلاق form ومسح المسودة
+// إغلاق form
 closeBtn.addEventListener('click', () => {
     overlay.classList.remove('show');
-    postTitleInput.value = '';
-    postDescriptionInput.value = '';
-    postFileInput.value = '';
-    postFileInput.style.display = '';
 });
 
-// إضافة منشور جديد
-const addPost = async () => {
+// click events للحذف والتعديل
+document.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('delete-btn')) {
+        const postId = event.target.getAttribute('data-id');
+        const postRef = doc(db, "posts", postId);
+        const postDoc = await getDoc(postRef);
+        if (postDoc.exists()) {
+            lastDeletedPost = { id: postId, data: postDoc.data() };
+            await deleteDoc(postRef);
+            showNotification("تم حذف المنشور", "delete");
+            displayPosts();
+        }
+    }
+
+    if (event.target.classList.contains('edit-btn')) {
+        const postId = event.target.getAttribute('data-id');
+        const postRef = doc(db, "posts", postId);
+        const postDoc = await getDoc(postRef);
+        if (postDoc.exists()) {
+            const data = postDoc.data();
+            overlay.classList.add('show');
+            document.querySelector('.post-form h2').textContent = "تعديل المنشور";
+            postTitleInput.value = data.title;
+            postDescriptionInput.value = data.description;
+            postFileInput.style.display = 'none';
+            publishBtn.textContent = "حفظ التعديل";
+            publishBtn.querySelector('span').textContent = "✓";
+            editingPostId = postId;
+        }
+    }
+});
+
+const addOrUpdatePost = async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
     const author = localStorage.getItem('username');
     const authorEmail = localStorage.getItem('email');
     const file = postFileInput.files[0];
 
-    if (title && description && author && authorEmail) {
+    if (!title || !description || !author || !authorEmail) {
+        showNotification("يرجى ملء جميع الحقول", "error");
+        return;
+    }
+
+    if (editingPostId) {
+        const postRef = doc(db, "posts", editingPostId);
+        const postDoc = await getDoc(postRef);
+        if (postDoc.exists()) {
+            const data = postDoc.data();
+            await setDoc(postRef, {
+                ...data,
+                title,
+                description,
+                timestamp: serverTimestamp()
+            });
+            showNotification("تم تعديل المنشور بنجاح", "success");
+            overlay.classList.remove('show');
+            postTitleInput.value = '';
+            postDescriptionInput.value = '';
+            postFileInput.value = '';
+            postFileInput.style.display = ''; // إعادة عرض حقل الصورة/فيديو
+            document.querySelector('.post-form h2').textContent = "أضف منشور";
+            publishBtn.textContent = "نشر";
+            publishBtn.querySelector('span').textContent = "+";
+            editingPostId = null;
+            displayPosts();
+        } else {
+            showNotification("المنشور غير موجود", "error");
+        }
+    } else {
+        // إضافة منشور جديد
         let fileUrl = '';
         let fileType = '';
 
@@ -220,8 +278,6 @@ const addPost = async () => {
         postDescriptionInput.value = '';
         postFileInput.value = '';
         displayPosts();
-    } else {
-        showNotification("يرجى ملء جميع الحقول", "error");
     }
 };
 
@@ -233,7 +289,7 @@ logoutBtn.addEventListener('click', async () => {
     window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
 });
 
-// التحقق من حالة تسجيل الدخول
+// التحقق من تسجيل الدخول عند تحميل الصفحة
 const checkAuthState = () => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -252,61 +308,4 @@ const checkAuthState = () => {
     });
 };
 
-// حذف أو تعديل المنشور
-document.addEventListener('click', async (event) => {
-    if (event.target.classList.contains('delete-btn')) {
-        const postId = event.target.getAttribute('data-id');
-        const postRef = doc(db, "posts", postId);
-        try {
-            const postDoc = await getDoc(postRef);
-            if (postDoc.exists()) {
-                lastDeletedPost = { id: postId, data: postDoc.data() };
-                await deleteDoc(postRef);
-                showNotification("تم حذف المنشور", "delete");
-                displayPosts();
-            }
-        } catch (error) {
-            showNotification("حدث خطأ أثناء حذف المنشور", "error");
-        }
-    } else if (event.target.classList.contains('edit-btn')) {
-        const postId = event.target.getAttribute('data-id');
-        const postRef = doc(db, "posts", postId);
-        const postDoc = await getDoc(postRef);
-        if (postDoc.exists()) {
-            const data = postDoc.data();
-            overlay.classList.add('show');
-            document.querySelector('.post-form h2').textContent = "تعديل المنشور";
-            postTitleInput.value = data.title;
-            postDescriptionInput.value = data.description;
-            postFileInput.style.display = 'none'; // إخفاء حقل الصورة/الفيديو عند التعديل
-
-            publishBtn.textContent = "حفظ التعديل";
-            publishBtn.querySelector('span').textContent = "✓";
-
-            // إعادة تعيين onclick للنشر ليصبح تعديل
-            publishBtn.onclick = async () => {
-                const newTitle = postTitleInput.value.trim();
-                const newDescription = postDescriptionInput.value.trim();
-                if (newTitle && newDescription) {
-                    await setDoc(postRef, {
-                        ...data,
-                        title: newTitle,
-                        description: newDescription,
-                        timestamp: serverTimestamp()
-                    });
-                    showNotification("تم تعديل المنشور بنجاح", "success");
-                    overlay.classList.remove('show');
-                    postTitleInput.value = '';
-                    postDescriptionInput.value = '';
-                    postFileInput.style.display = '';
-                    displayPosts();
-                } else {
-                    showNotification("يرجى ملء العنوان والوصف", "error");
-                }
-            };
-        }
-    }
-});
-
-// التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 checkAuthState();
