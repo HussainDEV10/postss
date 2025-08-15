@@ -249,13 +249,12 @@ margin-bottom: 10;
 
 .post-item {
     background-color: var(--post-bg-color);
-    margin-bottom: 15px;
-    padding: 20px;
-    border-radius: 16px; /* أكبر لاحترافية */
+    margin-bottom: 12px;
+    padding: 30px;
+    border-radius: 6px; /* أكبر لاحترافية */
     box-shadow: 0 8px 16px rgba(0,0,0,0.1);
     position: relative;
     overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.3s;
 }
 
 .post-item:first-child {
