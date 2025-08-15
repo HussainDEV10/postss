@@ -541,11 +541,66 @@ align-items: center;
 justify-content: left;
 }
 
-.post-tag {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 12px;
+/* ==================== أزرار الوسوم ==================== */
+#tagsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.tag-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    font-family: 'Rubik', sans-serif;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
     color: #fff;
-    margin-left: 5px;
+    background-color: #555;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+}
+
+.tag-btn.selected {
+    opacity: 1;
+    transform: scale(1.05);
+    background-color: #4caf50;
+}
+
+/* عرض الوسوم داخل المنشور */
+.post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.post-tags .post-tag {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 12px;
+    border-radius: 12px;
+    background-color: #4caf50;
+    color: #fff;
+}
+
+.post-tags .more-tags {
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+/* عند وضع الوضع الداكن على الوسوم */
+.dark-theme .tag-btn {
+    background-color: #777;
+}
+
+.dark-theme .tag-btn.selected {
+    background-color: #81c784;
+}
+
+.dark-theme .post-tags .post-tag {
+    background-color: #81c784;
 }
