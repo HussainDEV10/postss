@@ -458,6 +458,7 @@ z-index: 9;
 }
 
 .profile-icon {
+background-image: url('trash.svg');
 position: relative;
 font-size: 24px;
 cursor: pointer;
@@ -485,7 +486,6 @@ right: 0;
 background: var(--post-bg-color);
 color: var(--text-color);
 padding: 12px;
-background-image: url('user.svg');
 border-radius: 8px;
 box-shadow: 0 4px 8px var(--post-shadow-color);
 display: none;
