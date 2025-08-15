@@ -166,7 +166,7 @@ const undoDelete = async () => {
     if (lastDeletedPost) {  
         await setDoc(doc(db, "posts", lastDeletedPost.id), lastDeletedPost.data);  
         showNotification('تم إسترجاع المنشور', 'restore');  
-        displayPosts();  
+        displayPostsAndLazyLoad();  
         lastDeletedPost = null;  
     }  
 };  
