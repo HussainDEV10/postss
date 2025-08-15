@@ -241,21 +241,28 @@ font-size: 20px;
 }
 
 .post-list {
-margin-top: 5px;
+margin-top: 10px;
 list-style: none;
 padding: 0;
-margin-bottom: 5px;
+margin-bottom: 10;
 }
 
 .post-item {
-    background-color: var(--post-bg-color);
-    margin-bottom: 12px;
-    padding: 30px;
-    border-radius: 6px; /* أكبر لاحترافية */
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    position: relative;
-    overflow: hidden;
-    margin: 15px;
+background-color: var(--post-bg-color);
+margin-bottom: 10px;
+padding: 15px;
+border-radius: 8px;
+box-shadow: 0 2px 4px var(--post-shadow-color);
+position: relative;
+overflow: hidden;
+}
+
+.post-item:first-child {
+margin-top: 5vh;
+}
+
+.post-item:last-child {
+margin-bottom: 5vh;
 }
 
 .post-title {
@@ -300,19 +307,20 @@ color: var(--text-color);
 }
 
 .delete-btn {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    width: 32px;
-    height: 32px;
-    background-image: url('trash.svg');
-    background-size: contain;
-    background: none;
-    background-repeat: no-repeat;
-    background-position: center;
-    cursor: pointer;
-    transition: transform 0.2s;
-    border: none;
+position: absolute;
+top: 10px;
+left: 10px;
+background: none;
+border: none;
+cursor: pointer;
+padding: 0;
+background-image: url('trash.svg');
+background-size: contain;  /* أو جرّب cover */
+background-repeat: no-repeat;
+background-position: center;
+width: 32px;
+height: 32px;
+
 }
 
 .delete-icon {
@@ -327,7 +335,6 @@ transform: scale(0.90);
 
 .delete-btn:hover {
 color: #cc0000;
-transform: scale(1.1);
 }
 
 .settings-btn {
@@ -495,21 +502,18 @@ display: block;
 #profile-info {
 position: absolute;
 top: -10%;
-left: 110%;
+left: 110%; / وضع النافذة على يمين الأيقونة مع بعض الهامش */
 transform: translateY(10%);
 background: var(--post-bg-color);
 color: var(--text-color);
 padding: 12px;
 border-radius: 8px;
-
-
 box-shadow: 0 4px 8px var(--post-shadow-color);
 display: none;
 width: 180px;
 text-align: center;
 z-index: 100;
 font-size: 14px;
-
 }
 
 /* تعديل مؤشر السهم ليشير إلى الأيقونة من جهة اليسار /
@@ -517,7 +521,7 @@ font-size: 14px;
 content: "";
 position: absolute;
 top: 50%;
-left: -10px;
+left: -10px; / إظهار السهم على يسار النافذة */
 transform: translateY(-50%);
 border-width: 5px;
 border-style: solid;
@@ -535,207 +539,4 @@ fill: red;
 display: flex;
 align-items: center;
 justify-content: left;
-}
-
-/* ==================== أزرار الوسوم ==================== */
-#tagsContainer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 10px;
-}
-
-.tag-btn {
-    padding: 6px 12px;
-    font-size: 13px;
-    font-family: 'Rubik', sans-serif;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    color: #fff;
-    background-color: #555;
-    opacity: 0.8;
-    transition: all 0.2s ease;
-}
-
-.tag-btn.selected {
-    opacity: 1;
-    transform: scale(1.05);
-    background-color: #4caf50;
-}
-
-/* عرض الوسوم داخل المنشور */
-/* ==================== تصميم الوسوم داخل المنشور ==================== */
-.post-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 8px;
-    justify-content: flex-start;
-}
-
-.post-tags .post-tag {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 5px 12px;
-    font-size: 13px;
-    border-radius: 50px; /* circle radius */
-    background-color: #4caf50;
-    color: #fff;
-    font-weight: 500;
-    cursor: default;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-}
-
-.post-tags .post-tag:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-}
-
-.post-tags .more-tags {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 5px 10px;
-    font-weight: bold;
-    font-size: 14px;
-    cursor: pointer;
-    color: #2196f3;
-    border-radius: 50px;
-    background-color: rgba(33,150,243,0.1);
-    transition: all 0.2s ease;
-}
-
-.post-tags .more-tags:hover {
-    background-color: rgba(33,150,243,0.2);
-}
-
-
-/* عند وضع الوضع الداكن على الوسوم */
-.dark-theme .tag-btn {
-    background-color: #777;
-}
-
-.dark-theme .tag-btn.selected {
-    background-color: #81c784;
-}
-
-.dark-theme .post-tags .post-tag {
-    background-color: #81c784;
-}
-
-/* زر +10 لعرض المزيد من الوسوم */
-#showMoreTagsBtn {
-    padding: 6px 12px;
-    font-size: 13px;
-    font-family: 'Rubik', sans-serif;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    background-color: #2196f3;
-    color: #fff;
-    opacity: 0.85;
-    transition: all 0.2s ease;
-}
-
-#showMoreTagsBtn:hover {
-    opacity: 1;
-    transform: scale(1.05);
-}
-
-/* تأثير إظهار الوسوم تدريجيًا */
-.tag-btn.hidden {
-    display: none;
-}
-
-.tag-btn.fade-in {
-    display: inline-block;
-    animation: fadeInTag 0.3s ease-in-out forwards;
-}
-
-@keyframes fadeInTag {
-    from {
-        opacity: 0;
-        transform: scale(0.8);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-.tags-popup {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 8px;
-    background-color: var(--post-bg-color);
-    color: var(--text-color);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    border-radius: 12px;
-    position: absolute;
-    top: 25px; /* أسفل ... */
-    left: 0;
-    z-index: 100;
-    animation: fadeInPopup 0.25s ease forwards;
-}
-
-.tags-popup .post-tag {
-    font-size: 12px;
-    padding: 5px 10px;
-}
-
-@keyframes fadeInPopup {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.post-item:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
-}
-
-.post-item h3.post-title {
-    margin: 0 0 10px 0;
-    color: var(--text-color);
-    font-size: 18px;
-    font-weight: 600;
-    word-break: break-word;
-}
-
-
-.post-item h3.post-title {
-    margin: 0 0 10px 0;
-    color: var(--text-color);
-    font-size: 18px;
-    font-weight: 600;
-    word-break: break-word;
-}
-
-.post-item p.post-description {
-    margin: 0 0 12px 0;
-    line-height: 1.5;
-    color: var(--text-color);
-    font-size: 14px;
-}
-
-.post-item img.post-media,
-.post-item video.post-media {
-    width: 100%;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    object-fit: cover;
-}
-
-.post-author, .post-time {
-    font-size: 12px;
-    color: var(--text-color);
-    margin-top: 5px;
-}
-
-.dark-theme .post-tags .more-tags {
-    background-color: rgba(129, 199, 132,0.1);
-    color: #81c784;
 }
