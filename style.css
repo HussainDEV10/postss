@@ -248,13 +248,14 @@ margin-bottom: 10;
 }
 
 .post-item {
-background-color: var(--post-bg-color);
-margin-bottom: 10px;
-padding: 15px;
-border-radius: 8px;
-box-shadow: 0 2px 4px var(--post-shadow-color);
-position: relative;
-overflow: hidden;
+    background-color: var(--post-bg-color);
+    margin-bottom: 15px;
+    padding: 20px;
+    border-radius: 16px; /* أكبر لاحترافية */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.3s;
 }
 
 .post-item:first-child {
@@ -307,20 +308,18 @@ color: var(--text-color);
 }
 
 .delete-btn {
-position: absolute;
-top: 10px;
-left: 10px;
-background: none;
-border: none;
-cursor: pointer;
-padding: 0;
-background-image: url('trash.svg');
-background-size: contain;  /* أو جرّب cover */
-background-repeat: no-repeat;
-background-position: center;
-width: 32px;
-height: 32px;
-
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 32px;
+    height: 32px;
+    background-image: url('trash.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    border: none;
 }
 
 .delete-icon {
@@ -335,6 +334,7 @@ transform: scale(0.90);
 
 .delete-btn:hover {
 color: #cc0000;
+transform: scale(1.1);
 }
 
 .settings-btn {
@@ -569,28 +569,53 @@ justify-content: left;
 }
 
 /* عرض الوسوم داخل المنشور */
+/* ==================== تصميم الوسوم داخل المنشور ==================== */
 .post-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 6px;
     margin-top: 8px;
+    justify-content: flex-start;
 }
 
 .post-tags .post-tag {
-    display: inline-block;
-    padding: 3px 8px;
-    font-size: 12px;
-    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    font-size: 13px;
+    border-radius: 50px; /* circle radius */
     background-color: #4caf50;
     color: #fff;
+    font-weight: 500;
+    cursor: default;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.post-tags .post-tag:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
 .post-tags .more-tags {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
     font-weight: bold;
-    font-size: 12px;
+    font-size: 14px;
     cursor: pointer;
-    color: var(--text-color);
+    color: #2196f3;
+    border-radius: 50px;
+    background-color: rgba(33,150,243,0.1);
+    transition: all 0.2s ease;
 }
+
+.post-tags .more-tags:hover {
+    background-color: rgba(33,150,243,0.2);
+}
+
 
 /* عند وضع الوضع الداكن على الوسوم */
 .dark-theme .tag-btn {
@@ -643,4 +668,78 @@ justify-content: left;
         opacity: 1;
         transform: scale(1);
     }
+}
+
+.tags-popup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+    background-color: var(--post-bg-color);
+    color: var(--text-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    position: absolute;
+    top: 25px; /* أسفل ... */
+    left: 0;
+    z-index: 100;
+    animation: fadeInPopup 0.25s ease forwards;
+}
+
+.tags-popup .post-tag {
+    font-size: 12px;
+    padding: 5px 10px;
+}
+
+@keyframes fadeInPopup {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.post-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+
+.post-item h3.post-title {
+    margin: 0 0 10px 0;
+    color: var(--text-color);
+    font-size: 18px;
+    font-weight: 600;
+    word-break: break-word;
+}
+
+
+.post-item h3.post-title {
+    margin: 0 0 10px 0;
+    color: var(--text-color);
+    font-size: 18px;
+    font-weight: 600;
+    word-break: break-word;
+}
+
+.post-item p.post-description {
+    margin: 0 0 12px 0;
+    line-height: 1.5;
+    color: var(--text-color);
+    font-size: 14px;
+}
+
+.post-item img.post-media,
+.post-item video.post-media {
+    width: 100%;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    object-fit: cover;
+}
+
+.post-author, .post-time {
+    font-size: 12px;
+    color: var(--text-color);
+    margin-top: 5px;
+}
+
+.dark-theme .post-tags .more-tags {
+    background-color: rgba(129, 199, 132,0.1);
+    color: #81c784;
 }
