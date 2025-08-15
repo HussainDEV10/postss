@@ -3,7 +3,7 @@
 /* المتغيرات للوضع الفاتح */
 
 :root {
---background-color: #225522;
+--background-color: #f4f4f4;
 --text-color: #000000;
 --header-bg-color: #f4f4f4;
 --header-shadow-color: rgba(0, 0, 0, 0.1);
@@ -315,6 +315,7 @@ color: var(--text-color);
     height: 32px;
     background-image: url('trash.svg');
     background-size: contain;
+    background-color: var(--background-color);
     background-repeat: no-repeat;
     background-position: center;
     cursor: pointer;
@@ -502,18 +503,21 @@ display: block;
 #profile-info {
 position: absolute;
 top: -10%;
-left: 110%; / وضع النافذة على يمين الأيقونة مع بعض الهامش */
+left: 110%;
 transform: translateY(10%);
 background: var(--post-bg-color);
 color: var(--text-color);
 padding: 12px;
 border-radius: 8px;
+
+
 box-shadow: 0 4px 8px var(--post-shadow-color);
 display: none;
 width: 180px;
 text-align: center;
 z-index: 100;
 font-size: 14px;
+
 }
 
 /* تعديل مؤشر السهم ليشير إلى الأيقونة من جهة اليسار /
@@ -521,7 +525,7 @@ font-size: 14px;
 content: "";
 position: absolute;
 top: 50%;
-left: -10px; / إظهار السهم على يسار النافذة */
+left: -10px;
 transform: translateY(-50%);
 border-width: 5px;
 border-style: solid;
