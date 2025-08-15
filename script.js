@@ -32,6 +32,7 @@ const postFileInput = document.getElementById('postFile');
 const tagsContainer = document.getElementById('tagsContainer'); // حقل الوسوم  
 const notificationContainer = document.getElementById('notificationContainer');  
 const logoutBtn = document.getElementById('logoutBtn');  
+const searchInput = document.getElementById('searchInput'); // إضافة حقل البحث
 let lastDeletedPost = null;  
 
 // أيقونات وحساب  
@@ -51,7 +52,6 @@ const allTags = [
     "سفر","تصميم","ألعاب","تعليم","صحة","موضة","كوميديا","حياة","قصص","فيديو","صور","علم","مناسبات"
 ];
 
-// ألوان الوسوم
 const tagColors = {  
     "أخبار": "#FFB6C1", "ترفيه": "#FFD700", "رياضة": "#87CEFA", "تقنية": "#98FB98",   
     "فن": "#FFA07A", "موسيقى": "#EE82EE", "طعام": "#FFE4B5", "سفر": "#AFEEEE",  
@@ -61,13 +61,10 @@ const tagColors = {
 };  
 
 // ======================== وظائف الوسوم ========================
-
-// خلط الوسوم
 function shuffle(array) {
     return array.sort(() => Math.random() - 0.5);
 }
 
-// إنشاء زر وسم
 function createTagButton(tagName) {
     const btn = document.createElement("button");
     btn.className = "tag-btn";
@@ -77,7 +74,6 @@ function createTagButton(tagName) {
     return btn;
 }
 
-// عرض أول 3 وسوم + زر +X
 function showRandomTags() {
     tagsContainer.innerHTML = "";
     const shuffled = shuffle([...allTags]);
@@ -95,7 +91,6 @@ function showRandomTags() {
     }
 }
 
-// عرض الوسوم تدريجياً
 function showAllTags(hiddenTags, button) {
     button.remove();
     hiddenTags.forEach((tag, index) => {
@@ -177,14 +172,24 @@ function convertToLinks(text) {
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');  
 }  
 
-const displayPosts = async () => {  
+let allPostsCache = []; // لتخزين كل المنشورات للبحث
+
+const displayPosts = async (searchTerm = '') => {  
     try {  
         const querySnapshot = await getDocs(collection(db, "posts"));  
         postList.innerHTML = '';  
+        allPostsCache = querySnapshot.docs.map(doc => ({ id: doc.id, data: doc.data() })); // حفظ نسخة لجميع المنشورات
         const currentUserEmail = localStorage.getItem('email');  
 
-        querySnapshot.forEach((doc) => {  
-            const data = doc.data();  
+        const filteredPosts = allPostsCache.filter(post => {
+            const { title, description, tags = [] } = post.data;
+            const term = searchTerm.toLowerCase();
+            return title.toLowerCase().includes(term) || 
+                   description.toLowerCase().includes(term) || 
+                   tags.some(tag => tag.toLowerCase().includes(term));
+        });
+
+        filteredPosts.forEach(({id, data}) => {
             const timestamp = new Date(data.timestamp.seconds * 1000);  
             const day = timestamp.getDate().toString().padStart(2,'0');  
             const month = (timestamp.getMonth()+1).toString().padStart(2,'0');  
@@ -208,15 +213,15 @@ const displayPosts = async () => {
             const postItem = document.createElement('li');  
             postItem.classList.add('post-item');  
             postItem.innerHTML = `  
-    ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}"></button>` : ''}  
-    <h3 class="post-title">${data.title}</h3>  
-    <p class="post-description">${convertToLinks(data.description)}</p>  
-    ${data.fileUrl ? (data.fileType==='image'? 
-        `<img data-src="${data.fileUrl}" class="post-media lazyload" loading="lazy"/>` : 
-        `<video data-src="${data.fileUrl}" controls class="post-media lazyload" preload="none"></video>`) 
-    : ''}  
-    <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>  
-    <p class="post-time">${formattedDateTime} ${tagHTML}</p>  
+${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${id}"></button>` : ''}  
+<h3 class="post-title">${data.title}</h3>  
+<p class="post-description">${convertToLinks(data.description)}</p>  
+${data.fileUrl ? (data.fileType==='image'? 
+    `<img data-src="${data.fileUrl}" class="post-media lazyload" loading="lazy"/>` : 
+    `<video data-src="${data.fileUrl}" controls class="post-media lazyload" preload="none"></video>`) 
+: ''}  
+<p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>  
+<p class="post-time">${formattedDateTime} ${tagHTML}</p>  
 `;
             postList.appendChild(postItem);  
 
@@ -264,24 +269,23 @@ const lazyLoadMedia = () => {
             }
         });
     }, {
-        rootMargin: "100px 0px", // يبدأ التحميل قبل الظهور
+        rootMargin: "100px 0px",
         threshold: 0.1
     });
 
     lazyElements.forEach(el => observer.observe(el));
 };
 
-// استدعاء lazy load بعد عرض المنشورات
-const displayPostsAndLazyLoad = async () => {
-    await displayPosts();
+// ================= عرض المنشورات + lazy load =================
+const displayPostsAndLazyLoad = async (searchTerm = '') => {
+    await displayPosts(searchTerm);
     lazyLoadMedia();
 };
-
 
 // ======================== فتح/إغلاق نافذة إضافة منشور ========================
 addPostBtn.addEventListener('click', () => { 
     overlay.classList.add('show'); 
-    showRandomTags(); // عرض الوسوم عند فتح النافذة
+    showRandomTags(); 
 });  
 closeBtn.addEventListener('click', () => overlay.classList.remove('show'));  
 
@@ -321,7 +325,6 @@ const addPost = async () => {
         showNotification("يرجى ملء جميع الحقول", "error");  
     }  
 };  
-
 publishBtn.addEventListener('click', addPost);  
 
 // ======================== تسجيل الخروج ========================
@@ -350,7 +353,6 @@ const checkAuthState = () => {
         }  
     });  
 };  
-
 checkAuthState();  
 
 // ======================== حذف المنشورات ========================
@@ -372,13 +374,8 @@ document.addEventListener('click', async (event) => {
     }  
 });  
 
-// ======================== نهاية الكود ========================
-// الآن الكود متكامل ويحتوي على:
-// 1. Firebase: auth, firestore, storage
-// 2. عرض المنشورات مع الوسوم
-// 3. زر +X لعرض المزيد من الوسوم
-// 4. دعم الوضع الداكن والفاتح
-// 5. إشعارات مع زر إسترجاع عند الحذف
-// 6. إضافة منشورات جديدة مع اختيار وسوم متعددة وصور/فيديو
-// 7. تسجيل خروج وإعادة التوجيه
-// 8. تحديث معلومات المستخدم وعدد المنشورات
+// ======================== البحث ========================
+searchInput.addEventListener('input', (e) => {
+    const term = e.target.value.trim();
+    displayPostsAndLazyLoad(term);
+});
