@@ -246,6 +246,35 @@ const displayPosts = async () => {
     }  
 };  
 
+// ================= Lazy Loading للصور والفيديوهات =================
+const lazyLoadMedia = () => {
+    const lazyElements = document.querySelectorAll('.lazyload');
+
+    const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const el = entry.target;
+                if (el.tagName === 'IMG') el.src = el.dataset.src;
+                if (el.tagName === 'VIDEO') el.src = el.dataset.src;
+                el.classList.remove('lazyload');
+                obs.unobserve(el);
+            }
+        });
+    }, {
+        rootMargin: "100px 0px", // يبدأ التحميل قبل الظهور
+        threshold: 0.1
+    });
+
+    lazyElements.forEach(el => observer.observe(el));
+};
+
+// استدعاء lazy load بعد عرض المنشورات
+const displayPostsAndLazyLoad = async () => {
+    await displayPosts();
+    lazyLoadMedia();
+};
+
+
 // ======================== فتح/إغلاق نافذة إضافة منشور ========================
 addPostBtn.addEventListener('click', () => { 
     overlay.classList.add('show'); 
