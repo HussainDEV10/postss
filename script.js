@@ -208,16 +208,16 @@ const displayPosts = async () => {
             const postItem = document.createElement('li');  
             postItem.classList.add('post-item');  
             postItem.innerHTML = `  
-                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}"></button>` : ''}  
-                <h3 class="post-title">${data.title}</h3>  
-                <p class="post-description">${convertToLinks(data.description)}</p>  
-                data.fileUrl ? (data.fileType==='image'? 
-    `<img data-src="${data.fileUrl}" class="post-media lazyload" loading="lazy"/>` : 
-    `<video data-src="${data.fileUrl}" controls class="post-media lazyload" preload="none"></video>`) 
-: ''  
-                <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>  
-                <p class="post-time">${formattedDateTime} ${tagHTML}</p>  
-            `;  
+    ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}"></button>` : ''}  
+    <h3 class="post-title">${data.title}</h3>  
+    <p class="post-description">${convertToLinks(data.description)}</p>  
+    ${data.fileUrl ? (data.fileType==='image'? 
+        `<img data-src="${data.fileUrl}" class="post-media lazyload" loading="lazy"/>` : 
+        `<video data-src="${data.fileUrl}" controls class="post-media lazyload" preload="none"></video>`) 
+    : ''}  
+    <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>  
+    <p class="post-time">${formattedDateTime} ${tagHTML}</p>  
+`;
             postList.appendChild(postItem);  
 
             const moreTagsSpan = postItem.querySelector(".more-tags");  
@@ -316,7 +316,7 @@ const addPost = async () => {
         postDescriptionInput.value = '';  
         postFileInput.value = '';  
         tagsContainer.querySelectorAll(".tag-btn.selected").forEach(btn => btn.classList.remove("selected"));  
-        displayPosts();  
+        displayPostsAndLazyLoad();  
     } else {  
         showNotification("يرجى ملء جميع الحقول", "error");  
     }  
@@ -344,7 +344,7 @@ const checkAuthState = () => {
                     usernameDisplay.textContent = userData.username || "مستخدم";  
                 }  
             });  
-            displayPosts();  
+            displayPostsAndLazyLoad();  
         } else {  
             window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';  
         }  
