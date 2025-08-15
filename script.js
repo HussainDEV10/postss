@@ -27,11 +27,12 @@ const publishBtn = document.getElementById('publishBtn');
 const postTitleInput = document.getElementById('postTitle');
 const postDescriptionInput = document.getElementById('postDescription');
 const postFileInput = document.getElementById('postFile');
-const postTagsInput = document.getElementById('postTags'); // حقل الوسوم الجديد
+const tagsContainer = document.getElementById('tagsContainer'); // حقل الوسوم الجديد
 const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
 let lastDeletedPost = null;
 
+// أيقونات وحساب
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const profileIcon = document.querySelector(".profile-icon");
 const profileInfo = document.getElementById("profile-info");
@@ -42,8 +43,28 @@ profileIcon.addEventListener("click", () => {
     profileInfo.classList.toggle("hidden");
 });
 
-const tagColors = { "رياضة": "#ff0000", "فن": "#00ff00", "طب": "#0000ff", "ألعاب": "#ff9900" };
+// ألوان الوسوم
+const tagColors = {
+    "أخبار": "#FFB6C1", "ترفيه": "#FFD700", "رياضة": "#87CEFA", "تقنية": "#98FB98", 
+    "فن": "#FFA07A", "موسيقى": "#EE82EE", "طعام": "#FFE4B5", "سفر": "#AFEEEE",
+    "تصميم": "#F0E68C", "ألعاب": "#F5DEB3", "تعليم": "#B0E0E6", "صحة": "#90EE90",
+    "موضة": "#FFB347", "كوميديا": "#FFD1DC", "حياة": "#FFEFD5", "قصص": "#E6E6FA",
+    "فيديو": "#B0C4DE", "صور": "#FFFACD", "علم": "#C1FFC1", "مناسبات": "#FFDAB9"
+};
 
+// إنشاء أزرار الوسوم داخل نافذة إضافة المنشور
+for (let tag in tagColors) {
+    const btn = document.createElement("button");
+    btn.classList.add("tag-btn");
+    btn.textContent = tag;
+    btn.style.backgroundColor = tagColors[tag];
+    btn.addEventListener("click", () => {
+        btn.classList.toggle("selected");
+    });
+    tagsContainer.appendChild(btn);
+}
+
+// تحديث معلومات المستخدم وعدد المنشورات
 const updateProfileInfo = async () => {
     const currentUser = auth.currentUser;
     if (currentUser) {
@@ -56,19 +77,14 @@ const updateProfileInfo = async () => {
     }
 };
 
-publishBtn.addEventListener("click", async () => {
-    await addPost();
-    updateProfileInfo();
-});
-
 onAuthStateChanged(auth, (user) => { if (user) updateProfileInfo(); });
 
+// وضع داكن وفاتح
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     document.body.classList.add(savedTheme);
     themeToggleBtn.textContent = savedTheme === 'dark-theme' ? '🌙' : '🌑';
 }
-
 themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     if (document.body.classList.contains('dark-theme')) {
@@ -90,9 +106,11 @@ const showNotification = (message, type) => {
     `;
     notificationContainer.innerHTML = '';
     notificationContainer.appendChild(notification);
+
     setTimeout(() => notification.classList.add('show'), 10);
     setTimeout(() => notification.classList.add('hide'), 5000);
     setTimeout(() => notification.remove(), 5500);
+
     if (type === 'delete') document.getElementById('undoBtn').addEventListener('click', undoDelete);
 };
 
@@ -110,30 +128,6 @@ function convertToLinks(text) {
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
-// إضافة ألوان الوسوم الجديدة
-const tagColors = {
-    "أخبار": "#FFB6C1",
-    "ترفيه": "#FFD700",
-    "رياضة": "#87CEFA",
-    "تقنية": "#98FB98",
-    "فن": "#FFA07A",
-    "موسيقى": "#EE82EE",
-    "طعام": "#FFE4B5",
-    "سفر": "#AFEEEE",
-    "تصميم": "#F0E68C",
-    "ألعاب": "#F5DEB3",
-    "تعليم": "#B0E0E6",
-    "صحة": "#90EE90",
-    "موضة": "#FFB347",
-    "كوميديا": "#FFD1DC",
-    "حياة": "#FFEFD5",
-    "قصص": "#E6E6FA",
-    "فيديو": "#B0C4DE",
-    "صور": "#FFFACD",
-    "علم": "#C1FFC1",
-    "مناسبات": "#FFDAB9"
-};
-
 // عرض المنشورات مع الوسوم
 const displayPosts = async () => {
     try {
@@ -144,28 +138,23 @@ const displayPosts = async () => {
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             const timestamp = new Date(data.timestamp.seconds * 1000);
-            let hours = timestamp.getHours();
-            const minutes = timestamp.getMinutes().toString().padStart(2, '0');
-            const period = hours >= 12 ? 'م' : 'ص';
-            hours = hours % 12 || 12;
-            const formattedTime = `${hours.toString().padStart(2,'0')}:${minutes} ${period}`;
             const day = timestamp.getDate().toString().padStart(2,'0');
             const month = (timestamp.getMonth()+1).toString().padStart(2,'0');
             const year = timestamp.getFullYear();
             const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
             const formattedDate = `${day}/${month}/${year}`;
             const arabicFormattedDate = formattedDate.replace(/\d/g, d => arabicDigits[d]);
-            const formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${formattedTime}`;
+            const hours = timestamp.getHours() % 12 || 12;
+            const minutes = timestamp.getMinutes().toString().padStart(2,'0');
+            const period = timestamp.getHours() >= 12 ? 'م' : 'ص';
+            const formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${hours.toString().padStart(2,'0')}:${minutes} ${period}`;
 
-            // الوسوم
             const firstTag = data.tags && data.tags.length > 0 ? data.tags[0] : '';
             const remainingTags = data.tags && data.tags.length > 1 ? data.tags.slice(1) : [];
             let tagHTML = '';
             if (firstTag) {
                 tagHTML = `<span class="post-tag" style="background-color:${tagColors[firstTag] || '#ccc'}">${firstTag}</span>`;
-                if (remainingTags.length > 0) {
-                    tagHTML += ` <span class="more-tags" style="cursor:pointer; color:#555">...</span>`;
-                }
+                if (remainingTags.length) tagHTML += ` <span class="more-tags" style="cursor:pointer; color:#555">...</span>`;
             }
 
             const postItem = document.createElement('li');
@@ -174,69 +163,7 @@ const displayPosts = async () => {
                 ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}"></button>` : ''}
                 <h3 class="post-title">${data.title}</h3>
                 <p class="post-description">${convertToLinks(data.description)}</p>
-                ${data.fileUrl ? (data.fileType === 'image' ? `<img src="${data.fileUrl}" class="post-media"/>` : `<video src="${data.fileUrl}" controls class="post-media"></video>`) : ''}
-                <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
-                <p class="post-time">${formattedDateTime} ${tagHTML}</p>
-            `;
-            postList.appendChild(postItem);
-
-            // حدث النقر على الثلاث نقاط لعرض جميع الوسوم
-            const moreTagsSpan = postItem.querySelector(".more-tags");
-
-
-
-            // ألوان الوسوم
-const tagColors = {
-    "أخبار": "#FFB6C1",
-    "ترفيه": "#FFD700",
-    "رياضة": "#87CEFA",
-    "تقنية": "#98FB98",
-    "فن": "#FFA07A",
-    "موسيقى": "#EE82EE",
-    "طعام": "#FFE4B5",
-    "سفر": "#AFEEEE",
-    "تصميم": "#F0E68C",
-    "ألعاب": "#F5DEB3",
-    "تعليم": "#B0E0E6",
-    "صحة": "#90EE90",
-    "موضة": "#FFB347",
-    "كوميديا": "#FFD1DC",
-    "حياة": "#FFEFD5",
-    "قصص": "#E6E6FA",
-    "فيديو": "#B0C4DE",
-    "صور": "#FFFACD",
-    "علم": "#C1FFC1",
-    "مناسبات": "#FFDAB9"
-};
-
-const displayPosts = async () => {
-    try {
-        const querySnapshot = await getDocs(collection(db, "posts"));
-        postList.innerHTML = '';
-        const currentUserEmail = localStorage.getItem('email');
-
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const timestamp = new Date(data.timestamp.seconds * 1000);
-            // ... تنسيق التاريخ والوقت ...
-
-            const firstTag = data.tags && data.tags.length > 0 ? data.tags[0] : '';
-            const remainingTags = data.tags && data.tags.length > 1 ? data.tags.slice(1) : [];
-            let tagHTML = '';
-            if (firstTag) {
-                tagHTML = `<span class="post-tag" style="background-color:${tagColors[firstTag] || '#ccc'}">${firstTag}</span>`;
-                if (remainingTags.length > 0) {
-                    tagHTML += ` <span class="more-tags" style="cursor:pointer; color:#555">...</span>`;
-                }
-            }
-
-            const postItem = document.createElement('li');
-            postItem.classList.add('post-item');
-            postItem.innerHTML = `
-                ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}"></button>` : ''}
-                <h3 class="post-title">${data.title}</h3>
-                <p class="post-description">${convertToLinks(data.description)}</p>
-                ${data.fileUrl ? (data.fileType === 'image' ? `<img src="${data.fileUrl}" class="post-media"/>` : `<video src="${data.fileUrl}" controls class="post-media"></video>`) : ''}
+                ${data.fileUrl ? (data.fileType==='image'? `<img src="${data.fileUrl}" class="post-media"/>`:`<video src="${data.fileUrl}" controls class="post-media"></video>`) : ''}
                 <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
                 <p class="post-time">${formattedDateTime} ${tagHTML}</p>
             `;
@@ -270,17 +197,18 @@ const displayPosts = async () => {
         showNotification("حدث خطأ أثناء تحميل المنشورات", "error");
     }
 };
-    
+
 addPostBtn.addEventListener('click', () => overlay.classList.add('show'));
 closeBtn.addEventListener('click', () => overlay.classList.remove('show'));
 
+// إضافة منشور مع الوسوم
 const addPost = async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
     const author = localStorage.getItem('username');
     const authorEmail = localStorage.getItem('email');
     const file = postFileInput.files[0];
-    let tags = postTagsInput.value.trim().split('#').map(tag => tag.trim()).filter(tag => tag);
+    const selectedTags = Array.from(tagsContainer.querySelectorAll(".tag-btn.selected")).map(btn => btn.textContent);
 
     if (title && description && author && authorEmail) {
         let fileUrl = '';
@@ -294,8 +222,8 @@ const addPost = async () => {
         }
 
         await addDoc(collection(db, "posts"), {
-            title, description, author, authorEmail,
-            fileUrl, fileType, tags, timestamp: serverTimestamp()
+            title, description, author, authorEmail, fileUrl, fileType,
+            tags: selectedTags, timestamp: serverTimestamp()
         });
 
         showNotification("تم نشر المنشور بنجاح", "success");
@@ -303,12 +231,14 @@ const addPost = async () => {
         postTitleInput.value = '';
         postDescriptionInput.value = '';
         postFileInput.value = '';
-        postTagsInput.value = '';
+        tagsContainer.querySelectorAll(".tag-btn.selected").forEach(btn => btn.classList.remove("selected"));
         displayPosts();
     } else {
         showNotification("يرجى ملء جميع الحقول", "error");
     }
 };
+
+publishBtn.addEventListener('click', addPost);
 
 logoutBtn.addEventListener('click', async () => {
     await signOut(auth);
