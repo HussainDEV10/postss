@@ -9,7 +9,7 @@
 <body>
 
 <header>
-    <div class="profile-icon" onclick="toggleProfile()">
+    <div class="profile-icon">
         <img src="user.svg" alt="User Icon">
         <div id="profile-info" class="hidden">
             <p id="profileUsername">أسم المستخدم</p>
@@ -42,10 +42,12 @@
         <input type="text" id="postTitle" placeholder="العنوان">
         <textarea id="postDescription" placeholder="الوصف"></textarea>
 
-        <!-- وسوم المنشور -->
-        <div class="tags-container" id="tagsContainer">
-            <!-- الأزرار ستتم إضافتها من JavaScript -->
+        <!-- حاوية الوسوم -->
+        <div id="tagsContainer">
+            <!-- أزرار الوسوم ستتم إضافتها من JS -->
         </div>
+        <!-- زر +10 لعرض المزيد من الوسوم -->
+        <button id="showMoreTagsBtn">+10</button>
 
         <input type="file" id="postFile" accept="image/*,video/*">
         <button class="publish-btn" id="publishBtn">نشر<span>+</span></button>
