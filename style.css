@@ -255,6 +255,7 @@ margin-bottom: 10;
     box-shadow: 0 8px 16px rgba(0,0,0,0.1);
     position: relative;
     overflow: hidden;
+    margin: 60px;
 }
 
 .post-item:first-child {
@@ -314,7 +315,7 @@ color: var(--text-color);
     height: 32px;
     background-image: url('trash.svg');
     background-size: contain;
-    background-color: var(--background-color);
+    background-color: none;
     background-repeat: no-repeat;
     background-position: center;
     cursor: pointer;
