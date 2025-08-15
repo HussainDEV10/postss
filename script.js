@@ -211,7 +211,10 @@ const displayPosts = async () => {
                 ${currentUserEmail === data.authorEmail ? `<button class="delete-btn" data-id="${doc.id}"></button>` : ''}  
                 <h3 class="post-title">${data.title}</h3>  
                 <p class="post-description">${convertToLinks(data.description)}</p>  
-                ${data.fileUrl ? (data.fileType==='image'? `<img src="${data.fileUrl}" class="post-media"/>`:`<video src="${data.fileUrl}" controls class="post-media"></video>`) : ''}  
+                data.fileUrl ? (data.fileType==='image'? 
+    `<img data-src="${data.fileUrl}" class="post-media lazyload" loading="lazy"/>` : 
+    `<video data-src="${data.fileUrl}" controls class="post-media lazyload" preload="none"></video>`) 
+: ''  
                 <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>  
                 <p class="post-time">${formattedDateTime} ${tagHTML}</p>  
             `;  
