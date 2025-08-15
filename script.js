@@ -364,7 +364,7 @@ document.addEventListener('click', async (event) => {
                 lastDeletedPost = { id: postId, data: postDoc.data() };  
                 await deleteDoc(postRef);  
                 showNotification("تم حذف المنشور", "delete");  
-                displayPosts();  
+                displayPostsAndLazyLoad();  
             }  
         } catch (error) {  
             showNotification("حدث خطأ أثناء حذف المنشور", "error");  
