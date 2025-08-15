@@ -458,7 +458,6 @@ z-index: 9;
 }
 
 .profile-icon {
-background-image: url('trash.svg');
 position: relative;
 font-size: 24px;
 cursor: pointer;
