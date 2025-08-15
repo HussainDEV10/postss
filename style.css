@@ -604,3 +604,43 @@ justify-content: left;
 .dark-theme .post-tags .post-tag {
     background-color: #81c784;
 }
+
+/* زر +10 لعرض المزيد من الوسوم */
+#showMoreTagsBtn {
+    padding: 6px 12px;
+    font-size: 13px;
+    font-family: 'Rubik', sans-serif;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    background-color: #2196f3;
+    color: #fff;
+    opacity: 0.85;
+    transition: all 0.2s ease;
+}
+
+#showMoreTagsBtn:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+/* تأثير إظهار الوسوم تدريجيًا */
+.tag-btn.hidden {
+    display: none;
+}
+
+.tag-btn.fade-in {
+    display: inline-block;
+    animation: fadeInTag 0.3s ease-in-out forwards;
+}
+
+@keyframes fadeInTag {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
