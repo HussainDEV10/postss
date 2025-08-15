@@ -3,7 +3,6 @@ import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimest
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
-// ----- إعدادات Firebase -----
 const firebaseConfig = {
     apiKey: "AIzaSyBwIhzy0_RBqhMBlvJxbs5_760jP-Yv2fw",
     authDomain: "facebookweb-2030.firebaseapp.com",
@@ -19,7 +18,6 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// ----- عناصر DOM -----
 const usernameDisplay = document.getElementById('usernameDisplay');
 const postList = document.getElementById('postList');
 const overlay = document.getElementById('overlay');
@@ -31,22 +29,20 @@ const postDescriptionInput = document.getElementById('postDescription');
 const postFileInput = document.getElementById('postFile');
 const notificationContainer = document.getElementById('notificationContainer');
 const logoutBtn = document.getElementById('logoutBtn');
+let lastDeletedPost = null;
 
-// ----- عناصر الحساب والثيم -----
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const profileIcon = document.querySelector(".profile-icon");
 const profileInfo = document.getElementById("profile-info");
 const profileUsername = document.getElementById("profileUsername");
 const postCount = document.getElementById("postCount");
 
-let lastDeletedPost = null;
-let editingPostId = null; // لتحديد المنشور الجاري تعديله
-
-// ----- عرض معلومات الحساب -----
+// وظيفة عرض/إخفاء معلومات الحساب
 profileIcon.addEventListener("click", () => {
     profileInfo.classList.toggle("hidden");
 });
 
+// تحديث معلومات الحساب وعدد المنشورات
 const updateProfileInfo = async () => {
     const currentUser = auth.currentUser;
     if (currentUser) {
@@ -59,13 +55,19 @@ const updateProfileInfo = async () => {
     }
 };
 
-// ----- الوضع الداكن والفاتح -----
+publishBtn.addEventListener("click", async () => {
+    await addPost();
+    updateProfileInfo();
+});
+
+// التحقق من حالة theme
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     document.body.classList.add(savedTheme);
     themeToggleBtn.textContent = savedTheme === 'dark-theme' ? '🌙' : '🌑';
 }
 
+// تبديل theme
 themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     if (document.body.classList.contains('dark-theme')) {
@@ -77,7 +79,6 @@ themeToggleBtn.addEventListener('click', () => {
     }
 });
 
-// ----- إشعارات -----
 const showNotification = (message, type) => {
     const notification = document.createElement('div');
     notification.classList.add('notification');
@@ -93,7 +94,9 @@ const showNotification = (message, type) => {
     setTimeout(() => notification.classList.add('hide'), 5000);
     setTimeout(() => notification.remove(), 5500);
 
-    if (type === 'delete') document.getElementById('undoBtn').addEventListener('click', undoDelete);
+    if (type === 'delete') {
+        document.getElementById('undoBtn').addEventListener('click', undoDelete);
+    }
 };
 
 const undoDelete = async () => {
@@ -105,13 +108,12 @@ const undoDelete = async () => {
     }
 };
 
-// ----- تحويل روابط النصوص -----
 function convertToLinks(text) {
     const urlPattern = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
 }
 
-// ----- عرض المنشورات -----
+// عرض المنشورات
 const displayPosts = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "posts"));
@@ -120,7 +122,7 @@ const displayPosts = async () => {
 
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            const timestamp = new Date(data.timestamp.seconds * 1000);
+            const timestamp = new Date(data.timestamp?.seconds ? data.timestamp.seconds * 1000 : Date.now());
             let hours = timestamp.getHours();
             const minutes = timestamp.getMinutes().toString().padStart(2, '0');
             const period = hours >= 12 ? 'م' : 'ص';
@@ -130,23 +132,25 @@ const displayPosts = async () => {
             const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
             const year = timestamp.getFullYear();
             const arabicDigits = '٠١٢٣٤٥٦٧٨٩';
-            const formattedDate = `${day}/${month}/${year}`.replace(/\d/g, (d) => arabicDigits[d]);
-            const formattedDateTime = `<span dir="rtl">${formattedDate}</span> | ${formattedTime}`;
+            const formattedDate = `${day}/${month}/${year}`;
+            const arabicFormattedDate = formattedDate.replace(/\d/g, (d) => arabicDigits[d]);
+            const formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${formattedTime}`;
 
             const postItem = document.createElement('li');
             postItem.classList.add('post-item');
+            const isAuthor = currentUserEmail === data.authorEmail;
             postItem.innerHTML = `
-                ${currentUserEmail === data.authorEmail 
-                    ? `<button class="delete-btn" data-id="${doc.id}"></button>
-                       <button class="edit-btn" data-id="${doc.id}">✎</button>` 
-                    : ''}
+                ${isAuthor ? `
+                    <button class="delete-btn" data-id="${doc.id}"></button>
+                    <button class="edit-btn" data-id="${doc.id}">✎</button>
+                ` : ''}
                 <h3 class="post-title">${data.title}</h3>
                 <p class="post-description">${convertToLinks(data.description)}</p>
                 ${
-                    data.fileUrl 
-                    ? data.fileType === 'image' 
-                        ? `<img src="${data.fileUrl}" alt="Media" class="post-media" />` 
-                        : `<video src="${data.fileUrl}" controls class="post-media"></video>`
+                    data.fileUrl
+                    ? data.fileType === 'image'
+                        ? `<img src="${data.fileUrl}" class="post-media"/>`
+                        : `<video src="${data.fileUrl}" class="post-media" controls></video>`
                     : ''
                 }
                 <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>
@@ -159,48 +163,47 @@ const displayPosts = async () => {
     }
 };
 
-// ----- فتح وغلق نافذة الإضافة -----
-addPostBtn.addEventListener('click', () => overlay.classList.add('show'));
-closeBtn.addEventListener('click', () => overlay.classList.remove('show'));
+// فتح form لإضافة منشور جديد
+addPostBtn.addEventListener('click', () => {
+    overlay.classList.add('show');
+    document.querySelector('.post-form h2').textContent = "أضف منشور";
+    publishBtn.textContent = "نشر";
+    publishBtn.querySelector('span').textContent = "+";
+    postTitleInput.value = '';
+    postDescriptionInput.value = '';
+    postFileInput.value = '';
+    postFileInput.style.display = '';
+    publishBtn.onclick = null; // إعادة تعيين الحدث إذا كان سابقًا تعديل
+});
 
-// ----- إضافة / تعديل منشور -----
-publishBtn.addEventListener('click', async () => {
+// إغلاق form ومسح المسودة
+closeBtn.addEventListener('click', () => {
+    overlay.classList.remove('show');
+    postTitleInput.value = '';
+    postDescriptionInput.value = '';
+    postFileInput.value = '';
+    postFileInput.style.display = '';
+});
+
+// إضافة منشور جديد
+const addPost = async () => {
     const title = postTitleInput.value.trim();
     const description = postDescriptionInput.value.trim();
     const author = localStorage.getItem('username');
     const authorEmail = localStorage.getItem('email');
     const file = postFileInput.files[0];
-    
-    if (!title || !description || !author || !authorEmail) {
-        showNotification("يرجى ملء جميع الحقول", "error");
-        return;
-    }
 
-    let fileUrl = '';
-    let fileType = '';
+    if (title && description && author && authorEmail) {
+        let fileUrl = '';
+        let fileType = '';
 
-    if (file) {
-        const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
-        await uploadBytes(storageRef, file);
-        fileUrl = await getDownloadURL(storageRef);
-        fileType = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('video/') ? 'video' : '');
-    }
+        if (file) {
+            const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
+            await uploadBytes(storageRef, file);
+            fileUrl = await getDownloadURL(storageRef);
+            fileType = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('video/') ? 'video' : '');
+        }
 
-    if (editingPostId) {
-        const postRef = doc(db, "posts", editingPostId);
-        await setDoc(postRef, {
-            title,
-            description,
-            author,
-            authorEmail,
-            fileUrl: fileUrl || undefined,
-            fileType: fileType || undefined,
-            timestamp: serverTimestamp()
-        }, { merge: true });
-
-        showNotification("تم تحديث المنشور بنجاح", "success");
-        editingPostId = null;
-    } else {
         await addDoc(collection(db, "posts"), {
             title,
             description,
@@ -210,59 +213,27 @@ publishBtn.addEventListener('click', async () => {
             fileType,
             timestamp: serverTimestamp()
         });
+
         showNotification("تم نشر المنشور بنجاح", "success");
+        overlay.classList.remove('show');
+        postTitleInput.value = '';
+        postDescriptionInput.value = '';
+        postFileInput.value = '';
+        displayPosts();
+    } else {
+        showNotification("يرجى ملء جميع الحقول", "error");
     }
+};
 
-    overlay.classList.remove('show');
-    postTitleInput.value = '';
-    postDescriptionInput.value = '';
-    postFileInput.value = '';
-    displayPosts();
-});
-
-// ----- حذف منشور -----
-document.addEventListener('click', async (event) => {
-    if (event.target.classList.contains('delete-btn')) {
-        const postId = event.target.getAttribute('data-id');
-        const postRef = doc(db, "posts", postId);
-
-        try {
-            const postDoc = await getDoc(postRef);
-            if (postDoc.exists()) {
-                lastDeletedPost = { id: postId, data: postDoc.data() };
-                await deleteDoc(postRef);
-                showNotification("تم حذف المنشور", "delete");
-                displayPosts();
-            }
-        } catch (error) {
-            showNotification("حدث خطأ أثناء حذف المنشور", "error");
-        }
-    }
-
-    // ----- زر تعديل منشور -----
-    if (event.target.classList.contains('edit-btn')) {
-        editingPostId = event.target.getAttribute('data-id');
-        const postRef = doc(db, "posts", editingPostId);
-        const postDoc = await getDoc(postRef);
-
-        if (postDoc.exists()) {
-            const postData = postDoc.data();
-            postTitleInput.value = postData.title;
-            postDescriptionInput.value = postData.description;
-            overlay.classList.add('show');
-        }
-    }
-});
-
-// ----- تسجيل الخروج -----
+// تسجيل الخروج
 logoutBtn.addEventListener('click', async () => {
     await signOut(auth);
     localStorage.removeItem('email');
     localStorage.removeItem('username');
-    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/'; 
+    window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
 });
 
-// ----- التحقق من تسجيل الدخول عند التحميل -----
+// التحقق من حالة تسجيل الدخول
 const checkAuthState = () => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -281,4 +252,61 @@ const checkAuthState = () => {
     });
 };
 
+// حذف أو تعديل المنشور
+document.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('delete-btn')) {
+        const postId = event.target.getAttribute('data-id');
+        const postRef = doc(db, "posts", postId);
+        try {
+            const postDoc = await getDoc(postRef);
+            if (postDoc.exists()) {
+                lastDeletedPost = { id: postId, data: postDoc.data() };
+                await deleteDoc(postRef);
+                showNotification("تم حذف المنشور", "delete");
+                displayPosts();
+            }
+        } catch (error) {
+            showNotification("حدث خطأ أثناء حذف المنشور", "error");
+        }
+    } else if (event.target.classList.contains('edit-btn')) {
+        const postId = event.target.getAttribute('data-id');
+        const postRef = doc(db, "posts", postId);
+        const postDoc = await getDoc(postRef);
+        if (postDoc.exists()) {
+            const data = postDoc.data();
+            overlay.classList.add('show');
+            document.querySelector('.post-form h2').textContent = "تعديل المنشور";
+            postTitleInput.value = data.title;
+            postDescriptionInput.value = data.description;
+            postFileInput.style.display = 'none'; // إخفاء حقل الصورة/الفيديو عند التعديل
+
+            publishBtn.textContent = "حفظ التعديل";
+            publishBtn.querySelector('span').textContent = "✓";
+
+            // إعادة تعيين onclick للنشر ليصبح تعديل
+            publishBtn.onclick = async () => {
+                const newTitle = postTitleInput.value.trim();
+                const newDescription = postDescriptionInput.value.trim();
+                if (newTitle && newDescription) {
+                    await setDoc(postRef, {
+                        ...data,
+                        title: newTitle,
+                        description: newDescription,
+                        timestamp: serverTimestamp()
+                    });
+                    showNotification("تم تعديل المنشور بنجاح", "success");
+                    overlay.classList.remove('show');
+                    postTitleInput.value = '';
+                    postDescriptionInput.value = '';
+                    postFileInput.style.display = '';
+                    displayPosts();
+                } else {
+                    showNotification("يرجى ملء العنوان والوصف", "error");
+                }
+            };
+        }
+    }
+});
+
+// التحقق من حالة تسجيل الدخول عند تحميل الصفحة
 checkAuthState();
