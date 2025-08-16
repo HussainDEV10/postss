@@ -107,13 +107,16 @@ bottom: 20px;
 }
 
 .container {
-position: relative;
-width: 100%;
-max-width: 500px; /* تحديد عرض أقصى /
-margin-top: 80px; / مساحة إضافية تحت الشريط العلوي /
-padding: 0 20px; / إضافة حواف جانبية لتوسيع عرض المنشورات */
-box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    margin-top: 80px; /* مساحة تحت الشريط العلوي */
+    padding: 0 20px;
+    box-sizing: border-box;
+    max-width: 1200px; /* أكبر من 500px */
+    margin-left: auto;
+    margin-right: auto;
 }
+
 
 .add-post-btn {
 position: fixed;
@@ -250,13 +253,12 @@ margin-bottom: 10;
 }
 
 .post-item {
-background-color: var(--post-bg-color);
-margin-bottom: 10px;
-padding: 15px;
-border-radius: 8px;
-box-shadow: 0 2px 4px var(--post-shadow-color);
-position: relative;
-overflow: hidden;
+    background-color: var(--post-bg-color);
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--post-shadow-color);
+    width: 100%;
 }
 
 .post-item:first-child {
