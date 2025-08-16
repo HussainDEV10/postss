@@ -17,6 +17,7 @@
 --notification-bg-color: #e0e0e0;
 --notification-text-color: #000000;
 --bottom-bar-bg-color: black;
+--post-edited-color: gray;
 }
 
 /* المتغيرات للوضع الداكن */
@@ -35,6 +36,7 @@
 --notification-bg-color: #444;
 --notification-text-color: #ffffff;
 --bottom-bar-bg-color: #333;
+--post-edited-color: #d9d9d9;
 }
 
 body {
@@ -576,7 +578,7 @@ justify-content: left;
 
 .post-edited {
     font-size: 14px;
-    color: gray;
+    color: var(--post-edited-color);;
     text-align: right;
     margin-top: 5px;
 }
