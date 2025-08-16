@@ -9,7 +9,7 @@
 <body>
 
 <header>
-    <div class="profile-icon">
+    <div class="profile-icon" onclick="toggleProfile()">
         <img src="user.svg" alt="User Icon">
         <div id="profile-info" class="hidden">
             <p id="profileUsername">أسم المستخدم</p>
@@ -25,19 +25,29 @@
     <div class="add-post-btn" id="addPostBtn"></div>
 </div>
 
-<!-- نموذج إضافة منشور -->
-<div class="overlay" id="addOverlay">
-    <div class="post-form">
-        <button class="close-btn" id="closeAddBtn">&times;</button>
-        <h2>أضف منشور</h2>
-        <input type="text" id="addPostTitle" placeholder="العنوان">
-        <textarea id="addPostDescription" placeholder="الوصف"></textarea>
-        <input type="file" id="addPostFile" accept="image/*,video/*">
-        <button class="publish-btn" id="publishAddBtn">نشر<span>+</span></button>
+<div class="bottom-bar">
+    <div class="color-options" id="colorOptions">
+        <div class="color-option" data-color="#ff0000" style="background-color: #ff0000;"></div>
+        <div class="color-option" data-color="#ffff00" style="background-color: #ffff00;"></div>
+        <div class="color-option" data-color="#00ff00" style="background-color: #00ff00;"></div>
+        <div class="color-option" data-color="#0000ff" style="background-color: #0000ff;"></div>
+        <div class="color-option" data-color="#ffffff" style="background-color: #ffffff;"></div>
     </div>
 </div>
 
-<!-- نموذج تعديل منشور -->
+<!-- Form إضافة منشور -->
+<div class="overlay" id="overlay">
+    <div class="post-form">
+        <button class="close-btn" id="closeBtn">&times;</button>
+        <h2>أضف منشور</h2>
+        <input type="text" id="postTitle" placeholder="العنوان">
+        <textarea id="postDescription" placeholder="الوصف"></textarea>
+        <input type="file" id="postFile" accept="image/*,video/*">
+        <button class="publish-btn" id="publishBtn">نشر<span>+</span></button>
+    </div>
+</div>
+
+<!-- Form تعديل منشور -->
 <div class="overlay" id="editOverlay">
     <div class="post-form">
         <button class="close-btn" id="closeEditBtn">&times;</button>
@@ -51,6 +61,5 @@
 <div id="notificationContainer"></div>
 
 <script src="script.js" type="module"></script>
-
 </body>
 </html>
