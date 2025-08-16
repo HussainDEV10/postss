@@ -573,3 +573,10 @@ justify-content: left;
 .edit-btn:hover {
     background-color: #45a049;
 }
+
+.post-edited {
+    font-size: 14px;
+    color: gray;
+    text-align: right;
+    margin-top: 5px;
+}
