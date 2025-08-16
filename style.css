@@ -613,3 +613,95 @@ margin-top: 5px;
     from {opacity: 0; transform: scale(0.9);}
     to {opacity: 1; transform: scale(1);}
 }
+
+/* زر فتح التعليقات */
+.open-comments-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 18px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+.comments-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 450px;
+    max-height: 80%;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1001;
+}
+
+.comments-modal.dark-theme {
+    background: #2c2c2c;
+    color: #fff;
+}
+
+.comments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f1f1f1;
+    font-weight: bold;
+}
+
+.close-comments {
+    cursor: pointer;
+    font-size: 24px;
+}
+
+.modal-comments-list {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.modal-comment-input {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+}
+
+.modal-comment-input input {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.modal-comment-input button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    margin-left: 5px;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.comment {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.comment-time {
+    font-size: 12px;
+    color: gray;
+    float: left;
+}
