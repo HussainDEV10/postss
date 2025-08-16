@@ -58,6 +58,20 @@
     </div>
 </div>
 
+<!-- نافذة تأكيد النشر -->
+<div class="overlay" id="confirmOverlay">
+    <div class="post-form confirm-modal">
+        <h2>تأكيد النشر</h2>
+        <p>هل أنت متأكد أنك تريد نشر هذا المنشور الآن؟</p>
+        <p><strong id="confirmTitle"></strong></p>
+        <p id="confirmDescription"></p>
+        <div class="confirm-buttons">
+            <button id="confirmYes" class="publish-btn">نعم، انشر</button>
+            <button id="confirmNo" class="publish-btn" style="background-color:#ccc; color:#000;">إلغاء</button>
+        </div>
+    </div>
+</div>
+
 <div id="notificationContainer"></div>
 
 <script src="script.js" type="module"></script>
