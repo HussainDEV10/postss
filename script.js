@@ -115,16 +115,23 @@ function convertToLinks(text){
 // ------------------------
 // عرض المنشورات مع ترتيب أزرار التعديل والحذف
 // ------------------------
+// ------------------------
+// عرض المنشورات مع قسم التعليقات
+// ------------------------
 const displayPosts = async () => {        
     const querySnapshot = await getDocs(collection(db, "posts"));        
     postList.innerHTML = '';        
     const currentUserEmail = localStorage.getItem('email');        
 
-    querySnapshot.forEach((docSnap)=>{        
+    querySnapshot.forEach(async (docSnap) => {        
         const data = docSnap.data();        
+        const postId = docSnap.id;
+
         const timestamp = data.timestamp ? new Date(data.timestamp.seconds*1000) : new Date();        
-        let hours = timestamp.getHours(); const minutes = timestamp.getMinutes().toString().padStart(2,'0');        
-        const period = hours>=12?'م':'ص'; hours=hours%12||12;        
+        let hours = timestamp.getHours(); 
+        const minutes = timestamp.getMinutes().toString().padStart(2,'0');        
+        const period = hours >= 12 ? 'م' : 'ص'; 
+        hours = hours % 12 || 12;        
         const day = timestamp.getDate().toString().padStart(2,'0');        
         const month = (timestamp.getMonth()+1).toString().padStart(2,'0');        
         const year = timestamp.getFullYear();        
@@ -136,27 +143,78 @@ const displayPosts = async () => {
 
         const postItem = document.createElement('li');        
         postItem.classList.add('post-item');        
-
-        // ترتيب الأزرار بحيث يكون الحذف والتعديل جنب بعضهما
-        const actionButtons = currentUserEmail===data.authorEmail 
-            ? `<div class="post-actions">
-                    <button class="delete-btn" data-id="${docSnap.id}"></button>
-                    <button class="edit-btn" data-id="${docSnap.id}"></button>
-               </div>` 
-            : '';
-
-        postItem.innerHTML = `
-            ${actionButtons}
+        postItem.innerHTML = `        
+            ${currentUserEmail === data.authorEmail ? `<div class="post-actions"><button class="delete-btn" data-id="${postId}"></button>        
+            <button class="edit-btn" data-id="${postId}"></button></div>` : ''}        
             <h3 class="post-title">${data.title}</h3>        
             <p class="post-description">${convertToLinks(data.description)}</p>        
             ${data.fileUrl ? (data.fileType==='image'? `<img src="${data.fileUrl}" class="post-media">`:`<video src="${data.fileUrl}" class="post-media" controls></video>`) : ''}        
             <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>        
             ${editedText}        
-            <p class="post-time">${formattedDateTime}</p>        
+            <p class="post-time">${formattedDateTime}</p>
+            <!-- قسم التعليقات -->
+            <div class="comments-container" id="comments-${postId}"></div>
+            <input type="text" class="comment-input" id="commentInput-${postId}" placeholder="أضف تعليق...">
+            <button class="comment-btn" data-id="${postId}">نشر التعليق</button>
         `;        
         postList.appendChild(postItem);        
+
+        // تحميل التعليقات لهذا المنشور
+        loadComments(postId);
     });        
-};        
+};
+
+// ------------------------
+// إضافة تعليق
+// ------------------------
+document.addEventListener('click', async (event) => {
+    const target = event.target;
+    if(target.classList.contains('comment-btn')){
+        const postId = target.dataset.id;
+        const input = document.getElementById(`commentInput-${postId}`);
+        const commentText = input.value.trim();
+        if(!commentText) return showNotification("يرجى كتابة تعليق","error");
+
+        const author = localStorage.getItem('username') || 'مستخدم';
+        const authorEmail = localStorage.getItem('email') || '';
+
+        // حفظ التعليق ضمن مجموعة فرعية "comments" لكل منشور
+        await addDoc(collection(db, "posts", postId, "comments"), {
+            text: commentText,
+            author,
+            authorEmail,
+            timestamp: serverTimestamp()
+        });
+
+        input.value = '';
+        showNotification("تم نشر التعليق","success");
+        loadComments(postId);
+    }
+});
+
+// ------------------------
+// تحميل التعليقات
+// ------------------------
+const loadComments = async (postId) => {
+    const commentsContainer = document.getElementById(`comments-${postId}`);
+    commentsContainer.innerHTML = '';
+
+    const commentsSnapshot = await getDocs(collection(db, "posts", postId, "comments"));
+    const sortedComments = commentsSnapshot.docs.sort((a,b) => a.data().timestamp?.seconds - b.data().timestamp?.seconds);
+
+    sortedComments.forEach(commentDoc => {
+        const c = commentDoc.data();
+        const timestamp = c.timestamp ? new Date(c.timestamp.seconds * 1000) : new Date();
+        const hours = timestamp.getHours();
+        const minutes = timestamp.getMinutes().toString().padStart(2,'0');
+        const period = hours >= 12 ? 'م' : 'ص';
+        const formattedTime = `${hours.toString().padStart(2,'0')}:${minutes} ${period}`;
+        const commentEl = document.createElement('p');
+        commentEl.classList.add('comment');
+        commentEl.innerHTML = `<strong>${c.author}:</strong> ${c.text} <span class="comment-time">${formattedTime}</span>`;
+        commentsContainer.appendChild(commentEl);
+    });
+};
 
 // ------------------------
 // ميزة التأكيد قبل النشر
