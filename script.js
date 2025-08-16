@@ -61,11 +61,6 @@ const updateProfileInfo = async () => {
     }
 };
 
-publishBtn.addEventListener("click", async () => {
-    await addPost();
-    updateProfileInfo();
-});
-
 // Theme toggle
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) document.body.classList.add(savedTheme);
@@ -163,18 +158,20 @@ closeEditBtn.addEventListener('click',()=>{
     editingPostId=null;
 });
 
-// حدث حذف وتعديل المنشور
+// حدث حذف وتعديل المنشور مع نظام التأكيد
 document.addEventListener('click', async (event)=>{
     const target = event.target;
     if(target.classList.contains('delete-btn')){
         const postId = target.dataset.id;
-        const postRef = doc(db,"posts",postId);
-        const postDoc = await getDoc(postRef);
-        if(postDoc.exists()){
-            lastDeletedPost={id:postId,data:postDoc.data()};
-            await deleteDoc(postRef);
-            showNotification("تم حذف المنشور","success");
-            displayPosts();
+        if(confirm("هل تريد بالفعل حذف هذا المنشور؟")){
+            const postRef = doc(db,"posts",postId);
+            const postDoc = await getDoc(postRef);
+            if(postDoc.exists()){
+                lastDeletedPost={id:postId,data:postDoc.data()};
+                await deleteDoc(postRef);
+                showNotification("تم حذف المنشور","success");
+                displayPosts();
+            }
         }
     }
     else if(target.classList.contains('edit-btn')){
@@ -182,29 +179,41 @@ document.addEventListener('click', async (event)=>{
         const postRef = doc(db,"posts",postId);
         const postDoc = await getDoc(postRef);
         if(postDoc.exists()){
-            editingPostId=postId;
-            editPostTitle.value=postDoc.data().title;
-            editPostDescription.value=postDoc.data().description;
-            editOverlay.classList.add('show');
+            if(confirm("هل تريد تعديل هذا المنشور؟")){
+                editingPostId=postId;
+                editPostTitle.value=postDoc.data().title;
+                editPostDescription.value=postDoc.data().description;
+                editOverlay.classList.add('show');
+            }
         }
     }
 });
 
-// حفظ التعديل
+// حفظ التعديل مع التأكيد
 publishEditBtn.addEventListener('click', async ()=>{
     if(!editingPostId) return;
-    const title = editPostTitle.value.trim();
-    const description = editPostDescription.value.trim();
-    if(!title || !description) return showNotification("يرجى ملء جميع الحقول","error");
+    if(confirm("هل تريد تعديل هذا المنشور؟")){
+        const title = editPostTitle.value.trim();
+        const description = editPostDescription.value.trim();
+        if(!title || !description) return showNotification("يرجى ملء جميع الحقول","error");
 
-    await setDoc(doc(db,"posts",editingPostId), {
-        title, description, edited:true
-    }, {merge:true});
+        await setDoc(doc(db,"posts",editingPostId), {
+            title, description, edited:true
+        }, {merge:true});
 
-    showNotification("تم تعديل المنشور بنجاح","success");
-    editOverlay.classList.remove('show');
-    editingPostId=null; editPostTitle.value=''; editPostDescription.value='';
-    displayPosts();
+        showNotification("تم تعديل المنشور بنجاح","success");
+        editOverlay.classList.remove('show');
+        editingPostId=null; editPostTitle.value=''; editPostDescription.value='';
+        displayPosts();
+    }
+});
+
+// نشر منشور مع التأكيد
+publishBtn.addEventListener('click', async () => {
+    if(confirm("هل تريد نشر هذا المنشور؟")){
+        await addPost();
+        updateProfileInfo();
+    }
 });
 
 // تسجيل خروج
