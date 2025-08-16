@@ -107,16 +107,13 @@ bottom: 20px;
 }
 
 .container {
-    position: relative;
-    width: 100%;
-    margin-top: 80px; /* مساحة تحت الشريط العلوي */
-    padding: 0 20px;
-    box-sizing: border-box;
-    max-width: 1200px; /* أكبر من 500px */
-    margin-left: auto;
-    margin-right: auto;
+position: relative;
+width: 100%;
+max-width: 500px; /* تحديد عرض أقصى /
+margin-top: 80px; / مساحة إضافية تحت الشريط العلوي /
+padding: 0 20px; / إضافة حواف جانبية لتوسيع عرض المنشورات */
+box-sizing: border-box;
 }
-
 
 .add-post-btn {
 position: fixed;
@@ -135,9 +132,9 @@ z-index: 10;
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 transition: transform 0.3s ease;
 
-background-image: url('square-plus.svg');  
-background-size: contain;  /* أو جرّب cover */  
-background-repeat: no-repeat;  
+background-image: url('square-plus.svg');
+background-size: contain;  /* أو جرّب cover */
+background-repeat: no-repeat;
 background-position: center;
 
 }
@@ -253,12 +250,13 @@ margin-bottom: 10;
 }
 
 .post-item {
-    background-color: var(--post-bg-color);
-    margin-bottom: 20px;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px var(--post-shadow-color);
-    width: 100%;
+background-color: var(--post-bg-color);
+margin-bottom: 10px;
+padding: 15px;
+border-radius: 8px;
+box-shadow: 0 2px 4px var(--post-shadow-color);
+position: relative;
+overflow: hidden;
 }
 
 .post-item:first-child {
@@ -545,42 +543,42 @@ align-items: center;
 justify-content: left;
 }
 
-
-/* زر تعديل المنشور */
+/* زر تعديل المنشور /
 .edit-btn {
-    position: absolute;
-    top: 10px;
-    left: 50px;  /* ارفع المسافة من زر الحذف */
-    width: 32px;
-    height: 32px;
-    background-color: #4caf50; /* أخضر للتعديل */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    transition: transform 0.2s ease, background-color 0.2s ease;
+position: absolute;
+top: 10px;
+left: 50px;  / ارفع المسافة من زر الحذف /
+width: 32px;
+height: 32px;
+background-color: #4caf50; / أخضر للتعديل */
+color: white;
+border: none;
+border-radius: 4px;
+font-size: 18px;
+font-weight: bold;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 /* تأثير عند الضغط */
 .edit-btn:active,
 .delete-btn:active {
-    transform: scale(0.9);
+transform: scale(0.9);
 }
 
 /* تأثير عند المرور */
 .edit-btn:hover {
-    background-color: #45a049;
+background-color: #45a049;
 }
 
 .post-edited {
-    font-size: 14px;
-    color: var(--post-edited-color);;
-    text-align: right;
-    margin-top: 5px;
+font-size: 14px;
+color: var(--post-edited-color);;
+text-align: right;
+margin-top: 5px;
 }
+
