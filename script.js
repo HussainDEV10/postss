@@ -110,7 +110,7 @@ const displayPosts = async () => {
         postItem.classList.add('post-item');
         postItem.innerHTML = `
             ${currentUserEmail===data.authorEmail ? `<button class="delete-btn" data-id="${docSnap.id}"></button>
-            <button class="edit-btn" data-id="${docSnap.id}"></button>` : ''}
+            <button class="edit-btn" data-id="${docSnap.id}">✏️</button>` : ''}
             <h3 class="post-title">${data.title}</h3>
             <p class="post-description">${convertToLinks(data.description)}</p>
             ${data.fileUrl ? (data.fileType==='image'? `<img src="${data.fileUrl}" class="post-media">`:`<video src="${data.fileUrl}" class="post-media" controls></video>`) : ''}
