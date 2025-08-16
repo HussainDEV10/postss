@@ -504,7 +504,7 @@ display: block;
 #profile-info {
 position: absolute;
 top: -10%;
-left: 110%;
+left: 20%;
 transform: translateY(10%);
 background: var(--post-bg-color);
 color: var(--text-color);
@@ -523,7 +523,8 @@ font-size: 14px;
 content: "";
 position: absolute;
 top: 50%;
-left: -10px;
+left: 0px;
+right: 30px;
 transform: translateY(-50%);
 border-width: 5px;
 border-style: solid;
