@@ -24,7 +24,23 @@
     <ul class="post-list" id="postList"></ul>
     <div class="add-post-btn" id="addPostBtn"></div>
 </div>
+<!-- أيقونة فتح نافذة التعليقات -->
+<button id="openComments" class="open-comments-btn">💬 التعليقات</button>
 
+<!-- نافذة التعليقات العائمة -->
+<div id="commentsModal" class="comments-modal hidden">
+    <div class="comments-header">
+        <h3>التعليقات</h3>
+        <span id="closeComments" class="close-comments">&times;</span>
+    </div>
+    <div id="modalCommentsList" class="modal-comments-list"></div>
+    <div class="modal-comment-input">
+        <input type="text" id="modalCommentInput" placeholder="أضف تعليق...">
+        <button id="modalCommentBtn">نشر</button>
+    </div>
+</div>
+
+    
 <div class="bottom-bar">
     <div class="color-options" id="colorOptions">
         <div class="color-option" data-color="#ff0000" style="background-color: #ff0000;"></div>
@@ -35,6 +51,7 @@
     </div>
 </div>
 
+    
 <!-- Form إضافة منشور -->
 <div class="overlay" id="overlay">
     <div class="post-form">
