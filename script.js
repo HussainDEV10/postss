@@ -3,9 +3,6 @@ import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimest
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";        
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";        
 
-// ------------------------
-// إعدادات Firebase
-// ------------------------
 const firebaseConfig = {        
     apiKey: "AIzaSyBwIhzy0_RBqhMBlvJxbs5_760jP-Yv2fw",        
     authDomain: "facebookweb-2030.firebaseapp.com",        
@@ -21,9 +18,7 @@ const db = getFirestore(app);
 const auth = getAuth(app);        
 const storage = getStorage(app);        
 
-// ------------------------
 // عناصر DOM
-// ------------------------
 const usernameDisplay = document.getElementById('usernameDisplay');        
 const postList = document.getElementById('postList');        
 const overlay = document.getElementById('overlay');        
@@ -59,6 +54,18 @@ const confirmDescription = document.getElementById('confirmDescription');
 const confirmYes = document.getElementById('confirmYes');
 const confirmNo = document.getElementById('confirmNo');
 
+// ------------------
+// عناصر التعليقات الجديدة
+// ------------------
+const openCommentsBtn = document.getElementById('openComments');        
+const commentsModal = document.getElementById('commentsModal');        
+const closeCommentsBtn = document.getElementById('closeComments');        
+const modalCommentsList = document.getElementById('modalCommentsList');        
+const modalCommentInput = document.getElementById('modalCommentInput');        
+const modalCommentBtn = document.getElementById('modalCommentBtn');        
+
+let activePostId = null; // لتحديد المنشور الذي سيتم عرض تعليقاته
+
 // ------------------------
 // فتح وغلق ملف البروفايل
 // ------------------------
@@ -66,9 +73,7 @@ profileIcon.addEventListener("click", () => {
     profileInfo.classList.toggle("hidden");        
 });        
 
-// ------------------------
 // تحديث معلومات البروفايل وعدد المنشورات
-// ------------------------
 const updateProfileInfo = async () => {        
     const currentUser = auth.currentUser;        
     if (currentUser) {        
@@ -81,7 +86,7 @@ const updateProfileInfo = async () => {
 };        
 
 // ------------------------
-// Theme toggle
+// Theme toggle        
 // ------------------------
 const savedTheme = localStorage.getItem('theme');        
 if (savedTheme) document.body.classList.add(savedTheme);        
@@ -105,33 +110,20 @@ const showNotification = (message, type) => {
     setTimeout(()=>notification.remove(),5500);        
 };        
 
-// ------------------------
-// تحويل النص إلى روابط تلقائياً
-// ------------------------
-function convertToLinks(text){ 
-    return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>'); 
-}        
+function convertToLinks(text){ return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>'); }        
 
 // ------------------------
-// عرض المنشورات مع ترتيب أزرار التعديل والحذف
-// ------------------------
-// ------------------------
-// عرض المنشورات مع قسم التعليقات
+// عرض المنشورات
 // ------------------------
 const displayPosts = async () => {        
     const querySnapshot = await getDocs(collection(db, "posts"));        
     postList.innerHTML = '';        
     const currentUserEmail = localStorage.getItem('email');        
-
-    querySnapshot.forEach(async (docSnap) => {        
+    querySnapshot.forEach((docSnap)=>{        
         const data = docSnap.data();        
-        const postId = docSnap.id;
-
         const timestamp = data.timestamp ? new Date(data.timestamp.seconds*1000) : new Date();        
-        let hours = timestamp.getHours(); 
-        const minutes = timestamp.getMinutes().toString().padStart(2,'0');        
-        const period = hours >= 12 ? 'م' : 'ص'; 
-        hours = hours % 12 || 12;        
+        let hours = timestamp.getHours(); const minutes = timestamp.getMinutes().toString().padStart(2,'0');        
+        const period = hours>=12?'م':'ص'; hours=hours%12||12;        
         const day = timestamp.getDate().toString().padStart(2,'0');        
         const month = (timestamp.getMonth()+1).toString().padStart(2,'0');        
         const year = timestamp.getFullYear();        
@@ -144,77 +136,18 @@ const displayPosts = async () => {
         const postItem = document.createElement('li');        
         postItem.classList.add('post-item');        
         postItem.innerHTML = `        
-            ${currentUserEmail === data.authorEmail ? `<div class="post-actions"><button class="delete-btn" data-id="${postId}"></button>        
-            <button class="edit-btn" data-id="${postId}"></button></div>` : ''}        
+            ${currentUserEmail===data.authorEmail ? `<button class="delete-btn" data-id="${docSnap.id}"></button>        
+            <button class="edit-btn" data-id="${docSnap.id}"></button>` : ''}        
             <h3 class="post-title">${data.title}</h3>        
             <p class="post-description">${convertToLinks(data.description)}</p>        
             ${data.fileUrl ? (data.fileType==='image'? `<img src="${data.fileUrl}" class="post-media">`:`<video src="${data.fileUrl}" class="post-media" controls></video>`) : ''}        
             <p class="post-author">من قِبل: ${data.author || 'مستخدم'}</p>        
             ${editedText}        
-            <p class="post-time">${formattedDateTime}</p>
-            <!-- قسم التعليقات -->
-            <div class="comments-container" id="comments-${postId}"></div>
-            <input type="text" class="comment-input" id="commentInput-${postId}" placeholder="أضف تعليق...">
-            <button class="comment-btn" data-id="${postId}">نشر التعليق</button>
+            <p class="post-time">${formattedDateTime}</p>        
         `;        
         postList.appendChild(postItem);        
-
-        // تحميل التعليقات لهذا المنشور
-        loadComments(postId);
     });        
-};
-
-// ------------------------
-// إضافة تعليق
-// ------------------------
-document.addEventListener('click', async (event) => {
-    const target = event.target;
-    if(target.classList.contains('comment-btn')){
-        const postId = target.dataset.id;
-        const input = document.getElementById(`commentInput-${postId}`);
-        const commentText = input.value.trim();
-        if(!commentText) return showNotification("يرجى كتابة تعليق","error");
-
-        const author = localStorage.getItem('username') || 'مستخدم';
-        const authorEmail = localStorage.getItem('email') || '';
-
-        // حفظ التعليق ضمن مجموعة فرعية "comments" لكل منشور
-        await addDoc(collection(db, "posts", postId, "comments"), {
-            text: commentText,
-            author,
-            authorEmail,
-            timestamp: serverTimestamp()
-        });
-
-        input.value = '';
-        showNotification("تم نشر التعليق","success");
-        loadComments(postId);
-    }
-});
-
-// ------------------------
-// تحميل التعليقات
-// ------------------------
-const loadComments = async (postId) => {
-    const commentsContainer = document.getElementById(`comments-${postId}`);
-    commentsContainer.innerHTML = '';
-
-    const commentsSnapshot = await getDocs(collection(db, "posts", postId, "comments"));
-    const sortedComments = commentsSnapshot.docs.sort((a,b) => a.data().timestamp?.seconds - b.data().timestamp?.seconds);
-
-    sortedComments.forEach(commentDoc => {
-        const c = commentDoc.data();
-        const timestamp = c.timestamp ? new Date(c.timestamp.seconds * 1000) : new Date();
-        const hours = timestamp.getHours();
-        const minutes = timestamp.getMinutes().toString().padStart(2,'0');
-        const period = hours >= 12 ? 'م' : 'ص';
-        const formattedTime = `${hours.toString().padStart(2,'0')}:${minutes} ${period}`;
-        const commentEl = document.createElement('p');
-        commentEl.classList.add('comment');
-        commentEl.innerHTML = `<strong>${c.author}:</strong> ${c.text} <span class="comment-time">${formattedTime}</span>`;
-        commentsContainer.appendChild(commentEl);
-    });
-};
+};        
 
 // ------------------------
 // ميزة التأكيد قبل النشر
@@ -231,7 +164,7 @@ publishBtn.addEventListener('click', () => {
 
     confirmYes.onclick = async () => {
         confirmOverlay.classList.remove('show');
-        await addPost(); 
+        await addPost();
         updateProfileInfo();
     };
 
@@ -241,7 +174,7 @@ publishBtn.addEventListener('click', () => {
 });
 
 // ------------------------
-// إضافة منشور (الدالة الأصلية)
+// إضافة منشور
 // ------------------------
 const addPost = async () => {        
     const title = postTitleInput.value.trim();        
@@ -256,132 +189,168 @@ const addPost = async () => {
             const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);        
             await uploadBytes(storageRef,file);        
             fileUrl = await getDownloadURL(storageRef);        
-            fileType = file.type.startsWith('image/') ? 'image' : 'video';        
-    }        
-
-    await addDoc(collection(db,"posts"),{        
-        title, 
-        description, 
-        author, 
-        authorEmail, 
-        fileUrl, 
-        fileType, 
-        timestamp: serverTimestamp()        
-    });        
-
-    showNotification("تم نشر المنشور بنجاح","success");        
-    overlay.classList.remove('show');        
-    postTitleInput.value = ''; 
-    postDescriptionInput.value = ''; 
-    postFileInput.value = '';        
-
-    displayPosts();        
-} else {
-    showNotification("يرجى ملء جميع الحقول","error");        
-}        
+            fileType = file.type.startsWith('image/')?'image':'video';        
+        }        
+        await addDoc(collection(db,"posts"),{        
+            title, description, author, authorEmail, fileUrl, fileType, timestamp:serverTimestamp()        
+        });        
+        showNotification("تم نشر المنشور بنجاح","success");        
+        overlay.classList.remove('show');        
+        postTitleInput.value=''; postDescriptionInput.value=''; postFileInput.value='';        
+        displayPosts();        
+    } else showNotification("يرجى ملء جميع الحقول","error");        
 };        
 
 // ------------------------
-// زر إضافة منشور        
+// زر إضافة منشور
 // ------------------------
-addPostBtn.addEventListener('click', () => {        
+addPostBtn.addEventListener('click',()=>{        
     overlay.classList.add('show');        
-    postTitleInput.value = ''; 
-    postDescriptionInput.value = ''; 
-    postFileInput.value = '';        
+    postTitleInput.value=''; postDescriptionInput.value=''; postFileInput.value='';        
 });        
 
-// ------------------------
-// إغلاق form إضافة منشور        
-// ------------------------
-closeBtn.addEventListener('click', () => overlay.classList.remove('show'));        
+closeBtn.addEventListener('click',()=> overlay.classList.remove('show'));        
 
 // ------------------------
-// إغلاق form تعديل منشور        
+// وظائف تعديل وحذف المنشورات
 // ------------------------
-closeEditBtn.addEventListener('click', () => {        
+closeEditBtn.addEventListener('click',()=>{        
     editOverlay.classList.remove('show');        
-    editingPostId = null;        
+    editingPostId=null;        
 });        
 
-// ------------------------
-// التعامل مع أزرار الحذف والتعديل داخل كل منشور
-// ------------------------
-document.addEventListener('click', async (event) => {        
+document.addEventListener('click', async (event)=>{        
     const target = event.target;        
-
-    // حذف منشور
-    if(target.classList.contains('delete-btn')) {        
+    if(target.classList.contains('delete-btn')){        
         const postId = target.dataset.id;        
         const postRef = doc(db,"posts",postId);        
         const postDoc = await getDoc(postRef);        
         if(postDoc.exists()){        
-            lastDeletedPost = {id: postId, data: postDoc.data()};        
+            lastDeletedPost={id:postId,data:postDoc.data()};        
             await deleteDoc(postRef);        
             showNotification("تم حذف المنشور","success");        
             displayPosts();        
         }        
-    } 
-    // تعديل منشور
-    else if(target.classList.contains('edit-btn')) {        
+    }        
+    else if(target.classList.contains('edit-btn')){        
         const postId = target.dataset.id;        
         const postRef = doc(db,"posts",postId);        
         const postDoc = await getDoc(postRef);        
         if(postDoc.exists()){        
-            editingPostId = postId;        
-            editPostTitle.value = postDoc.data().title;        
-            editPostDescription.value = postDoc.data().description;        
+            editingPostId=postId;        
+            editPostTitle.value=postDoc.data().title;        
+            editPostDescription.value=postDoc.data().description;        
             editOverlay.classList.add('show');        
         }        
     }        
-});        
+});
 
 // ------------------------
-// نشر التعديلات على المنشور
+// نشر تعديل منشور
 // ------------------------
-publishEditBtn.addEventListener('click', async () => {        
+publishEditBtn.addEventListener('click', async ()=>{        
     if(!editingPostId) return;        
     const title = editPostTitle.value.trim();        
     const description = editPostDescription.value.trim();        
     if(!title || !description) return showNotification("يرجى ملء جميع الحقول","error");        
 
     await setDoc(doc(db,"posts",editingPostId), {        
-        title, 
-        description, 
-        edited: true        
+        title, description, edited:true        
     }, {merge:true});        
 
     showNotification("تم تعديل المنشور بنجاح","success");        
     editOverlay.classList.remove('show');        
-    editingPostId = null; 
-    editPostTitle.value = ''; 
-    editPostDescription.value = '';        
+    editingPostId=null; editPostTitle.value=''; editPostDescription.value='';        
     displayPosts();        
 });        
 
 // ------------------------
 // تسجيل الخروج
 // ------------------------
-logoutBtn.addEventListener('click', async () => {        
+logoutBtn.addEventListener('click', async ()=>{        
     await signOut(auth);        
-    localStorage.removeItem('email'); 
-    localStorage.removeItem('username');        
+    localStorage.removeItem('email'); localStorage.removeItem('username');        
     window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';        
 });        
 
-// ------------------------
-// التحقق من حالة تسجيل الدخول
-// ------------------------
-onAuthStateChanged(auth, (user) => {        
+onAuthStateChanged(auth,(user)=>{        
     if(user){        
-        localStorage.setItem('email', user.email);        
-        getDoc(doc(db,"users",user.uid)).then(doc => {        
+        localStorage.setItem('email',user.email);        
+        getDoc(doc(db,"users",user.uid)).then(doc=>{        
             if(doc.exists()){        
-                localStorage.setItem('username', doc.data().username);        
+                localStorage.setItem('username',doc.data().username);        
             }        
         });        
         displayPosts();        
-    } else {
-        window.location.href='https://hussaindev10.github.io/Dhdhririeri/';        
+    } else window.location.href='https://hussaindev10.github.io/Dhdhririeri/';        
+});        
+
+// ------------------------
+//  التعليقات العائمة
+// ------------------------
+openCommentsBtn.addEventListener('click', () => {
+    if(!activePostId) {
+        showNotification("اختر منشور لعرض تعليقاته","error");
+        return;
+    }
+    commentsModal.classList.remove('hidden');
+    loadModalComments(activePostId);
+});
+
+closeCommentsBtn.addEventListener('click', () => {
+    commentsModal.classList.add('hidden');
+    modalCommentsList.innerHTML = '';
+    modalCommentInput.value = '';
+});
+
+modalCommentBtn.addEventListener('click', async () => {
+    const commentText = modalCommentInput.value.trim();
+    if(!commentText) return showNotification("يرجى كتابة تعليق","error");
+
+    const author = localStorage.getItem('username') || 'مستخدم';
+    const authorEmail = localStorage.getItem('email') || '';
+
+    await addDoc(collection(db, "posts", activePostId, "comments"), {
+        text: commentText,
+        author,
+        authorEmail,
+        timestamp: serverTimestamp()
+    });
+
+    modalCommentInput.value = '';
+    showNotification("تم نشر التعليق","success");
+    loadModalComments(activePostId);
+});
+
+const loadModalComments = async (postId) => {
+    modalCommentsList.innerHTML = '';
+    const commentsSnapshot = await getDocs(collection(db, "posts", postId, "comments"));
+    const sortedComments = commentsSnapshot.docs.sort((a,b) => a.data().timestamp?.seconds - b.data().timestamp?.seconds);
+
+    sortedComments.forEach(commentDoc => {
+        const c = commentDoc.data();
+        const timestamp = c.timestamp ? new Date(c.timestamp.seconds * 1000) : new Date();
+        const hours = timestamp.getHours();
+        const minutes = timestamp.getMinutes().toString().padStart(2,'0');
+        const period = hours >= 12 ? 'م' : 'ص';
+        const formattedTime = `${hours.toString().padStart(2,'0')}:${minutes} ${period}`;
+        const commentEl = document.createElement('p');
+        commentEl.classList.add('comment');
+        commentEl.innerHTML = `<strong>${c.author}:</strong> ${c.text} <span class="comment-time">${formattedTime}</span>`;
+        modalCommentsList.appendChild(commentEl);
+    });
+
+    modalCommentsList.scrollTop = modalCommentsList.scrollHeight; 
+};
+
+// تحديد activePostId عند الضغط على أي منشور
+postList.addEventListener('click', (e) => {
+    const postItem = e.target.closest('.post-item');
+    if(postItem){
+        const buttons = postItem.querySelectorAll('.edit-btn, .delete-btn');
+        if(!buttons.includes(e.target)){ 
+            const postId = postItem.querySelector('.edit-btn')?.dataset.id || postItem.querySelector('.delete-btn')?.dataset.id;
+            if(postId) activePostId = postId;
+        }
     }
 });
