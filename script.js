@@ -18,7 +18,7 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// العناصر الأساسية
+// عناصر DOM
 const postList = document.getElementById('postList');
 const overlay = document.getElementById('overlay');
 const addPostBtn = document.getElementById('addPostBtn');
@@ -36,32 +36,42 @@ const publishEditBtn = document.getElementById('publishEditBtn');
 
 const notificationContainer = document.getElementById('notificationContainer');
 
+const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+const profileIcon = document.getElementById('profileIcon');
+const profileInfo = document.getElementById('profileInfo');
+const profileUsername = document.getElementById('profileUsername');
+const postCount = document.getElementById('postCount');
+const logoutBtn = document.getElementById('logoutBtn');
+
 let lastDeletedPost = null;
 let editingPostId = null;
 
-// Theme toggle
-const themeToggleBtn = document.getElementById('themeToggleBtn');
-const savedTheme = localStorage.getItem('theme');
-if(savedTheme) document.body.classList.add(savedTheme);
+// فتح/إغلاق قائمة المستخدم
+profileIcon.addEventListener("click", () => profileInfo.classList.toggle("hidden"));
 
+// تحديث اسم المستخدم وعدد منشوراته
+const updateProfileInfo = async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists()) profileUsername.textContent = userDoc.data().username || "مستخدم";
+        const querySnapshot = await getDocs(collection(db, "posts"));
+        const userPosts = querySnapshot.docs.filter(doc => doc.data().authorEmail === currentUser.email);
+        postCount.textContent = `عدد المنشورات: ${userPosts.length}`;
+    }
+};
+
+// Theme toggle
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) document.body.classList.add(savedTheme);
 themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     localStorage.setItem('theme', document.body.classList.contains('dark-theme')?'dark-theme':'light-theme');
 });
 
-// Profile Overlay عناصر
-const profileIcon = document.getElementById('profileIcon');
-const profileOverlay = document.getElementById('profileOverlay');
-const profileUsername = document.getElementById('profileUsername');
-const postCount = document.getElementById('postCount');
-const logoutBtn = document.getElementById('logoutBtn');
-
-profileIcon.addEventListener('click', () => {
-    profileOverlay.classList.toggle('show');
-});
-
-// إخطار
-const showNotification = (message, type) => {
+// الإشعارات
+const showNotification = (message) => {
     const notification = document.createElement('div');
     notification.classList.add('notification');
     notification.innerHTML = `<span>${message}</span>`;
@@ -72,30 +82,25 @@ const showNotification = (message, type) => {
     setTimeout(()=>notification.remove(),5500);
 };
 
-function convertToLinks(text){ 
-    return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>'); 
-}
+// تحويل الروابط في النص
+function convertToLinks(text){ return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>'); }
 
 // عرض المنشورات
 const displayPosts = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
     postList.innerHTML = '';
     const currentUserEmail = localStorage.getItem('email');
-
     querySnapshot.forEach((docSnap)=>{
         const data = docSnap.data();
         const timestamp = data.timestamp ? new Date(data.timestamp.seconds*1000) : new Date();
-        let hours = timestamp.getHours(); 
-        const minutes = timestamp.getMinutes().toString().padStart(2,'0');
-        const period = hours>=12?'م':'ص'; 
-        hours=hours%12||12;
+        let hours = timestamp.getHours(); const minutes = timestamp.getMinutes().toString().padStart(2,'0');
+        const period = hours>=12?'م':'ص'; hours=hours%12||12;
         const day = timestamp.getDate().toString().padStart(2,'0');
         const month = (timestamp.getMonth()+1).toString().padStart(2,'0');
         const year = timestamp.getFullYear();
         const arabicFormattedDate = `${day}/${month}/${year}`.replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
         const formattedTime = `${hours.toString().padStart(2,'0')}:${minutes} ${period}`;
         const formattedDateTime = `<span dir="rtl">${arabicFormattedDate}</span> | ${formattedTime}`;
-
         const editedText = data.edited ? `<p class="post-edited">(تم تعديله)</p>` : '';
 
         const postItem = document.createElement('li');
@@ -133,30 +138,23 @@ const addPost = async () => {
         await addDoc(collection(db,"posts"),{
             title, description, author, authorEmail, fileUrl, fileType, timestamp:serverTimestamp()
         });
-        showNotification("تم نشر المنشور بنجاح","success");
+        showNotification("تم نشر المنشور بنجاح");
         overlay.classList.remove('show');
         postTitleInput.value=''; postDescriptionInput.value=''; postFileInput.value='';
         displayPosts();
         updateProfileInfo();
-    } else showNotification("يرجى ملء جميع الحقول","error");
+    } else showNotification("يرجى ملء جميع الحقول");
 };
 
-// زر إضافة منشور
-addPostBtn.addEventListener('click',()=>{
-    overlay.classList.add('show');
-    postTitleInput.value=''; postDescriptionInput.value=''; postFileInput.value='';
-});
-
-// إغلاق form إضافة منشور
+// أحداث DOM
+addPostBtn.addEventListener('click',()=> overlay.classList.add('show'));
 closeBtn.addEventListener('click',()=> overlay.classList.remove('show'));
-
-// إغلاق form تعديل منشور
 closeEditBtn.addEventListener('click',()=>{
     editOverlay.classList.remove('show');
     editingPostId=null;
 });
 
-// حدث حذف وتعديل المنشور
+// حذف وتعديل المنشورات
 document.addEventListener('click', async (event)=>{
     const target = event.target;
     if(target.classList.contains('delete-btn')){
@@ -166,12 +164,11 @@ document.addEventListener('click', async (event)=>{
         if(postDoc.exists()){
             lastDeletedPost={id:postId,data:postDoc.data()};
             await deleteDoc(postRef);
-            showNotification("تم حذف المنشور","success");
+            showNotification("تم حذف المنشور");
             displayPosts();
             updateProfileInfo();
         }
-    }
-    else if(target.classList.contains('edit-btn')){
+    } else if(target.classList.contains('edit-btn')){
         const postId = target.dataset.id;
         const postRef = doc(db,"posts",postId);
         const postDoc = await getDoc(postRef);
@@ -189,51 +186,39 @@ publishEditBtn.addEventListener('click', async ()=>{
     if(!editingPostId) return;
     const title = editPostTitle.value.trim();
     const description = editPostDescription.value.trim();
-    if(!title || !description) return showNotification("يرجى ملء جميع الحقول","error");
+    if(!title || !description) return showNotification("يرجى ملء جميع الحقول");
 
     await setDoc(doc(db,"posts",editingPostId), {
         title, description, edited:true
     }, {merge:true});
 
-    showNotification("تم تعديل المنشور بنجاح","success");
+    showNotification("تم تعديل المنشور بنجاح");
     editOverlay.classList.remove('show');
-    editingPostId=null; editPostTitle.value=''; editPostDescription.value='';
+    editingPostId=null; 
+    editPostTitle.value=''; 
+    editPostDescription.value='';
     displayPosts();
     updateProfileInfo();
 });
 
-// تحديث بيانات البروفايل
-const updateProfileInfo = async () => {
-    const currentUser = auth.currentUser;
-    if(currentUser){
-        const userDoc = await getDoc(doc(db,"users",currentUser.uid));
-        if(userDoc.exists()) profileUsername.textContent = userDoc.data().username || "مستخدم";
-        const querySnapshot = await getDocs(collection(db,"posts"));
-        const userPosts = querySnapshot.docs.filter(doc => doc.data().authorEmail === currentUser.email);
-        postCount.textContent = `عدد المنشورات: ${userPosts.length}`;
-    }
-};
-
 // تسجيل خروج
-logoutBtn.addEventListener('click', async () => {
+logoutBtn.addEventListener('click', async ()=>{
     await signOut(auth);
-    localStorage.removeItem('email');
+    localStorage.removeItem('email'); 
     localStorage.removeItem('username');
     window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
 });
 
 // التحقق من تسجيل الدخول وعرض المنشورات
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth,(user)=>{
     if(user){
-        localStorage.setItem('email', user.email);
-        getDoc(doc(db, "users", user.uid)).then(docSnap => {
-            if(docSnap.exists()){
-                localStorage.setItem('username', docSnap.data().username);
+        localStorage.setItem('email',user.email);
+        getDoc(doc(db,"users",user.uid)).then(doc=>{
+            if(doc.exists()){
+                localStorage.setItem('username',doc.data().username);
+                updateProfileInfo();
             }
         });
         displayPosts();
-        updateProfileInfo();
-    } else {
-        window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
-    }
+    } else window.location.href='https://hussaindev10.github.io/Dhdhririeri/';
 });
