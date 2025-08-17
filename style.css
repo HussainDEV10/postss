@@ -500,7 +500,7 @@ font-size: 14px;
 display: block;
 }
 
-/* تعديل موقع النافذة المنبثقة لتكون على يمين الأيقونة /
+
 #profile-info {
 position: absolute;
 top: -10%;
@@ -518,7 +518,7 @@ z-index: 100;
 font-size: 14px;
 }
 
-/* تعديل مؤشر السهم ليشير إلى الأيقونة من جهة اليسار /
+
 #profile-info::before {
 content: "";
 position: absolute;
@@ -543,7 +543,7 @@ align-items: center;
 justify-content: left;
 }
 
-/* زر تعديل المنشور /
+
 .edit-btn {
 position: absolute;
 top: 10px;
@@ -564,13 +564,13 @@ box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-/* تأثير عند الضغط */
+
 .edit-btn:active,
 .delete-btn:active {
 transform: scale(0.9);
 }
 
-/* تأثير عند المرور */
+
 .edit-btn:hover {
 background-color: #45a049;
 }
