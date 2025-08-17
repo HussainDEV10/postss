@@ -9,14 +9,20 @@
 <body>
 
 <header>
-    <div class="profile-icon" onclick="toggleProfile()">
+    <!-- أيقونة المستخدم -->
+    <div class="profile-icon" id="profileIcon">
         <img src="user.svg" alt="User Icon">
-        <div id="profile-info" class="hidden">
+    </div>
+
+    <!-- Overlay للمعلومات -->
+    <div id="profileOverlay" class="overlay hidden">
+        <div class="profile-content">
             <p id="profileUsername">أسم المستخدم</p>
             <p id="postCount">عدد المنشورات: 0</p>
             <button id="logoutBtn">تسجيل الخروج</button>
         </div>
     </div>
+
     <div class="theme-toggle-btn" id="themeToggleBtn">🌙</div>
 </header>
 
@@ -24,23 +30,7 @@
     <ul class="post-list" id="postList"></ul>
     <div class="add-post-btn" id="addPostBtn"></div>
 </div>
-<!-- أيقونة فتح نافذة التعليقات -->
-<button id="openComments" class="open-comments-btn">💬 التعليقات</button>
 
-<!-- نافذة التعليقات العائمة -->
-<div id="commentsModal" class="comments-modal hidden">
-    <div class="comments-header">
-        <h3>التعليقات</h3>
-        <span id="closeComments" class="close-comments">&times;</span>
-    </div>
-    <div id="modalCommentsList" class="modal-comments-list"></div>
-    <div class="modal-comment-input">
-        <input type="text" id="modalCommentInput" placeholder="أضف تعليق...">
-        <button id="modalCommentBtn">نشر</button>
-    </div>
-</div>
-
-    
 <div class="bottom-bar">
     <div class="color-options" id="colorOptions">
         <div class="color-option" data-color="#ff0000" style="background-color: #ff0000;"></div>
@@ -51,7 +41,6 @@
     </div>
 </div>
 
-    
 <!-- Form إضافة منشور -->
 <div class="overlay" id="overlay">
     <div class="post-form">
@@ -72,20 +61,6 @@
         <input type="text" id="editPostTitle" placeholder="العنوان">
         <textarea id="editPostDescription" placeholder="الوصف"></textarea>
         <button class="publish-btn" id="publishEditBtn">حفظ التعديل</button>
-    </div>
-</div>
-
-<!-- نافذة تأكيد النشر -->
-<div class="overlay" id="confirmOverlay">
-    <div class="post-form confirm-modal">
-        <h2>تأكيد النشر</h2>
-        <p>هل أنت متأكد أنك تريد نشر هذا المنشور الآن؟</p>
-        <p><strong id="confirmTitle"></strong></p>
-        <p id="confirmDescription"></p>
-        <div class="confirm-buttons">
-            <button id="confirmYes" class="publish-btn">نعم، انشر</button>
-            <button id="confirmNo" class="publish-btn" style="background-color:#ccc; color:#000;">إلغاء</button>
-        </div>
     </div>
 </div>
 
