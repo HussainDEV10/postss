@@ -448,16 +448,12 @@ z-index: 9;
 }
 
 .profile-icon {
-position: relative;
-font-size: 24px;
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: right;
-width: 40px;
-height: 40px;
-transition: transform 0.2s ease-in-out, background 0.3s ease-in-out;
+    position: relative; /* مهم ليكون الـ overlay بالنسبة له */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* مركز الأيقونة داخل الهيدر */
 }
+
 
 .profile-icon:hover {
 transform: scale(1.1);
@@ -468,21 +464,24 @@ transform: scale(0.9);
 }
 
 /* تصميم القائمة المنبثقة للمعلومات */
+
 #profile-info {
-position: absolute;
-top: 50px;
-right: 0;
-background: var(--post-bg-color);
-color: var(--text-color);
-padding: 12px;
-border-radius: 8px;
-box-shadow: 0 4px 8px var(--post-shadow-color);
-display: none;
-width: 180px;
-text-align: center;
-z-index: 100;
-font-size: 14px;
+    position: absolute;
+    top: 50px; /* أسفل الأيقونة */
+    right: 0;  /* اضبطه على اليمين */
+    background: var(--post-bg-color);
+    color: var(--text-color);
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px var(--post-shadow-color);
+    display: none; /* تظهر عند الضغط */
+    width: 180px;
+    text-align: center; /* لضبط النصوص */
+    z-index: 100;
+    font-size: 14px;
+    direction: rtl; /* للتأكد من اتجاه النص عربي */
 }
+
 
 .profile-icon:hover #profile-info {
 display: block;
