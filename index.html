@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Postary - المنشورات</title>
+    <title>نشر منشور</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
-    <div class="profile-icon" id="profileIcon">
+    <div class="profile-icon" onclick="toggleProfile()">
         <img src="user.svg" alt="User Icon">
-        <div id="profileInfo" class="hidden">
-            <p id="profileUsername">اسم المستخدم</p>
+        <div id="profile-info" class="hidden">
+            <p id="profileUsername">أسم المستخدم</p>
             <p id="postCount">عدد المنشورات: 0</p>
             <button id="logoutBtn">تسجيل الخروج</button>
         </div>
@@ -60,6 +60,6 @@
 
 <div id="notificationContainer"></div>
 
-<script type="module" src="script.js"></script>
+<script src="script.js" type="module"></script>
 </body>
 </html>
