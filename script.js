@@ -209,16 +209,17 @@ logoutBtn.addEventListener('click', async ()=>{
     window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
 });
 
-// التحقق من تسجيل الدخول وعرض المنشورات
-onAuthStateChanged(auth,(user)=>{
+// التحقق من تسجيل الدخول وعرض المنشورات بعد جلب بيانات المستخدم
+onAuthStateChanged(auth, async (user) => {
     if(user){
-        localStorage.setItem('email',user.email);
-        getDoc(doc(db,"users",user.uid)).then(doc=>{
-            if(doc.exists()){
-                localStorage.setItem('username',doc.data().username);
-                updateProfileInfo();
-            }
-        });
+        localStorage.setItem('email', user.email);
+        const userDoc = await getDoc(doc(db,"users",user.uid));
+        if(userDoc.exists()){
+            localStorage.setItem('username', userDoc.data().username);
+            updateProfileInfo();
+        }
         displayPosts();
-    } else window.location.href='https://hussaindev10.github.io/Dhdhririeri/';
+    } else {
+        window.location.href='https://hussaindev10.github.io/Dhdhririeri/';
+    }
 });
