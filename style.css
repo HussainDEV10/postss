@@ -3,7 +3,7 @@
 /* المتغيرات للوضع الفاتح */
 
 :root {
---background-color: #000000;
+--background-color: #f4f4f4;
 --text-color: #000000;
 --header-bg-color: #f4f4f4;
 --header-shadow-color: rgba(0, 0, 0, 0.1);
@@ -488,7 +488,6 @@ font-size: 14px;
 display: block;
 }
 
-/* تعديل موقع النافذة المنبثقة لتكون على يمين الأيقونة /
 #profile-info {
 position: absolute;
 top: -10%;
@@ -506,7 +505,6 @@ z-index: 100;
 font-size: 14px;
 }
 
-/* تعديل مؤشر السهم ليشير إلى الأيقونة من جهة اليسار /
 #profile-info::before {
 content: "";
 position: absolute;
@@ -531,14 +529,13 @@ align-items: center;
 justify-content: left;
 }
 
-/* زر تعديل المنشور /
 .edit-btn {
 position: absolute;
 top: 10px;
-left: 50px;  / ارفع المسافة من زر الحذف /
+left: 50px;
 width: 32px;
 height: 32px;
-background-color: #4caf50; / أخضر للتعديل */
+background-color: #4caf50;
 color: white;
 border: none;
 border-radius: 4px;
@@ -552,7 +549,6 @@ box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-/* تأثير عند الضغط */
 .edit-btn:active,
 .delete-btn:active {
 transform: scale(0.9);
