@@ -80,18 +80,6 @@ color: darkblue;
 text-decoration: underline;
 }
 
-/* زر تسجيل الخروج */
-.logout-btn {
-color: red;
-padding: 10px 20px;
-border-radius: 4px;
-cursor: pointer;
-bottom: 20px;
-}
-
-.logout-btn:active {
-transform: scale(0.90);
-}
 
 /* عرض اسم المستخدم */
 .username-display {
@@ -582,126 +570,44 @@ text-align: right;
 margin-top: 5px;
 }
 
-.confirm-modal {
-    max-width: 400px;
-    text-align: center;
-    padding: 20px;
-    border-radius: 12px;
-    background: var(--post-bg-color);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    animation: fadeIn 0.3s ease;
-}
+/* ...الكود القديم كامل يبقى كما هو... */
 
-.confirm-buttons {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 20px;
-}
-
-#confirmOverlay {
-    display: none;
-    align-items: center;
-    justify-content: center;
+/* Overlay البروفايل */
+#profileOverlay {
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 50;
-}
-
-@keyframes fadeIn {
-    from {opacity: 0; transform: scale(0.9);}
-    to {opacity: 1; transform: scale(1);}
-}
-
-/* زر فتح التعليقات */
-.open-comments-btn {
-    position: fixed;
-    bottom: 20px;
+    top: 60px; /* أسفل الهيدر */
     right: 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 12px 18px;
-    border-radius: 50px;
-    cursor: pointer;
-    font-size: 18px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    z-index: 1000;
-}
-
-.comments-modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 450px;
-    max-height: 80%;
-    background: #fff;
+    background-color: var(--post-bg-color);
+    color: var(--text-color);
+    padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    z-index: 1001;
+    box-shadow: 0 4px 12px var(--post-shadow-color);
+    display: none;
+    z-index: 200;
+    width: 200px;
 }
 
-.comments-modal.dark-theme {
-    background: #2c2c2c;
-    color: #fff;
+#profileOverlay.show {
+    display: block;
 }
 
-.comments-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-    background-color: #f1f1f1;
-    font-weight: bold;
+.profile-content p {
+    margin: 10px 0;
+    text-align: center;
+    font-weight: 500;
 }
 
-.close-comments {
-    cursor: pointer;
-    font-size: 24px;
-}
-
-.modal-comments-list {
-    flex: 1;
+#logoutBtn {
+    display: block;
+    width: 100%;
     padding: 10px;
-    overflow-y: auto;
-}
-
-.modal-comment-input {
-    display: flex;
-    padding: 10px;
-    border-top: 1px solid #ddd;
-}
-
-.modal-comment-input input {
-    flex: 1;
-    padding: 8px 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
-.modal-comment-input button {
-    background-color: #4CAF50;
-    color: white;
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
     border: none;
-    margin-left: 5px;
-    padding: 8px 15px;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
 }
 
-.comment {
-    padding: 5px 0;
-    border-bottom: 1px solid #eee;
-}
-
-.comment-time {
-    font-size: 12px;
-    color: gray;
-    float: left;
+#logoutBtn:active {
+    transform: scale(0.95);
 }
