@@ -20,47 +20,58 @@ const storage = getStorage(app);
 
 // العناصر الأساسية في الواجهة
 const postList = document.getElementById('postList');
-const overlay = document.getElementById('overlay');
-const addPostBtn = document.getElementById('addPostBtn');
-const closeBtn = document.getElementById('closeBtn');
-const publishBtn = document.getElementById('publishBtn');
-const postTitleInput = document.getElementById('postTitle');
-const postDescriptionInput = document.getElementById('postDescription');
-const postFileInput = document.getElementById('postFile');
+const profileUsername = document.getElementById('profileUsername');
+const postCount = document.getElementById('postCount');
 
-// العناصر الخاصة بالملف الشخصي
-const profileInfo = document.getElementById("profile-info");
-const profileUsername = document.getElementById("profileUsername");
-const postCount = document.getElementById("postCount");
+// دالة لإنشاء/تحديث مستخدم في Firestore
+const createUserDocument = async (user) => {
+    if (!user) return;
+    
+    const userRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userRef);
+    
+    if (!userDoc.exists()) {
+        await setDoc(userRef, {
+            email: user.email,
+            username: user.email.split('@')[0], // اسم افتراضي من الإيميل
+            createdAt: serverTimestamp(),
+            lastLogin: serverTimestamp()
+        });
+    } else {
+        await setDoc(userRef, {
+            lastLogin: serverTimestamp()
+        }, { merge: true });
+    }
+    return userRef;
+};
 
 // دالة لتحديث معلومات الملف الشخصي
-const updateProfileInfo = async () => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-        try {
-            const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                // استخدام displayName إذا وجد، وإلا اسم المستخدم، وإلا البريد الإلكتروني
-                const username = userData.displayName || userData.username || currentUser.email.split('@')[0];
-                profileUsername.textContent = username;
-                localStorage.setItem('username', username);
-                
-                // تحديث عدد المنشورات
-                const postsQuery = await getDocs(collection(db, "posts"));
-                const userPosts = postsQuery.docs.filter(doc => doc.data().authorId === currentUser.uid);
-                postCount.textContent = `عدد المنشورات: ${userPosts.length}`;
-            }
-        } catch (error) {
-            console.error("Error updating profile info:", error);
+const updateProfileInfo = async (user) => {
+    if (!user) return;
+    
+    try {
+        const userRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userRef);
+        
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const username = userData.username || user.email.split('@')[0];
+            profileUsername.textContent = username;
+            
+            // تحديث عدد المنشورات
+            const postsQuery = await getDocs(collection(db, "posts"));
+            const userPosts = postsQuery.docs.filter(doc => doc.data().authorId === user.uid);
+            postCount.textContent = `عدد المنشورات: ${userPosts.length}`;
         }
+    } catch (error) {
+        console.error("Error updating profile:", error);
     }
 };
 
 // دالة لإضافة منشور جديد
 const addPost = async () => {
-    const title = postTitleInput.value.trim();
-    const description = postDescriptionInput.value.trim();
+    const title = document.getElementById('postTitle').value.trim();
+    const description = document.getElementById('postDescription').value.trim();
     const currentUser = auth.currentUser;
     
     if (!currentUser) {
@@ -71,44 +82,38 @@ const addPost = async () => {
     if (title && description) {
         try {
             const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-            let username = "مستخدم";
-            
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                username = userData.displayName || userData.username || currentUser.email.split('@')[0];
-            }
+            const username = userDoc.exists() ? 
+                userDoc.data().username : currentUser.email.split('@')[0];
 
-            let fileUrl = '';
-            let fileType = '';
-            const file = postFileInput.files[0];
-            
-            if (file) {
-                const storageRef = ref(storage, `posts/${currentUser.uid}/${Date.now()}_${file.name}`);
-                await uploadBytes(storageRef, file);
-                fileUrl = await getDownloadURL(storageRef);
-                fileType = file.type.startsWith('image/') ? 'image' : 'video';
-            }
-
-            await addDoc(collection(db, "posts"), {
+            const postData = {
                 title,
                 description,
                 author: username,
                 authorId: currentUser.uid,
                 authorEmail: currentUser.email,
-                fileUrl,
-                fileType,
                 timestamp: serverTimestamp(),
                 edited: false
-            });
+            };
 
+            // رفع الملف إذا وجد
+            const file = document.getElementById('postFile').files[0];
+            if (file) {
+                const storageRef = ref(storage, `posts/${currentUser.uid}/${Date.now()}_${file.name}`);
+                await uploadBytes(storageRef, file);
+                postData.fileUrl = await getDownloadURL(storageRef);
+                postData.fileType = file.type.startsWith('image/') ? 'image' : 'video';
+            }
+
+            await addDoc(collection(db, "posts"), postData);
             showNotification("تم نشر المنشور بنجاح", "success");
-            overlay.classList.remove('show');
-            postTitleInput.value = '';
-            postDescriptionInput.value = '';
-            postFileInput.value = '';
             
-            // تحديث معلومات الملف الشخصي بعد النشر
-            await updateProfileInfo();
+            // إغلاق النافذة وإعادة التحميل
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('postTitle').value = '';
+            document.getElementById('postDescription').value = '';
+            document.getElementById('postFile').value = '';
+            
+            await updateProfileInfo(currentUser);
             displayPosts();
         } catch (error) {
             console.error("Error adding post:", error);
@@ -119,115 +124,30 @@ const addPost = async () => {
     }
 };
 
-// دالة لعرض المنشورات
-const displayPosts = async () => {
-    try {
-        const querySnapshot = await getDocs(collection(db, "posts"));
-        postList.innerHTML = '';
-        const currentUser = auth.currentUser;
-        
-        querySnapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            const timestamp = data.timestamp?.toDate() || new Date();
-            
-            // تنسيق التاريخ والوقت
-            const formattedDate = formatArabicDate(timestamp);
-            
-            const postItem = document.createElement('li');
-            postItem.classList.add('post-item');
-            
-            postItem.innerHTML = `
-                ${currentUser && currentUser.uid === data.authorId ? `
-                    <button class="delete-btn" data-id="${docSnap.id}">حذف</button>
-                    <button class="edit-btn" data-id="${docSnap.id}">تعديل</button>
-                ` : ''}
-                <h3 class="post-title">${data.title}</h3>
-                <p class="post-description">${convertToLinks(data.description)}</p>
-                ${data.fileUrl ? (
-                    data.fileType === 'image' ? 
-                    `<img src="${data.fileUrl}" class="post-media" alt="صورة المنشور">` : 
-                    `<video src="${data.fileUrl}" class="post-media" controls></video>`
-                ) : ''}
-                <p class="post-author">نشر بواسطة: ${data.author}</p>
-                ${data.edited ? `<p class="post-edited">(تم التعديل)</p>` : ''}
-                <p class="post-time">${formattedDate}</p>
-            `;
-            
-            postList.appendChild(postItem);
-        });
-    } catch (error) {
-        console.error("Error displaying posts:", error);
-        showNotification("حدث خطأ أثناء تحميل المنشورات", "error");
-    }
-};
-
-// دالة مساعدة لتنسيق التاريخ بالعربية
-function formatArabicDate(date) {
-    const options = { 
-        year: 'numeric', 
-        month: '2-digit', 
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true 
-    };
-    
-    return new Intl.DateTimeFormat('ar-EG', options).format(date)
-        .replace('ص', 'ص')
-        .replace('م', 'م');
-}
-
-// دالة مساعدة لتحويل الروابط في النص
-function convertToLinks(text) {
-    if (!text) return '';
-    return text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-}
-
-// دالة لعرض الإشعارات
-const showNotification = (message, type) => {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    notificationContainer.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 10);
-    
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-    }, 5000);
-};
-
-// تهيئة الواجهة عند تحميل الصفحة
-const initializeApp = async () => {
-    // أحداث الأزرار
-    addPostBtn.addEventListener('click', () => {
-        overlay.classList.add('show');
-        postTitleInput.focus();
-    });
-    
-    closeBtn.addEventListener('click', () => overlay.classList.remove('show'));
-    
-    publishBtn.addEventListener('click', addPost);
-    
-    // أحداث الملف الشخصي
-    document.querySelector('.profile-icon').addEventListener('click', () => {
-        profileInfo.classList.toggle('hidden');
-    });
-    
-    // التحقق من حالة المستخدم
+// تهيئة التطبيق
+const initApp = async () => {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            localStorage.setItem('email', user.email);
-            await updateProfileInfo();
-            displayPosts();
+            try {
+                localStorage.setItem('email', user.email);
+                await createUserDocument(user);
+                await updateProfileInfo(user);
+                displayPosts();
+            } catch (error) {
+                console.error("Auth state error:", error);
+            }
         } else {
             window.location.href = 'https://hussaindev10.github.io/Dhdhririeri/';
         }
     });
+
+    // أحداث النقر
+    document.getElementById('addPostBtn').addEventListener('click', () => {
+        document.getElementById('overlay').classList.add('show');
+    });
+
+    document.getElementById('publishBtn').addEventListener('click', addPost);
 };
 
 // بدء التطبيق
-initializeApp();
+initApp();
