@@ -218,20 +218,25 @@ const addPost = async () => {
 
     if(title && description && author && authorEmail){
         let fileUrl=''; let fileType='';
-        if(file){
-            const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
-            await uploadBytes(storageRef,file);
-            fileUrl = await getDownloadURL(storageRef);
-            fileType = file.type.startsWith('image/')?'image':'video';
+        try{
+            if(file){
+                const storageRef = ref(storage, `posts/${Date.now()}_${file.name}`);
+                await uploadBytes(storageRef,file);
+                fileUrl = await getDownloadURL(storageRef);
+                fileType = file.type.startsWith('image/')?'image':'video';
+            }
+            await addDoc(collection(db,"posts"),{
+                title, description, author, authorEmail, fileUrl, fileType, timestamp:serverTimestamp()
+            });
+            showNotification("تم نشر المنشور بنجاح","success");
+            overlay.classList.remove('show');
+            postTitleInput.value=''; postDescriptionInput.value=''; postFileInput.value='';
+            // لا حاجة لاستدعاء displayPosts لأن onSnapshot سيحدث الواجهة تلقائياً
+            if(auth.currentUser) updateProfileInfo(auth.currentUser);
+        } catch(e){
+            console.error("addPost failed:", e);
+            showNotification("فشل أثناء رفع المنشور، حاول مرة أخرى","error");
         }
-        await addDoc(collection(db,"posts"),{
-            title, description, author, authorEmail, fileUrl, fileType, timestamp:serverTimestamp()
-        });
-        showNotification("تم نشر المنشور بنجاح","success");
-        overlay.classList.remove('show');
-        postTitleInput.value=''; postDescriptionInput.value=''; postFileInput.value='';
-        // لا حاجة لاستدعاء displayPosts لأن onSnapshot سيحدث الواجهة تلقائياً
-        if(auth.currentUser) updateProfileInfo(auth.currentUser);
     } else showNotification("يرجى ملء جميع الحقول","error");
 };
 
@@ -240,6 +245,11 @@ addPostBtn.addEventListener('click',()=>{
     overlay.classList.add('show');
     postTitleInput.value=''; postDescriptionInput.value=''; postFileInput.value='';
 });
+
+// ربط زر النشر بالدالة addPost (حل المشكلة: زر النشر لم يكن مربوطاً)
+if (publishBtn) {
+    publishBtn.addEventListener('click', addPost);
+}
 
 // إغلاق form إضافة منشور
 closeBtn.addEventListener('click',()=> overlay.classList.remove('show'));
@@ -292,6 +302,28 @@ publishEditBtn.addEventListener('click', async ()=>{
     editOverlay.classList.remove('show');
     editingPostId=null; editPostTitle.value=''; editPostDescription.value='';
     // onSnapshot سيهتم بتحديث العرض
+});
+
+// تغيير المظهر (dark / light) — ربط زر التبديل وحفظ الإعداد
+if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", () => {
+        document.body.classList.toggle("dark-theme");
+        if(document.body.classList.contains("dark-theme")){
+            localStorage.setItem("theme", "dark");
+        } else {
+            localStorage.setItem("theme", "light");
+        }
+    });
+}
+
+// تطبيق الثيم المحفوظ عند تحميل الصفحة
+window.addEventListener("DOMContentLoaded", () => {
+    const savedTheme = localStorage.getItem("theme");
+    if(savedTheme === "dark"){
+        document.body.classList.add("dark-theme");
+    } else if (savedTheme === "light") {
+        document.body.classList.remove("dark-theme");
+    }
 });
 
 // تسجيل خروج
