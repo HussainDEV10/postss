@@ -582,3 +582,78 @@ text-align: right;
 margin-top: 5px;
 }
 
+/* Overlay خلفية مظلمة */
+.confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* صندوق التأكيد */
+.confirm-box {
+    background-color: var(--post-bg-color, #ffffff);
+    padding: 25px 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* نص التأكيد */
+.confirm-box p {
+    font-size: 1rem;
+    margin-bottom: 20px;
+    color: var(--text-color, #000);
+}
+
+/* أزرار التأكيد والإلغاء */
+.confirm-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.confirm-actions button {
+    flex: 1;
+    padding: 10px 0;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* زر نعم */
+#confirmYes {
+    background-color: #28a745; /* أخضر */
+    color: #fff;
+}
+
+#confirmYes:hover {
+    background-color: #218838;
+}
+
+/* زر لا */
+#confirmNo {
+    background-color: #dc3545; /* أحمر */
+    color: #fff;
+}
+
+#confirmNo:hover {
+    background-color: #c82333;
+}
+
+/* أنيميشن ظهور */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
