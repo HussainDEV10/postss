@@ -58,8 +58,20 @@
     </div>
 </div>
 
+<!-- Notification Container -->
 <div id="notificationContainer"></div>
 
-<script src="script.js" type="module"></script>
+<!-- Overlay تأكيد العمليات -->
+<div class="overlay" id="confirmOverlay">
+    <div class="confirm-box">
+        <p id="confirmMessage">هل أنت متأكد؟</p>
+        <div class="confirm-actions">
+            <button id="confirmYes">تأكيد</button>
+            <button id="confirmNo">كلا</button>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="script.js"></script>
 </body>
 </html>
